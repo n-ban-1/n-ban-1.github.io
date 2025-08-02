@@ -3,188 +3,47 @@ class IndianaFootballApp {
         this.cfbDataUrl = 'https://api.collegefootballdata.com';
         this.teamName = 'Indiana';
         this.currentYear = new Date().getFullYear();
-        this.teamData = null;
-        this.scheduleLoaded = false;
-        this.currentRoster = this.getCurrentRoster();
-        this.depthChart = this.getDepthChart();
+        this.teamId = 84;
+        this.depthChart2024 = this.get2024DepthChart();
         this.init();
     }
 
-    getCurrentRoster() {
-        // Current 2024 Indiana Football Roster from iuhoosiers.com
-        return [
-            // Quarterbacks
-            { number: 13, name: 'Kurtis Rourke', position: 'QB', year: 'Jr.', height: '6-2', weight: 212, hometown: 'Victoria, BC' },
-            { number: 6, name: 'Tayven Jackson', position: 'QB', year: 'So.', height: '6-3', weight: 190, hometown: 'Greenwood, IN' },
-            { number: 11, name: 'Tyler Cherry', position: 'QB', year: 'Fr.', height: '6-2', weight: 195, hometown: 'Carmel, IN' },
-            
-            // Running Backs
-            { number: 25, name: 'Justice Ellison', position: 'RB', year: 'Jr.', height: '5-11', weight: 215, hometown: 'Wake Forest, NC' },
-            { number: 28, name: 'Ty Son Lawton', position: 'RB', year: 'So.', height: '5-10', weight: 195, hometown: 'Hyattsville, MD' },
-            { number: 24, name: 'Ke\'Shawn Williams', position: 'RB', year: 'Jr.', height: '5-9', weight: 185, hometown: 'Evansville, IN' },
-            { number: 32, name: 'Geremy Dickens', position: 'RB', year: 'Fr.', height: '5-10', weight: 200, hometown: 'Warren, OH' },
-            
-            // Wide Receivers
-            { number: 1, name: 'Elijah Sarratt', position: 'WR', year: 'Sr.', height: '6-3', weight: 200, hometown: 'James Island, SC' },
-            { number: 3, name: 'Myles Price', position: 'WR', year: 'Jr.', height: '6-1', weight: 185, hometown: 'Dayton, OH' },
-            { number: 4, name: 'Ke\'Shawn Williams', position: 'WR', year: 'Jr.', height: '5-9', weight: 185, hometown: 'Evansville, IN' },
-            { number: 10, name: 'Donaven McCulley', position: 'WR', year: 'Sr.', height: '6-1', weight: 195, hometown: 'Fishers, IN' },
-            { number: 12, name: 'Omar Cooper Jr.', position: 'WR', year: 'Sr.', height: '6-0', weight: 180, hometown: 'Miami, FL' },
-            { number: 5, name: 'Quintin Stewart', position: 'WR', year: 'So.', height: '6-2', weight: 185, hometown: 'Indianapolis, IN' },
-            { number: 84, name: 'Caleb Jones', position: 'WR', year: 'Fr.', height: '6-3', weight: 190, hometown: 'Converse, IN' },
-            
-            // Tight Ends
-            { number: 88, name: 'Zach Horton', position: 'TE', year: 'Sr.', height: '6-4', weight: 250, hometown: 'Brownsburg, IN' },
-            { number: 86, name: 'Luke Timian', position: 'TE', year: 'Jr.', height: '6-5', weight: 245, hometown: 'Westerville, OH' },
-            { number: 85, name: 'Miles Cross', position: 'TE', year: 'So.', height: '6-6', weight: 240, hometown: 'Gaithersburg, MD' },
-            { number: 83, name: 'Jake Knapke', position: 'TE', year: 'Jr.', height: '6-5', weight: 250, hometown: 'Ottawa, OH' },
-            
-            // Offensive Line
-            { number: 73, name: 'Carter Smith', position: 'OT', year: 'Sr.', height: '6-6', weight: 315, hometown: 'Carmel, IN' },
-            { number: 54, name: 'Trevor Lauck', position: 'C', year: 'Sr.', height: '6-3', weight: 305, hometown: 'Fishers, IN' },
-            { number: 77, name: 'Tyler Stephens', position: 'OG', year: 'Jr.', height: '6-4', weight: 315, hometown: 'Cincinnati, OH' },
-            { number: 78, name: 'Bray Lynch', position: 'OT', year: 'So.', height: '6-7', weight: 310, hometown: 'Avon, IN' },
-            { number: 55, name: 'Dylan Powell', position: 'OG', year: 'Jr.', height: '6-3', weight: 300, hometown: 'Brownsburg, IN' },
-            { number: 79, name: 'DJ Moore', position: 'OT', year: 'So.', height: '6-5', weight: 315, hometown: 'Chicago, IL' },
-            { number: 72, name: 'Drew Evans', position: 'OT', year: 'Fr.', height: '6-7', weight: 290, hometown: 'Fishers, IN' },
-            
-            // Defensive Line
-            { number: 90, name: 'Mikail Kamara', position: 'DE', year: 'Sr.', height: '6-5', weight: 260, hometown: 'Leesburg, VA' },
-            { number: 99, name: 'CJ West', position: 'DT', year: 'Sr.', height: '6-2', weight: 300, hometown: 'Indianapolis, IN' },
-            { number: 95, name: 'Philip Blidi', position: 'DE', year: 'Jr.', height: '6-4', weight: 250, hometown: 'Carmel, IN' },
-            { number: 92, name: 'James Carpenter', position: 'DT', year: 'So.', height: '6-3', weight: 285, hometown: 'Chicago, IL' },
-            { number: 94, name: 'Lanell Carr', position: 'DE', year: 'Jr.', height: '6-4', weight: 245, hometown: 'Chicago, IL' },
-            { number: 93, name: 'Trent Howland', position: 'DT', year: 'Fr.', height: '6-4', weight: 275, hometown: 'Fishers, IN' },
-            
-            // Linebackers
-            { number: 44, name: 'Aiden Fisher', position: 'LB', year: 'Sr.', height: '6-2', weight: 230, hometown: 'Westfield, IN' },
-            { number: 35, name: 'Jailin Walker', position: 'LB', year: 'Jr.', height: '6-1', weight: 225, hometown: 'Cincinnati, OH' },
-            { number: 8, name: 'Dasan McCullough', position: 'LB', year: 'So.', height: '6-5', weight: 235, hometown: 'Overland Park, KS' },
-            { number: 40, name: 'Trevell Mullen', position: 'LB', year: 'Jr.', height: '6-1', weight: 220, hometown: 'Chicago, IL' },
-            { number: 42, name: 'Isaiah Jones', position: 'LB', year: 'So.', height: '6-2', weight: 225, hometown: 'Detroit, MI' },
-            
-            // Defensive Backs
-            { number: 2, name: 'D\'Angelo Ponds', position: 'CB', year: 'Jr.', height: '6-0', weight: 190, hometown: 'Brooklyn, NY' },
-            { number: 21, name: 'Jamier Johnson', position: 'S', year: 'Sr.', height: '6-1', weight: 200, hometown: 'Detroit, MI' },
-            { number: 26, name: 'Louis Moore', position: 'S', year: 'Jr.', height: '6-2', weight: 205, hometown: 'Columbus, OH' },
-            { number: 7, name: 'Jaylin Williams', position: 'CB', year: 'So.', height: '6-0', weight: 185, hometown: 'Detroit, MI' },
-            { number: 19, name: 'Carsten Tillman', position: 'CB', year: 'Fr.', height: '6-1', weight: 180, hometown: 'Tampa, FL' },
-            { number: 23, name: 'Jermaine Corbett', position: 'S', year: 'So.', height: '6-0', weight: 195, hometown: 'Tampa, FL' },
-            
-            // Special Teams
-            { number: 47, name: 'Nicolas Toomer', position: 'K', year: 'Sr.', height: '5-10', weight: 175, hometown: 'Dallas, TX' },
-            { number: 39, name: 'James Evans', position: 'P', year: 'Jr.', height: '6-1', weight: 200, hometown: 'Fishers, IN' },
-            { number: 45, name: 'Griffin Koch', position: 'LS', year: 'So.', height: '6-1', weight: 210, hometown: 'Carmel, IN' }
-        ];
-    }
-
-    getDepthChart() {
-        // Indiana Football Depth Chart based on 2024 season
+    get2024DepthChart() {
+        // 2024 Indiana Football Depth Chart from provided data
         return {
             offense: {
-                QB: [
-                    { name: 'Kurtis Rourke', number: 13, starter: true },
-                    { name: 'Tayven Jackson', number: 6, starter: false },
-                    { name: 'Tyler Cherry', number: 11, starter: false }
-                ],
-                RB: [
-                    { name: 'Justice Ellison', number: 25, starter: true },
-                    { name: 'Ty Son Lawton', number: 28, starter: false },
-                    { name: 'Ke\'Shawn Williams', number: 24, starter: false }
-                ],
-                WR1: [
-                    { name: 'Elijah Sarratt', number: 1, starter: true },
-                    { name: 'Quintin Stewart', number: 5, starter: false }
-                ],
-                WR2: [
-                    { name: 'Donaven McCulley', number: 10, starter: true },
-                    { name: 'Omar Cooper Jr.', number: 12, starter: false }
-                ],
-                WR3: [
-                    { name: 'Myles Price', number: 3, starter: true },
-                    { name: 'Caleb Jones', number: 84, starter: false }
-                ],
-                TE: [
-                    { name: 'Zach Horton', number: 88, starter: true },
-                    { name: 'Luke Timian', number: 86, starter: false },
-                    { name: 'Miles Cross', number: 85, starter: false }
-                ],
-                LT: [
-                    { name: 'Carter Smith', number: 73, starter: true },
-                    { name: 'Drew Evans', number: 72, starter: false }
-                ],
-                LG: [
-                    { name: 'Tyler Stephens', number: 77, starter: true },
-                    { name: 'Dylan Powell', number: 55, starter: false }
-                ],
-                C: [
-                    { name: 'Trevor Lauck', number: 54, starter: true }
-                ],
-                RG: [
-                    { name: 'Dylan Powell', number: 55, starter: true },
-                    { name: 'Tyler Stephens', number: 77, starter: false }
-                ],
-                RT: [
-                    { name: 'Bray Lynch', number: 78, starter: true },
-                    { name: 'DJ Moore', number: 79, starter: false }
-                ]
+                'X-WR': ['Elijah Sarratt', 'EJ Williams Jr', 'Davion Chandler'],
+                'SL-WR': ['Tyler Morris', 'Jonathan Brady', 'LeBron Bond', 'Myles Kendrick', 'Tyler Morris'],
+                'Z-WR': ['Omar Cooper Jr', 'Makai Jackson', 'Charlie Becker'],
+                'LT': ['Carter Smith', 'Evan Lawrence', 'Matt Marek'],
+                'LG': ['Drew Evans', 'Kahlil Benson', 'Baylor Wilkin'],
+                'C': ['Pat Coogan', 'Jack Greer', 'Mitch Verstegen'],
+                'RG': ['Bray Lynch', 'Adedamola Ajani', 'Austin Leibfried'],
+                'RT': ['Zen Michalski', 'Austin Barrett', 'Max Williams'],
+                'TE': ['Holden Staes', 'Riley Nowakowski', 'James Bomba', 'Andrew Barker'],
+                'QB': ['Fernando Mendoza', 'Alberto Mendoza', 'Grant Wilson', 'Jacob Bell', 'Tyler Cherry'],
+                'HB': ['Kaelon Black', 'Roman Hemby', 'Lee Beebe', 'Khobie Martin', 'Sean Cuono', 'Solomon Vanhorse']
             },
             defense: {
-                DE1: [
-                    { name: 'Mikail Kamara', number: 90, starter: true },
-                    { name: 'Philip Blidi', number: 95, starter: false }
-                ],
-                DT1: [
-                    { name: 'CJ West', number: 99, starter: true },
-                    { name: 'James Carpenter', number: 92, starter: false }
-                ],
-                DT2: [
-                    { name: 'James Carpenter', number: 92, starter: true },
-                    { name: 'Trent Howland', number: 93, starter: false }
-                ],
-                DE2: [
-                    { name: 'Philip Blidi', number: 95, starter: true },
-                    { name: 'Lanell Carr', number: 94, starter: false }
-                ],
-                MLB: [
-                    { name: 'Aiden Fisher', number: 44, starter: true },
-                    { name: 'Isaiah Jones', number: 42, starter: false }
-                ],
-                OLB1: [
-                    { name: 'Jailin Walker', number: 35, starter: true },
-                    { name: 'Trevell Mullen', number: 40, starter: false }
-                ],
-                OLB2: [
-                    { name: 'Dasan McCullough', number: 8, starter: true },
-                    { name: 'Trevell Mullen', number: 40, starter: false }
-                ],
-                CB1: [
-                    { name: 'D\'Angelo Ponds', number: 2, starter: true },
-                    { name: 'Carsten Tillman', number: 19, starter: false }
-                ],
-                CB2: [
-                    { name: 'Jaylin Williams', number: 7, starter: true },
-                    { name: 'Carsten Tillman', number: 19, starter: false }
-                ],
-                FS: [
-                    { name: 'Louis Moore', number: 26, starter: true },
-                    { name: 'Jermaine Corbett', number: 23, starter: false }
-                ],
-                SS: [
-                    { name: 'Jamier Johnson', number: 21, starter: true },
-                    { name: 'Jermaine Corbett', number: 23, starter: false }
-                ]
+                'CB1': ['D\'Angelo Ponds', 'Amariyun Knighten', 'Dontrae Henderson'],
+                'CB2': ['Jamari Sharpe', 'Ryland Gandy', 'Jaylen Bell'],
+                'STUD': ['Mikail Kamara', 'Kellan Wyatt', 'Daniel Ndukwe', 'Triston Abram', 'Andrew Turvy'],
+                'DT1': ['Hosea Wheeler', 'Dominique Ratcliff', 'Kyler Garcia'],
+                'DT2': ['Tyrique Tucker', 'J\'Mari Monette', 'Jhrevious Hall'],
+                'DE': ['Stephen Daley', 'Mario Landino', 'Andrew Depaepe', 'Tyrone Burrus Jr'],
+                'LB1': ['Rolijah Hardy', 'Isaiah Jones', 'Jeff Utzinger', 'Paul Nelson', 'Amari Kamara'],
+                'LB2': ['Aiden Fisher', 'Kaiden Turner', 'Quentin Clark', 'Jamari Farmer'],
+                'FS': ['Louis Moore', 'Bryson Bonds', 'Seaonta Stewart'],
+                'SS': ['Amare Ferrell', 'Byron Baldwin'],
+                'Rover': ['Devan Boykin', 'Jah Jah Boyd', 'Zacharey Smith', 'Garrett Reese']
             },
-            specialTeams: {
-                K: [
-                    { name: 'Nicolas Toomer', number: 47, starter: true }
-                ],
-                P: [
-                    { name: 'James Evans', number: 39, starter: true }
-                ],
-                LS: [
-                    { name: 'Griffin Koch', number: 45, starter: true }
-                ]
+            specialists: {
+                'PK': ['Nicolas Radicic', 'Brendan Franke'],
+                'KO': ['Brendan Franke', 'Alejandro Quintero'],
+                'LS': ['Mark Langston', 'Sam Lindsey'],
+                'PT': ['Mitch McCarthy', 'Alejandro Quintero'],
+                'KR': ['Solomon Vanhorse', 'EJ Williams Jr'],
+                'PR': ['Tyler Morris', 'Solomon Vanhorse']
             }
         };
     }
@@ -256,22 +115,13 @@ class IndianaFootballApp {
         }
     }
 
-    // [Previous API methods remain the same...]
-    async makeRequest(endpoint, baseUrl = this.cfbDataUrl) {
+    async makeRequest(endpoint) {
         try {
-            const response = await fetch(`${baseUrl}${endpoint}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                }
-            });
-            
+            const response = await fetch(`${this.cfbDataUrl}${endpoint}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
-            const data = await response.json();
-            return data;
+            return await response.json();
         } catch (error) {
             console.error(`Error fetching ${endpoint}:`, error);
             return null;
@@ -292,115 +142,196 @@ class IndianaFootballApp {
 
     async loadTeamInfo() {
         try {
-            this.setBasicTeamInfo();
-            await this.loadCurrentRecord();
+            // Set basic info
+            document.getElementById('team-logo').src = 'https://a.espncdn.com/i/teamlogos/ncaa/500/84.png';
+            document.getElementById('team-name').textContent = 'Indiana Hoosiers';
+            document.getElementById('conference-name').textContent = 'Big Ten';
+
+            // Try to get current record from API
+            const records = await this.makeRequest(`/records?year=${this.currentYear}&team=Indiana`);
+            if (records && records.length > 0) {
+                const record = records[0];
+                document.getElementById('team-record').textContent = `${record.total.wins}-${record.total.losses}`;
+                document.getElementById('conference-record').textContent = `Conference: ${record.conferenceGames.wins}-${record.conferenceGames.losses}`;
+            } else {
+                document.getElementById('team-record').textContent = 'Loading...';
+                document.getElementById('conference-record').textContent = 'Loading...';
+            }
+
+            // Try to get ranking
+            const rankings = await this.makeRequest(`/rankings?year=${this.currentYear}&week=15&seasonType=regular`);
+            if (rankings && rankings.length > 0) {
+                const polls = rankings[0].polls;
+                for (const poll of polls) {
+                    const ranked = poll.ranks.find(rank => rank.school === 'Indiana');
+                    if (ranked) {
+                        document.getElementById('team-ranking').textContent = `#${ranked.rank}`;
+                        break;
+                    }
+                }
+            }
         } catch (error) {
             console.error('Error loading team info:', error);
-            this.setBasicTeamInfo();
         }
     }
 
-    setBasicTeamInfo() {
-        document.getElementById('team-logo').src = 'https://a.espncdn.com/i/teamlogos/ncaa/500/84.png';
-        document.getElementById('team-name').textContent = 'Indiana Hoosiers';
-        document.getElementById('conference-name').textContent = 'Big Ten';
-    }
-
-    async loadCurrentRecord() {
-        // Use known 2024 record
-        document.getElementById('team-record').textContent = '11-1';
-        document.getElementById('conference-record').textContent = 'Conference: 8-1';
-    }
-
     async loadTeamStats() {
-        this.setKnown2024Stats();
+        try {
+            const stats = await this.makeRequest(`/stats/season?year=${this.currentYear}&team=Indiana`);
+            
+            if (stats && stats.length > 0) {
+                const teamStats = stats[0];
+                if (teamStats.stats) {
+                    teamStats.stats.forEach(stat => {
+                        this.processStatistic(stat);
+                    });
+                }
+            } else {
+                this.setLoadingStats();
+            }
+        } catch (error) {
+            console.error('Error loading stats:', error);
+            this.setLoadingStats();
+        }
     }
 
-    setKnown2024Stats() {
-        document.getElementById('ppg').textContent = '42.3';
-        document.getElementById('ypg').textContent = '507.1';
-        document.getElementById('pass-ypg').textContent = '322.4';
-        document.getElementById('rush-ypg').textContent = '184.7';
-        document.getElementById('def-ppg').textContent = '19.7';
-        document.getElementById('def-ypg').textContent = '358.2';
-        document.getElementById('turnovers').textContent = '22';
-        document.getElementById('sacks').textContent = '38';
+    processStatistic(stat) {
+        const value = parseFloat(stat.value);
+        switch(stat.category + '-' + stat.stat) {
+            case 'offense-pointsPerGame':
+                document.getElementById('ppg').textContent = value.toFixed(1);
+                break;
+            case 'offense-yardsPerGame':
+                document.getElementById('ypg').textContent = value.toFixed(1);
+                break;
+            case 'offense-netPassingYards':
+                document.getElementById('pass-ypg').textContent = (value / 12).toFixed(1); // Rough per game estimate
+                break;
+            case 'offense-rushingYards':
+                document.getElementById('rush-ypg').textContent = (value / 12).toFixed(1); // Rough per game estimate
+                break;
+            case 'defense-pointsPerGame':
+                document.getElementById('def-ppg').textContent = value.toFixed(1);
+                break;
+            case 'defense-yardsPerGame':
+                document.getElementById('def-ypg').textContent = value.toFixed(1);
+                break;
+            case 'defense-turnovers':
+                document.getElementById('turnovers').textContent = value;
+                break;
+            case 'defense-sacks':
+                document.getElementById('sacks').textContent = value;
+                break;
+        }
+    }
+
+    setLoadingStats() {
+        ['ppg', 'ypg', 'pass-ypg', 'rush-ypg', 'def-ppg', 'def-ypg', 'turnovers', 'sacks'].forEach(id => {
+            document.getElementById(id).textContent = '--';
+        });
     }
 
     async loadRecentGames() {
-        this.displayKnownRecentGames();
+        try {
+            const games = await this.makeRequest(`/games?year=${this.currentYear}&team=Indiana`);
+            
+            if (games && games.length > 0) {
+                const completedGames = games
+                    .filter(game => game.completed)
+                    .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+                    .slice(-5);
+                
+                this.displayRecentGames(completedGames);
+            } else {
+                this.displayNoRecentGames();
+            }
+        } catch (error) {
+            console.error('Error loading recent games:', error);
+            this.displayNoRecentGames();
+        }
     }
 
-    displayKnownRecentGames() {
+    displayRecentGames(games) {
         const container = document.getElementById('recent-games');
-        const recentGames = [
-            { opponent: 'Purdue', result: 'W', score: '66-0', date: '2024-11-30' },
-            { opponent: 'Ohio State', result: 'L', score: '15-38', date: '2024-11-23' },
-            { opponent: 'Michigan', result: 'T', score: '20-20', date: '2024-11-09' },
-            { opponent: 'Michigan State', result: 'W', score: '47-10', date: '2024-11-02' },
-            { opponent: 'Washington', result: 'L', score: '21-31', date: '2024-10-26' }
-        ];
-
         container.innerHTML = '';
-        
-        recentGames.forEach(game => {
+
+        if (games.length === 0) {
+            this.displayNoRecentGames();
+            return;
+        }
+
+        games.forEach(game => {
             const gameItem = document.createElement('div');
             gameItem.className = 'game-item';
             
+            const isHome = game.home_team === 'Indiana';
+            const opponent = isHome ? game.away_team : game.home_team;
+            const indianaScore = isHome ? game.home_points : game.away_points;
+            const opponentScore = isHome ? game.away_points : game.home_points;
+            const result = indianaScore > opponentScore ? 'W' : (indianaScore === opponentScore ? 'T' : 'L');
+            
             gameItem.innerHTML = `
                 <div class="game-info">
-                    <div class="opponent">vs ${game.opponent}</div>
-                    <div class="game-date">${new Date(game.date).toLocaleDateString()}</div>
+                    <div class="opponent">${isHome ? 'vs' : '@'} ${opponent}</div>
+                    <div class="game-date">${new Date(game.start_date).toLocaleDateString()}</div>
                 </div>
-                <div class="game-result ${game.result.toLowerCase()}">${game.result} ${game.score}</div>
+                <div class="game-result ${result.toLowerCase()}">${result} ${indianaScore}-${opponentScore}</div>
             `;
             
             container.appendChild(gameItem);
         });
     }
 
+    displayNoRecentGames() {
+        const container = document.getElementById('recent-games');
+        container.innerHTML = '<p>Recent games will appear here after they are played.</p>';
+    }
+
     async loadSchedule(year) {
-        if (year === 2024) {
-            this.displayKnownSchedule(year);
-        } else {
-            const container = document.getElementById('schedule-list');
-            container.innerHTML = '<p>Schedule data not available for this year.</p>';
+        try {
+            const games = await this.makeRequest(`/games?year=${year}&team=Indiana`);
+            
+            if (games && games.length > 0) {
+                this.displaySchedule(games);
+            } else {
+                this.displayNoSchedule();
+            }
+        } catch (error) {
+            console.error('Error loading schedule:', error);
+            this.displayNoSchedule();
         }
     }
 
-    displayKnownSchedule(year) {
-        const schedule2024 = [
-            { opponent: 'Florida International', date: '2024-08-31', home: true, result: 'W 31-7', completed: true },
-            { opponent: 'Western Illinois', date: '2024-09-07', home: true, result: 'W 77-3', completed: true },
-            { opponent: 'UCLA', date: '2024-09-14', home: false, result: 'L 17-42', completed: true },
-            { opponent: 'Charlotte', date: '2024-09-21', home: true, result: 'W 52-14', completed: true },
-            { opponent: 'Maryland', date: '2024-09-28', home: true, result: 'L 28-31', completed: true },
-            { opponent: 'Northwestern', date: '2024-10-05', home: false, result: 'W 41-24', completed: true },
-            { opponent: 'Nebraska', date: '2024-10-19', home: true, result: 'W 56-7', completed: true },
-            { opponent: 'Washington', date: '2024-10-26', home: true, result: 'L 21-31', completed: true },
-            { opponent: 'Michigan State', date: '2024-11-02', home: false, result: 'W 47-10', completed: true },
-            { opponent: 'Michigan', date: '2024-11-09', home: true, result: 'T 20-20', completed: true },
-            { opponent: 'Ohio State', date: '2024-11-23', home: false, result: 'L 15-38', completed: true },
-            { opponent: 'Purdue', date: '2024-11-30', home: true, result: 'W 66-0', completed: true }
-        ];
-        this.renderSchedule(document.getElementById('schedule-list'), schedule2024);
-    }
-
-    renderSchedule(container, schedule) {
+    displaySchedule(games) {
+        const container = document.getElementById('schedule-list');
         container.innerHTML = '';
-        
-        schedule.forEach(game => {
+
+        games.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+        games.forEach(game => {
             const scheduleItem = document.createElement('div');
             scheduleItem.className = 'schedule-item';
             
-            let statusClass = game.completed ? 'status-final' : 'status-upcoming';
-            let statusText = game.completed ? game.result : new Date(game.date).toLocaleDateString();
+            const isHome = game.home_team === 'Indiana';
+            const opponent = isHome ? game.away_team : game.home_team;
+            const gameDate = new Date(game.start_date);
             
+            let statusClass = 'status-upcoming';
+            let statusText = gameDate.toLocaleDateString();
+            
+            if (game.completed) {
+                statusClass = 'status-final';
+                const indianaScore = isHome ? game.home_points : game.away_points;
+                const opponentScore = isHome ? game.away_points : game.home_points;
+                const result = indianaScore > opponentScore ? 'W' : (indianaScore === opponentScore ? 'T' : 'L');
+                statusText = `${result} ${indianaScore}-${opponentScore}`;
+            }
+
             scheduleItem.innerHTML = `
                 <div class="game-details">
-                    <div class="opponent-name">${game.home ? 'vs' : '@'} ${game.opponent}</div>
-                    <div class="game-time">${new Date(game.date).toLocaleDateString()}</div>
-                    <div class="game-location">${game.home ? 'Memorial Stadium' : 'Away'}</div>
+                    <div class="opponent-name">${isHome ? 'vs' : '@'} ${opponent}</div>
+                    <div class="game-time">${gameDate.toLocaleDateString()}</div>
+                    <div class="game-location">${game.venue || (isHome ? 'Memorial Stadium' : 'Away')}</div>
                 </div>
                 <div class="game-status ${statusClass}">${statusText}</div>
             `;
@@ -409,56 +340,70 @@ class IndianaFootballApp {
         });
     }
 
-    async loadRoster() {
-        this.displayCurrentRoster();
+    displayNoSchedule() {
+        const container = document.getElementById('schedule-list');
+        container.innerHTML = '<p>No schedule available for this season.</p>';
     }
 
-    displayCurrentRoster() {
+    async loadRoster() {
+        try {
+            const roster = await this.makeRequest(`/roster?team=Indiana&year=${this.currentYear}`);
+            
+            if (roster && roster.length > 0) {
+                this.displayRoster(roster);
+            } else {
+                this.displayNoRoster();
+            }
+            
+            // Always add depth chart
+            this.addDepthChartSection();
+        } catch (error) {
+            console.error('Error loading roster:', error);
+            this.displayNoRoster();
+            this.addDepthChartSection();
+        }
+    }
+
+    displayRoster(players) {
         const container = document.getElementById('roster-list');
         container.innerHTML = '';
-        
-        this.currentRoster.forEach(player => {
+
+        players.forEach(player => {
             const playerCard = document.createElement('div');
-            playerCard.className = 'player-card detailed';
+            playerCard.className = 'player-card';
             playerCard.dataset.position = this.getPositionCategory(player.position);
             
             playerCard.innerHTML = `
-                <div class="player-header">
-                    <div class="player-number">#${player.number}</div>
-                    <div class="player-position">${player.position}</div>
-                </div>
-                <div class="player-info">
-                    <div class="player-name">${player.name}</div>
-                    <div class="player-details">
-                        <span class="year">${player.year}</span>
-                        <span class="size">${player.height} / ${player.weight} lbs</span>
-                    </div>
-                    <div class="player-hometown">${player.hometown}</div>
-                </div>
+                <div class="player-number">#${player.jersey || 'N/A'}</div>
+                <div class="player-name">${player.first_name || ''} ${player.last_name || 'Unknown'}</div>
+                <div class="player-position">${player.position || 'N/A'}</div>
             `;
             
             container.appendChild(playerCard);
         });
+    }
 
-        // Add depth chart section
-        this.addDepthChartSection();
+    displayNoRoster() {
+        const container = document.getElementById('roster-list');
+        container.innerHTML = '<p>Roster information will be available soon.</p>';
     }
 
     addDepthChartSection() {
         const rosterTab = document.getElementById('roster-tab');
         
-        // Check if depth chart already exists
-        if (document.getElementById('depth-chart-section')) return;
+        // Remove existing depth chart if present
+        const existing = document.getElementById('depth-chart-section');
+        if (existing) existing.remove();
         
         const depthChartSection = document.createElement('div');
         depthChartSection.id = 'depth-chart-section';
         depthChartSection.innerHTML = `
             <div class="depth-chart-header">
-                <h2>Depth Chart</h2>
+                <h2>2024 Depth Chart</h2>
                 <div class="depth-chart-controls">
                     <button class="depth-btn active" data-unit="offense">Offense</button>
                     <button class="depth-btn" data-unit="defense">Defense</button>
-                    <button class="depth-btn" data-unit="specialTeams">Special Teams</button>
+                    <button class="depth-btn" data-unit="specialists">Specialists</button>
                 </div>
             </div>
             <div id="depth-chart-content" class="depth-chart-content">
@@ -468,7 +413,7 @@ class IndianaFootballApp {
         
         rosterTab.appendChild(depthChartSection);
         
-        // Add event listeners for depth chart tabs
+        // Add event listeners
         document.querySelectorAll('.depth-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.depth-btn').forEach(b => b.classList.remove('active'));
@@ -483,7 +428,7 @@ class IndianaFootballApp {
 
     displayDepthChart(unit) {
         const container = document.getElementById('depth-chart-content');
-        const unitData = this.depthChart[unit];
+        const unitData = this.depthChart2024[unit];
         
         container.innerHTML = '';
         
@@ -491,8 +436,8 @@ class IndianaFootballApp {
             this.renderOffenseDepthChart(container, unitData);
         } else if (unit === 'defense') {
             this.renderDefenseDepthChart(container, unitData);
-        } else if (unit === 'specialTeams') {
-            this.renderSpecialTeamsDepthChart(container, unitData);
+        } else if (unit === 'specialists') {
+            this.renderSpecialistsDepthChart(container, unitData);
         }
     }
 
@@ -501,16 +446,16 @@ class IndianaFootballApp {
             <div class="formation">
                 <div class="formation-line skill-positions">
                     <div class="position-group">
-                        <h4>WR</h4>
-                        ${this.renderPositionDepth(offenseData.WR1)}
+                        <h4>X-WR</h4>
+                        ${this.renderPositionDepth(offenseData['X-WR'])}
                     </div>
                     <div class="position-group">
-                        <h4>WR</h4>
-                        ${this.renderPositionDepth(offenseData.WR2)}
+                        <h4>SL-WR</h4>
+                        ${this.renderPositionDepth(offenseData['SL-WR'])}
                     </div>
                     <div class="position-group">
-                        <h4>WR</h4>
-                        ${this.renderPositionDepth(offenseData.WR3)}
+                        <h4>Z-WR</h4>
+                        ${this.renderPositionDepth(offenseData['Z-WR'])}
                     </div>
                 </div>
                 
@@ -520,8 +465,8 @@ class IndianaFootballApp {
                         ${this.renderPositionDepth(offenseData.QB)}
                     </div>
                     <div class="position-group">
-                        <h4>RB</h4>
-                        ${this.renderPositionDepth(offenseData.RB)}
+                        <h4>HB</h4>
+                        ${this.renderPositionDepth(offenseData.HB)}
                     </div>
                     <div class="position-group">
                         <h4>TE</h4>
@@ -560,8 +505,8 @@ class IndianaFootballApp {
             <div class="formation">
                 <div class="formation-line defensive-line">
                     <div class="position-group">
-                        <h4>DE</h4>
-                        ${this.renderPositionDepth(defenseData.DE1)}
+                        <h4>STUD</h4>
+                        ${this.renderPositionDepth(defenseData.STUD)}
                     </div>
                     <div class="position-group">
                         <h4>DT</h4>
@@ -573,22 +518,22 @@ class IndianaFootballApp {
                     </div>
                     <div class="position-group">
                         <h4>DE</h4>
-                        ${this.renderPositionDepth(defenseData.DE2)}
+                        ${this.renderPositionDepth(defenseData.DE)}
                     </div>
                 </div>
                 
                 <div class="formation-line linebackers">
                     <div class="position-group">
-                        <h4>OLB</h4>
-                        ${this.renderPositionDepth(defenseData.OLB1)}
+                        <h4>LB</h4>
+                        ${this.renderPositionDepth(defenseData.LB1)}
                     </div>
                     <div class="position-group">
-                        <h4>MLB</h4>
-                        ${this.renderPositionDepth(defenseData.MLB)}
+                        <h4>LB</h4>
+                        ${this.renderPositionDepth(defenseData.LB2)}
                     </div>
                     <div class="position-group">
-                        <h4>OLB</h4>
-                        ${this.renderPositionDepth(defenseData.OLB2)}
+                        <h4>ROVER</h4>
+                        ${this.renderPositionDepth(defenseData.Rover)}
                     </div>
                 </div>
                 
@@ -598,12 +543,12 @@ class IndianaFootballApp {
                         ${this.renderPositionDepth(defenseData.CB1)}
                     </div>
                     <div class="position-group">
-                        <h4>SS</h4>
-                        ${this.renderPositionDepth(defenseData.SS)}
-                    </div>
-                    <div class="position-group">
                         <h4>FS</h4>
                         ${this.renderPositionDepth(defenseData.FS)}
+                    </div>
+                    <div class="position-group">
+                        <h4>SS</h4>
+                        ${this.renderPositionDepth(defenseData.SS)}
                     </div>
                     <div class="position-group">
                         <h4>CB</h4>
@@ -614,21 +559,35 @@ class IndianaFootballApp {
         `;
     }
 
-    renderSpecialTeamsDepthChart(container, specialData) {
+    renderSpecialistsDepthChart(container, specialsData) {
         container.innerHTML = `
             <div class="formation special-teams">
                 <div class="formation-line">
                     <div class="position-group">
-                        <h4>Kicker</h4>
-                        ${this.renderPositionDepth(specialData.K)}
+                        <h4>PK</h4>
+                        ${this.renderPositionDepth(specialsData.PK)}
                     </div>
                     <div class="position-group">
-                        <h4>Punter</h4>
-                        ${this.renderPositionDepth(specialData.P)}
+                        <h4>PT</h4>
+                        ${this.renderPositionDepth(specialsData.PT)}
                     </div>
                     <div class="position-group">
-                        <h4>Long Snapper</h4>
-                        ${this.renderPositionDepth(specialData.LS)}
+                        <h4>LS</h4>
+                        ${this.renderPositionDepth(specialsData.LS)}
+                    </div>
+                </div>
+                <div class="formation-line">
+                    <div class="position-group">
+                        <h4>KR</h4>
+                        ${this.renderPositionDepth(specialsData.KR)}
+                    </div>
+                    <div class="position-group">
+                        <h4>PR</h4>
+                        ${this.renderPositionDepth(specialsData.PR)}
+                    </div>
+                    <div class="position-group">
+                        <h4>KO</h4>
+                        ${this.renderPositionDepth(specialsData.KO)}
                     </div>
                 </div>
             </div>
@@ -637,21 +596,11 @@ class IndianaFootballApp {
 
     renderPositionDepth(players) {
         return players.map((player, index) => `
-            <div class="depth-player ${player.starter ? 'starter' : 'backup'}">
-                <span class="depth-number">#${player.number}</span>
-                <span class="depth-name">${player.name}</span>
-                ${index === 0 ? '<span class="starter-badge">1st</span>' : `<span class="backup-badge">${index + 1}${this.getOrdinalSuffix(index + 1)}</span>`}
+            <div class="depth-player ${index === 0 ? 'starter' : 'backup'}">
+                <span class="depth-name">${player}</span>
+                <span class="depth-order">${index + 1}</span>
             </div>
         `).join('');
-    }
-
-    getOrdinalSuffix(num) {
-        const j = num % 10;
-        const k = num % 100;
-        if (j == 1 && k != 11) return "st";
-        if (j == 2 && k != 12) return "nd";
-        if (j == 3 && k != 13) return "rd";
-        return "th";
     }
 
     getPositionCategory(position) {
@@ -679,38 +628,55 @@ class IndianaFootballApp {
     }
 
     async loadHistory() {
-        this.displayKnownHistory();
+        try {
+            const years = [2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014];
+            const historicalData = [];
+            
+            for (const year of years) {
+                const records = await this.makeRequest(`/records?year=${year}&team=Indiana`);
+                if (records && records.length > 0) {
+                    const record = records[0];
+                    historicalData.push({
+                        year: year,
+                        overall: `${record.total.wins}-${record.total.losses}`,
+                        conference: `${record.conferenceGames.wins}-${record.conferenceGames.losses}`
+                    });
+                }
+            }
+            
+            this.displayHistory(historicalData);
+        } catch (error) {
+            console.error('Error loading history:', error);
+            this.displayNoHistory();
+        }
     }
 
-    displayKnownHistory() {
-        const seasonRecords = [
-            { year: '2024', record: '11-1', conference: '8-1' },
-            { year: '2023', record: '3-9', conference: '1-8' },
-            { year: '2022', record: '4-8', conference: '2-7' },
-            { year: '2021', record: '2-10', conference: '0-9' },
-            { year: '2020', record: '6-2', conference: '6-1' },
-            { year: '2019', record: '8-5', conference: '5-4' },
-            { year: '2018', record: '5-7', conference: '2-7' },
-            { year: '2017', record: '5-7', conference: '2-7' },
-            { year: '2016', record: '6-7', conference: '3-6' },
-            { year: '2015', record: '6-7', conference: '2-6' }
-        ];
-
+    displayHistory(historicalData) {
         const container = document.getElementById('season-records');
         container.innerHTML = '';
         
-        seasonRecords.forEach(season => {
+        if (historicalData.length === 0) {
+            this.displayNoHistory();
+            return;
+        }
+        
+        historicalData.forEach(season => {
             const recordItem = document.createElement('div');
             recordItem.className = 'season-record';
             
             recordItem.innerHTML = `
                 <span><strong>${season.year}</strong></span>
-                <span>Overall: ${season.record}</span>
+                <span>Overall: ${season.overall}</span>
                 <span>Conference: ${season.conference}</span>
             `;
             
             container.appendChild(recordItem);
         });
+    }
+
+    displayNoHistory() {
+        const container = document.getElementById('season-records');
+        container.innerHTML = '<p>Historical records will be loaded when available.</p>';
     }
 
     showLoading() {

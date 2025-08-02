@@ -263,14 +263,19 @@ body {
     border-radius: 4px;
 }
 
-.game-result.win {
+.game-result.w {
     background: #d4edda;
     color: #155724;
 }
 
-.game-result.loss {
+.game-result.l {
     background: #f8d7da;
     color: #721c24;
+}
+
+.game-result.t {
+    background: #fff3cd;
+    color: #856404;
 }
 
 /* Schedule Styles */
@@ -488,53 +493,6 @@ body {
     font-size: 1.2rem;
 }
 
-/* Footer */
-.footer {
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    text-align: center;
-    padding: 2rem 0;
-    margin-top: 4rem;
-}
-
-.footer p {
-    margin: 0.25rem 0;
-}
-
-/* Enhanced Roster Styles */
-.player-card.detailed {
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
-    margin-bottom: 0.5rem;
-}
-
-.player-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.player-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.player-details {
-    display: flex;
-    gap: 1rem;
-    font-size: 0.8rem;
-    color: #666;
-}
-
-.player-hometown {
-    font-size: 0.8rem;
-    color: #888;
-    font-style: italic;
-}
-
 /* Depth Chart Styles */
 .depth-chart-header {
     display: flex;
@@ -597,33 +555,13 @@ body {
     border-radius: 8px;
 }
 
-.skill-positions {
-    background: #e8f5e8;
-}
-
-.backfield {
-    background: #e8f0ff;
-}
-
-.offensive-line {
-    background: #fff8e8;
-}
-
-.defensive-line {
-    background: #ffe8e8;
-}
-
-.linebackers {
-    background: #f0e8ff;
-}
-
-.secondary {
-    background: #e8fff8;
-}
-
-.special-teams {
-    background: #fff0f8;
-}
+.skill-positions { background: #e8f5e8; }
+.backfield { background: #e8f0ff; }
+.offensive-line { background: #fff8e8; }
+.defensive-line { background: #ffe8e8; }
+.linebackers { background: #f0e8ff; }
+.secondary { background: #e8fff8; }
+.special-teams { background: #fff0f8; }
 
 .position-group {
     flex: 1;
@@ -661,26 +599,20 @@ body {
     border: 1px solid #ddd;
 }
 
-.depth-number {
-    font-size: 0.8rem;
-    font-weight: 700;
-}
-
 .depth-name {
     font-size: 0.7rem;
     text-align: center;
-    margin-top: 0.25rem;
 }
 
-.starter-badge, .backup-badge {
+.depth-order {
     position: absolute;
     top: -8px;
     right: -8px;
     background: #ff6b35;
     color: white;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -688,32 +620,21 @@ body {
     font-weight: 700;
 }
 
-.backup-badge {
-    background: #888;
+.depth-order:first-child {
+    background: #28a745;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .formation-line {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .position-group {
-        min-width: 100px;
-        margin-bottom: 1rem;
-    }
-    
-    .depth-chart-controls {
-        flex-direction: column;
-        width: 100%;
-    }
-    
-    .depth-chart-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
+/* Footer */
+.footer {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: 4rem;
+}
+
+.footer p {
+    margin: 0.25rem 0;
 }
 
 /* Responsive Design */
@@ -751,6 +672,27 @@ body {
     .history-grid {
         grid-template-columns: 1fr;
     }
+
+    .formation-line {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .position-group {
+        min-width: 100px;
+        margin-bottom: 1rem;
+    }
+    
+    .depth-chart-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .depth-chart-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
 }
 
 @media (max-width: 480px) {
@@ -766,5 +708,8 @@ body {
         padding: 0.4rem 0.8rem;
         font-size: 0.9rem;
     }
-}
 
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
