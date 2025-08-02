@@ -3,10 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meowfert</title>
+    <title>Indiana Hoosiers Football Stats</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <h1> Does this work</h1>
-    <h2> Test test test test</h2>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-football-ball"></i>
+                    <h1>Indiana Hoosiers Football</h1>
+                </div>
+                <nav class="nav">
+                    <button class="nav-btn active" data-tab="current">Current Season</button>
+                    <button class="nav-btn" data-tab="schedule">Schedule</button>
+                    <button class="nav-btn" data-tab="roster">Roster</button>
+                    <button class="nav-btn" data-tab="history">History</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Loading Spinner -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading Hoosiers data...</p>
+            </div>
+
+            <!-- Current Season Tab -->
+            <div id="current-tab" class="tab-content active">
+                <div class="stats-overview">
+                    <div class="team-header">
+                        <div class="team-info">
+                            <img id="team-logo" src="" alt="Indiana Logo" class="team-logo">
+                            <div>
+                                <h2 id="team-name">Indiana Hoosiers</h2>
+                                <p id="team-record" class="team-record">Loading...</p>
+                                <p id="conference-record" class="conference-record">Loading...</p>
+                            </div>
+                        </div>
+                        <div class="season-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Ranking</span>
+                                <span id="team-ranking" class="stat-value">--</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Conference</span>
+                                <span id="conference-name" class="stat-value">Big Ten</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3><i class="fas fa-chart-line"></i> Offensive Stats</h3>
+                        <div id="offensive-stats" class="stats-content">
+                            <div class="stat-row">
+                                <span>Points Per Game</span>
+                                <span id="ppg">--</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>Yards Per Game</span>
+                                <span id="ypg">--</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>Pass Yards/Game</span>
+                                <span id="pass-ypg">--</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>Rush Yards/Game</span>
+                                <span id="rush-ypg">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3><i class="fas fa-shield-alt"></i> Defensive Stats</h3>
+                        <div id="defensive-stats" class="stats-content">
+                            <div class="stat-row">
+                                <span>Points Allowed/Game</span>
+                                <span id="def-ppg">--</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>Yards Allowed/Game</span>
+                                <span id="def-ypg">--</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>Turnovers Forced</span>
+                                <span id="turnovers">--</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>Sacks</span>
+                                <span id="sacks">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card recent-games">
+                        <h3><i class="fas fa-clock"></i> Recent Games</h3>
+                        <div id="recent-games" class="games-list">
+                            <!-- Recent games will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Tab -->
+            <div id="schedule-tab" class="tab-content">
+                <div class="schedule-header">
+                    <h2>2024 Schedule</h2>
+                    <div class="schedule-controls">
+                        <select id="season-select">
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="schedule-list" class="schedule-list">
+                    <!-- Schedule will be populated here -->
+                </div>
+            </div>
+
+            <!-- Roster Tab -->
+            <div id="roster-tab" class="tab-content">
+                <div class="roster-header">
+                    <h2>Current Roster</h2>
+                    <div class="roster-filters">
+                        <button class="filter-btn active" data-position="all">All</button>
+                        <button class="filter-btn" data-position="offense">Offense</button>
+                        <button class="filter-btn" data-position="defense">Defense</button>
+                        <button class="filter-btn" data-position="special">Special Teams</button>
+                    </div>
+                </div>
+                <div id="roster-list" class="roster-list">
+                    <!-- Roster will be populated here -->
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div id="history-tab" class="tab-content">
+                <div class="history-header">
+                    <h2>Historical Performance</h2>
+                </div>
+                <div class="history-grid">
+                    <div class="history-card">
+                        <h3>Season Records</h3>
+                        <div id="season-records" class="history-content">
+                            <!-- Historical records will be populated here -->
+                        </div>
+                    </div>
+                    <div class="history-card">
+                        <h3>Notable Achievements</h3>
+                        <div class="achievements">
+                            <div class="achievement">
+                                <i class="fas fa-trophy"></i>
+                                <span>Big Ten Championships: 2</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-star"></i>
+                                <span>Bowl Appearances: 12</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-medal"></i>
+                                <span>Conference Titles: 2</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2024 Indiana Hoosiers Football Stats. Data provided by ESPN</p>
+            <p>Nathan Ban</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
