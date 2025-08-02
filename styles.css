@@ -713,3 +713,39 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* Year selector styling */
+.year-select {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    margin-right: 1rem;
+}
+
+.year-select option {
+    background: #990000;
+    color: white;
+}
+
+.depth-chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .depth-chart-controls {
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem;
+    }
+    
+    .year-select {
+        margin-right: 0;
+        width: 100%;
+    }
+}

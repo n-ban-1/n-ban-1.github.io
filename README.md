@@ -1,2 +1,4 @@
-# website
-on da domain maybe? 
+# Indiana Hoosiers Website Specifically Football #
+## HTML JS and CSS ##
+### 
+### Nathan Ban ###
