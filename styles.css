@@ -501,58 +501,6 @@ body {
     margin: 0.25rem 0;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .header-content {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .nav {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .team-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-
-    .season-stats {
-        justify-content: center;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .schedule-item {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-
-    .history-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 0 15px;
-    }
-
-    .roster-list {
-        grid-template-columns: 1fr;
-    }
-
-    .nav-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.9rem;
-    }
-}
-
 /* Enhanced Roster Styles */
 .player-card.detailed {
     display: flex;
@@ -767,3 +715,56 @@ body {
         text-align: center;
     }
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .team-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .season-stats {
+        justify-content: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .schedule-item {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .history-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+
+    .roster-list {
+        grid-template-columns: 1fr;
+    }
+
+    .nav-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
