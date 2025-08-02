@@ -552,3 +552,218 @@ body {
         font-size: 0.9rem;
     }
 }
+
+/* Enhanced Roster Styles */
+.player-card.detailed {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.player-details {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.player-hometown {
+    font-size: 0.8rem;
+    color: #888;
+    font-style: italic;
+}
+
+/* Depth Chart Styles */
+.depth-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem 0 1rem 0;
+    padding-top: 2rem;
+    border-top: 2px solid #990000;
+}
+
+.depth-chart-header h2 {
+    color: white;
+    margin: 0;
+}
+
+.depth-chart-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.depth-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.depth-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.depth-btn.active {
+    background: white;
+    color: #990000;
+    font-weight: 600;
+}
+
+.depth-chart-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 1rem;
+}
+
+.formation {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.formation-line {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.skill-positions {
+    background: #e8f5e8;
+}
+
+.backfield {
+    background: #e8f0ff;
+}
+
+.offensive-line {
+    background: #fff8e8;
+}
+
+.defensive-line {
+    background: #ffe8e8;
+}
+
+.linebackers {
+    background: #f0e8ff;
+}
+
+.secondary {
+    background: #e8fff8;
+}
+
+.special-teams {
+    background: #fff0f8;
+}
+
+.position-group {
+    flex: 1;
+    text-align: center;
+    min-width: 120px;
+}
+
+.position-group h4 {
+    margin: 0 0 0.5rem 0;
+    color: #990000;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.depth-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    position: relative;
+}
+
+.depth-player.starter {
+    background: #990000;
+    color: white;
+    font-weight: 600;
+}
+
+.depth-player.backup {
+    background: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.depth-number {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.depth-name {
+    font-size: 0.7rem;
+    text-align: center;
+    margin-top: 0.25rem;
+}
+
+.starter-badge, .backup-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff6b35;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+}
+
+.backup-badge {
+    background: #888;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .formation-line {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .position-group {
+        min-width: 100px;
+        margin-bottom: 1rem;
+    }
+    
+    .depth-chart-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .depth-chart-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}
