@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indiana Hoosiers Football Stats</title>
+    <title>Indiana Hoosiers Football - 2025</title>
     <link rel="icon" type="image/png" href="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png">
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header class="header">
@@ -20,7 +20,7 @@
                 <nav class="nav">
                     <button class="nav-btn active" data-tab="current">Current Season</button>
                     <button class="nav-btn" data-tab="schedule">Schedule</button>
-                    <button class="nav-btn" data-tab="roster">Roster</button>
+                    <button class="nav-btn" data-tab="roster">Roster & Depth Chart</button>
                     <button class="nav-btn" data-tab="history">History</button>
                 </nav>
             </div>
@@ -40,17 +40,17 @@
                 <div class="stats-overview">
                     <div class="team-header">
                         <div class="team-info">
-                            <img id="team-logo" src="" alt="Indiana Logo" class="team-logo">
+                            <img id="team-logo" src="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png" alt="Indiana Logo" class="team-logo">
                             <div>
                                 <h2 id="team-name">Indiana Hoosiers</h2>
-                                <p id="team-record" class="team-record">Loading...</p>
-                                <p id="conference-record" class="conference-record">Loading...</p>
+                                <p id="team-record" class="team-record">TBD (2025)</p>
+                                <p id="conference-record" class="conference-record">Conference: TBD</p>
                             </div>
                         </div>
                         <div class="season-stats">
                             <div class="stat-item">
                                 <span class="stat-label">Ranking</span>
-                                <span id="team-ranking" class="stat-value">--</span>
+                                <span id="team-ranking" class="stat-value">Unranked</span>
                             </div>
                             <div class="stat-item">
                                 <span class="stat-label">Conference</span>
@@ -117,12 +117,10 @@
             <!-- Schedule Tab -->
             <div id="schedule-tab" class="tab-content">
                 <div class="schedule-header">
-                    <h2>2024 Schedule</h2>
+                    <h2>Indiana Schedule</h2>
                     <div class="schedule-controls">
                         <select id="season-select">
-                            <option value="2024">2024</option>
-                            <option value="2023">2023</option>
-                            <option value="2022">2022</option>
+                            <!-- Options will be populated by JavaScript -->
                         </select>
                     </div>
                 </div>
@@ -134,16 +132,10 @@
             <!-- Roster Tab -->
             <div id="roster-tab" class="tab-content">
                 <div class="roster-header">
-                    <h2>2025 Roster & Depth Chart</h2>
-                    <div class="roster-filters">
-                        <button class="filter-btn active" data-position="all">All</button>
-                        <button class="filter-btn" data-position="offense">Offense</button>
-                        <button class="filter-btn" data-position="defense">Defense</button>
-                        <button class="filter-btn" data-position="special">Special Teams</button>
-                    </div>
+                    <h2>Indiana Football Roster & Depth Chart</h2>
                 </div>
                 <div id="roster-list" class="roster-list">
-                    <!-- Roster will be populated here -->
+                    <!-- Depth chart will be populated here -->
                 </div>
             </div>
 
@@ -159,23 +151,6 @@
                             <!-- Historical records will be populated here -->
                         </div>
                     </div>
-                    <div class="history-card">
-                        <h3>Notable Achievements</h3>
-                        <div class="achievements">
-                            <div class="achievement">
-                                <i class="fas fa-trophy"></i>
-                                <span>Big Ten Championships: 2</span>
-                            </div>
-                            <div class="achievement">
-                                <i class="fas fa-star"></i>
-                                <span>Bowl Appearances: 12</span>
-                            </div>
-                            <div class="achievement">
-                                <i class="fas fa-medal"></i>
-                                <span>Conference Titles: 2</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -183,7 +158,7 @@
 
     <footer class="footer">
         <div class="container">
-            <p>© 2024 Indiana Hoosiers Football Stats. Data provided by ESPN API.</p>
+            <p>© 2025 Indiana Hoosiers Football Stats. Data provided by ESPN API and Sports Reference.</p>
             <p>Nathan Ban</p>
         </div>
     </footer>
