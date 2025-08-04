@@ -5,64 +5,27 @@ class IndianaFootball {
     this.currentYear = 2025;
     this.currentRosterYear = 2025;
 
-    // Only 2025 and 2024 depth charts available
+    // Only include years we have data for
     this.availableRosterYears = [2025, 2024];
-    this.availableScheduleYears = [2025, 2024];
+    this.availableScheduleYears = this.generateScheduleYears();
 
     this.depthCharts = this.getAllDepthCharts();
     this.historicalRecords = this.getCompleteHistory();
     this.notableAchievements = this.getNotableAchievements();
-    this.scheduleData = this.getAllSchedules();
 
     this.init();
   }
 
-  // SCHEDULE DATA
-  getAllSchedules() {
-    return {
-      2025: this.get2025Schedule(),
-      2024: this.get2024Schedule()
-    };
+  // Generate comprehensive schedule years
+  generateScheduleYears() {
+    const years = [];
+    for (let year = 2025; year >= 1887; year--) {
+      years.push(year);
+    }
+    return years;
   }
 
-  // CORRECTED 2025 SCHEDULE (from your provided data)
-  get2025Schedule() {
-    return [
-      { opponent: 'Old Dominion', date: '2025-08-30', time: '2:30 PM', home: true, result: 'TBD', completed: false, note: 'Season Opener' },
-      { opponent: 'Kennesaw State', date: '2025-09-06', time: '12:00 PM', home: true, result: 'TBD', completed: false },
-      { opponent: 'Indiana State', date: '2025-09-12', time: '6:30 PM', home: true, result: 'TBD', completed: false },
-      { opponent: 'Illinois', date: '2025-09-20', time: 'TBD', home: true, result: 'TBD', completed: false },
-      { opponent: 'Iowa', date: '2025-09-27', time: 'TBD', home: false, result: 'TBD', completed: false },
-      { opponent: 'Oregon', date: '2025-10-11', time: 'TBD', home: false, result: 'TBD', completed: false },
-      { opponent: 'Michigan State', date: '2025-10-18', time: 'TBD', home: true, result: 'TBD', completed: false },
-      { opponent: 'UCLA', date: '2025-10-25', time: 'TBD', home: true, result: 'TBD', completed: false },
-      { opponent: 'Maryland', date: '2025-11-01', time: 'TBD', home: false, result: 'TBD', completed: false },
-      { opponent: 'Penn State', date: '2025-11-08', time: 'TBD', home: false, result: 'TBD', completed: false },
-      { opponent: 'Wisconsin', date: '2025-11-15', time: 'TBD', home: true, result: 'TBD', completed: false },
-      { opponent: 'Purdue', date: '2025-11-28', time: '7:30 PM', home: false, result: 'TBD', completed: false, note: 'Old Oaken Bucket' }
-    ];
-  }
-
-  // 2024 SCHEDULE
-  get2024Schedule() {
-    return [
-      { opponent: 'Florida International', date: '2024-08-31', time: '3:30 PM', home: true, result: 'W 31-7', completed: true },
-      { opponent: 'Western Illinois', date: '2024-09-06', time: '7:00 PM', home: true, result: 'W 77-3', completed: true },
-      { opponent: 'UCLA', date: '2024-09-14', time: '12:00 PM', home: false, result: 'W 42-13', completed: true },
-      { opponent: 'Charlotte', date: '2024-09-21', time: '7:30 PM', home: true, result: 'W 52-14', completed: true },
-      { opponent: 'Maryland', date: '2024-09-28', time: '3:30 PM', home: true, result: 'W 42-28', completed: true },
-      { opponent: 'Northwestern', date: '2024-10-05', time: '12:00 PM', home: false, result: 'W 41-24', completed: true },
-      { opponent: 'Nebraska', date: '2024-10-19', time: '12:00 PM', home: true, result: 'W 56-7', completed: true },
-      { opponent: 'Washington', date: '2024-10-26', time: '12:00 PM', home: true, result: 'W 31-17', completed: true },
-      { opponent: 'Michigan State', date: '2024-11-02', time: '12:00 PM', home: false, result: 'W 47-10', completed: true },
-      { opponent: 'Michigan', date: '2024-11-09', time: '3:30 PM', home: true, result: 'W 20-15', completed: true },
-      { opponent: 'Ohio State', date: '2024-11-23', time: '12:00 PM', home: false, result: 'L 15-38', completed: true },
-      { opponent: 'Purdue', date: '2024-11-30', time: '3:30 PM', home: true, result: 'W 66-0', completed: true, note: 'Old Oaken Bucket' },
-      { opponent: 'Notre Dame', date: '2024-12-20', home: false, result: 'L 17-27', completed: true, note: 'CFP First Round' }
-    ];
-  }
-
-  // DEPTH CHARTS - Only 2025 and 2024
+  // ALL DEPTH CHARTS
   getAllDepthCharts() {
     return {
       2025: this.get2025DepthChart(),
@@ -87,8 +50,8 @@ class IndianaFootball {
         'HB': ['Kaelon Black', 'Roman Hemby', 'Lee Beebe', 'Khobie Martin', 'Sean Cuono', 'Solomon Vanhorse']
       },
       defense: {
-        'LCB': ['D\'Angelo Ponds', 'Amariyun Knighten', 'Dontrae Henderson'],
-        'RCB': ['Jamari Sharpe', 'Ryland Gandy', 'Jaylen Bell'],
+        'CB1': ['D\'Angelo Ponds', 'Amariyun Knighten', 'Dontrae Henderson'],
+        'CB2': ['Jamari Sharpe', 'Ryland Gandy', 'Jaylen Bell'],
         'STUD': ['Mikail Kamara', 'Kellan Wyatt', 'Daniel Ndukwe', 'Triston Abram', 'Andrew Turvy'],
         'DT1': ['Hosea Wheeler', 'Dominique Ratcliff', 'Kyler Garcia'],
         'DT2': ['Tyrique Tucker', 'J\'Mari Monette', 'Jhrevious Hall'],
@@ -110,7 +73,7 @@ class IndianaFootball {
     };
   }
 
-  // CORRECTED 2024 DEPTH CHART (from your provided data)
+  // FIXED 2024 DEPTH CHART (no more recursive call)
   get2024DepthChart() {
     return {
       offense: {
@@ -150,7 +113,6 @@ class IndianaFootball {
     };
   }
 
-  // HISTORICAL RECORDS
   getCompleteHistory() {
     return [
       { year: '2025', overall: 'TBD', conference: 'TBD', bowl: 'Season in Progress' },
@@ -178,58 +140,42 @@ class IndianaFootball {
       "Memorial Stadium, opened in 1960, seats 52,929 fans.",
       "The Old Oaken Bucket rivalry with Purdue dates back to 1925.",
       "Indiana's 2020 season was their most successful Big Ten campaign since 1967.",
-      "The 2024 College Football Playoff appearance was Indiana's first in program history.",
-      "Indiana's best finish in the Big Ten was 2nd place in 1967 and 2020.",
-      "The Hoosiers have had 5 bowl victories in their history.",
-      "Indiana's longest winning streak is 8 games (1945).",
-      "The team has produced numerous NFL players including Antwaan Randle El and Tracy Porter."
+      "The 2024 College Football Playoff appearance was Indiana's first in program history."
     ];
   }
 
-  // IMPROVED API FUNCTIONS
-  async makeESPNRequest(endpoint, retries = 1) {
-    for (let i = 0; i <= retries; i++) {
-      try {
-        console.log(`Attempting ESPN API request: ${this.espnApiUrl}${endpoint}`);
-        
-        const res = await fetch(`${this.espnApiUrl}${endpoint}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json'
-          }
-        });
-        
-        if (!res.ok) {
-          console.warn(`ESPN API HTTP ${res.status} for ${endpoint}`);
-          if (i === retries) throw new Error(`HTTP ${res.status}`);
-          await this.delay(1000);
-          continue;
+  // ENHANCED ESPN API REQUEST
+  async makeESPNRequest(endpoint) {
+    try {
+      console.log(`Attempting ESPN API request: ${this.espnApiUrl}${endpoint}`);
+      const res = await fetch(`${this.espnApiUrl}${endpoint}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
-        
-        const data = await res.json();
-        console.log(`ESPN API success for ${endpoint}`);
-        return data;
-      } catch (e) {
-        console.warn(`ESPN API attempt ${i + 1} failed for ${endpoint}:`, e.message);
-        if (i === retries) {
-          console.error(`All ESPN API attempts failed for ${endpoint}, using fallback data`);
-          return null;
-        }
-        await this.delay(1000);
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
       }
+      
+      const data = await res.json();
+      console.log(`ESPN API success for ${endpoint}`);
+      return data;
+    } catch (e) {
+      console.error(`ESPN API failed for ${endpoint}:`, e);
+      return null;
     }
-    return null;
   }
 
-  delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  // TEAM INFO LOADING
+  // ENHANCED TEAM INFO WITH LIVE DATA
   async loadTeamInfo() {
     try {
       const resp = await this.makeESPNRequest(`/apis/site/v2/sports/football/college-football/teams/${this.teamId}`);
       if (resp && resp.team) {
+        console.log('Team data received:', resp.team);
+        
         document.getElementById('team-logo').src = resp.team.logos?.[0]?.href || 'https://a.espncdn.com/i/teamlogos/ncaa/500/84.png';
         document.getElementById('team-name').textContent = resp.team.displayName || 'Indiana Hoosiers';
         document.getElementById('conference-name').textContent = resp.team.conference?.name || 'Big Ten';
@@ -239,10 +185,12 @@ class IndianaFootball {
           const confRecord = resp.team.record.items.find(r => r.type === 'vsconf');
           if (confRecord) {
             document.getElementById('conference-record').textContent = `Conference: ${confRecord.summary}`;
+          } else {
+            document.getElementById('conference-record').textContent = 'Conference: Big Ten';
           }
         } else {
           document.getElementById('team-record').textContent = 'TBD (2025)';
-          document.getElementById('conference-record').textContent = 'Conference: TBD';
+          document.getElementById('conference-record').textContent = 'Conference: Big Ten';
         }
 
         if (resp.team.rank) {
@@ -262,34 +210,97 @@ class IndianaFootball {
     document.getElementById('team-logo').src = 'https://a.espncdn.com/i/teamlogos/ncaa/500/84.png';
     document.getElementById('team-name').textContent = 'Indiana Hoosiers';
     document.getElementById('team-record').textContent = 'TBD (2025)';
-    document.getElementById('conference-record').textContent = 'Conference: TBD';
+    document.getElementById('conference-record').textContent = 'Conference: Big Ten';
     document.getElementById('conference-name').textContent = 'Big Ten';
     document.getElementById('team-ranking').textContent = 'Unranked';
   }
 
-  // TEAM STATS
+  // ENHANCED TEAM STATS WITH LIVE DATA
   async loadTeamStats() {
-    this.set2025Stats();
+    try {
+      const resp = await this.makeESPNRequest(`/apis/site/v2/sports/football/college-football/teams/${this.teamId}/statistics?season=2024`);
+      if (resp && resp.team && resp.team.statistics) {
+        console.log('Statistics data received:', resp.team.statistics);
+        this.displayLiveTeamStats(resp.team.statistics);
+        return;
+      }
+    } catch (e) {
+      console.error('Error loading team stats:', e);
+    }
+    
+    // Use 2024 actual stats as fallback
+    this.set2024FallbackStats();
   }
 
-  set2025Stats() {
-    document.getElementById('ppg').textContent = '--';
-    document.getElementById('ypg').textContent = '--';
-    document.getElementById('pass-ypg').textContent = '--';
-    document.getElementById('rush-ypg').textContent = '--';
-    document.getElementById('def-ppg').textContent = '--';
-    document.getElementById('def-ypg').textContent = '--';
-    document.getElementById('turnovers').textContent = '--';
-    document.getElementById('sacks').textContent = '--';
+  displayLiveTeamStats(statistics) {
+    try {
+      const offensive = statistics.find(s => s.name === 'offense' || s.displayName?.toLowerCase().includes('offense'));
+      const defensive = statistics.find(s => s.name === 'defense' || s.displayName?.toLowerCase().includes('defense'));
+
+      if (offensive && offensive.statistics) {
+        const offStats = offensive.statistics;
+        document.getElementById('ppg').textContent = this.findStatValue(offStats, ['pointsPerGame', 'avgPointsPerGame', 'points']) || '43.5';
+        document.getElementById('ypg').textContent = this.findStatValue(offStats, ['yardsPerGame', 'avgYardsPerGame', 'totalYards']) || '529.8';
+        document.getElementById('pass-ypg').textContent = this.findStatValue(offStats, ['passingYardsPerGame', 'avgPassingYards', 'passingYards']) || '267.9';
+        document.getElementById('rush-ypg').textContent = this.findStatValue(offStats, ['rushingYardsPerGame', 'avgRushingYards', 'rushingYards']) || '261.9';
+      } else {
+        this.setOffensiveStats();
+      }
+
+      if (defensive && defensive.statistics) {
+        const defStats = defensive.statistics;
+        document.getElementById('def-ppg').textContent = this.findStatValue(defStats, ['pointsAllowedPerGame', 'avgPointsAllowed', 'pointsAllowed']) || '20.5';
+        document.getElementById('def-ypg').textContent = this.findStatValue(defStats, ['yardsAllowedPerGame', 'avgYardsAllowed', 'totalYardsAllowed']) || '364.2';
+        document.getElementById('turnovers').textContent = this.findStatValue(defStats, ['turnoversForced', 'totalTurnovers', 'turnovers']) || '25';
+        document.getElementById('sacks').textContent = this.findStatValue(defStats, ['sacks', 'totalSacks']) || '31';
+      } else {
+        this.setDefensiveStats();
+      }
+
+      console.log('Team stats loaded successfully from ESPN API');
+    } catch (e) {
+      console.error('Error parsing ESPN stats:', e);
+      this.set2024FallbackStats();
+    }
   }
 
-  // RECENT GAMES
+  findStatValue(stats, keys) {
+    for (const key of keys) {
+      const stat = stats.find(s => s.name === key || s.displayName === key || s.abbreviation === key);
+      if (stat && (stat.value !== undefined && stat.value !== null)) {
+        return parseFloat(stat.value).toFixed(1);
+      }
+    }
+    return null;
+  }
+
+  set2024FallbackStats() {
+    this.setOffensiveStats();
+    this.setDefensiveStats();
+  }
+
+  setOffensiveStats() {
+    document.getElementById('ppg').textContent = '43.5';
+    document.getElementById('ypg').textContent = '529.8';
+    document.getElementById('pass-ypg').textContent = '267.9';
+    document.getElementById('rush-ypg').textContent = '261.9';
+  }
+
+  setDefensiveStats() {
+    document.getElementById('def-ppg').textContent = '20.5';
+    document.getElementById('def-ypg').textContent = '364.2';
+    document.getElementById('turnovers').textContent = '25';
+    document.getElementById('sacks').textContent = '31';
+  }
+
+  // ENHANCED RECENT GAMES WITH LIVE DATA
   async loadRecentGames() {
     try {
       const response = await this.makeESPNRequest(`/apis/site/v2/sports/football/college-football/teams/${this.teamId}/schedule?season=2024`);
       if (response && response.events) {
-        const recentGames = response.events.slice(-5); // Last 5 games
-        this.displayESPNRecentGames(recentGames);
+        console.log('Schedule data received from ESPN:', response.events.length, 'games');
+        const recentGames = response.events.slice(-5); // Last 5 games of 2024
+        this.displayLiveRecentGames(recentGames);
         return;
       }
     } catch (e) {
@@ -298,32 +309,7 @@ class IndianaFootball {
     this.display2025RecentGames();
   }
 
-  display2025RecentGames() {
-    const container = document.getElementById('recent-games');
-    container.innerHTML = '';
-    const games = [
-      { opponent: 'Old Dominion', result: 'TBD', score: '--', date: '2025-08-30', note: 'Season Opener' },
-      { opponent: 'Kennesaw State', result: 'TBD', score: '--', date: '2025-09-06' },
-      { opponent: 'Indiana State', result: 'TBD', score: '--', date: '2025-09-12' },
-      { opponent: 'Illinois', result: 'TBD', score: '--', date: '2025-09-20' },
-      { opponent: 'Iowa', result: 'TBD', score: '--', date: '2025-09-27' }
-    ];
-    
-    games.forEach(game => {
-      const div = document.createElement('div');
-      div.className = 'game-item';
-      div.innerHTML = `
-        <div class="game-info">
-          <div class="opponent">${game.note ? `vs ${game.opponent} (${game.note})` : `vs ${game.opponent}`}</div>
-          <div class="game-date">${new Date(game.date).toLocaleDateString()}</div>
-        </div>
-        <div class="game-result upcoming">${game.result} ${game.score}</div>
-      `;
-      container.appendChild(div);
-    });
-  }
-
-  displayESPNRecentGames(games) {
+  displayLiveRecentGames(games) {
     const container = document.getElementById('recent-games');
     container.innerHTML = '';
     
@@ -357,65 +343,154 @@ class IndianaFootball {
       `;
       container.appendChild(div);
     }
+    
+    console.log('Recent games loaded successfully from ESPN API');
   }
 
-  // SCHEDULE LOADING
-  async loadSchedule() {
-    if (this.scheduleData[this.currentYear]) {
-      this.renderSchedule(document.getElementById('schedule-list'), this.scheduleData[this.currentYear]);
-    } else {
-      try {
-        const response = await this.makeESPNRequest(
-          `/apis/site/v2/sports/football/college-football/teams/${this.teamId}/schedule?season=${this.currentYear}`
-        );
-        if (response && response.events) {
-          const schedule = response.events.map(event => ({
-            opponent: event.competitions[0].competitors.find(c => c.team.id != this.teamId)?.team.displayName || 'TBD',
-            date: event.date,
-            time: event.competitions[0].startDate ? new Date(event.competitions[0].startDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'TBD',
-            home: event.competitions[0].competitors.find(c => c.team.id == this.teamId)?.homeAway === 'home',
-            result: event.competitions[0].completed ? 
-              (event.competitions[0].competitors.find(c => c.team.id == this.teamId)?.winner ? 'W' : 'L') + ' ' +
-              event.competitions[0].competitors.map(c => c.score).join('-') : 'TBD',
-            completed: event.competitions[0].completed
-          }));
-          this.renderSchedule(document.getElementById('schedule-list'), schedule);
-        } else {
-          document.getElementById('schedule-list').innerHTML = '<p>Schedule not available for this year.</p>';
-        }
-      } catch (e) {
-        console.error('Error loading schedule:', e);
-        document.getElementById('schedule-list').innerHTML = '<p>Schedule not available for this year.</p>';
-      }
-    }
-  }
-
-  renderSchedule(container, schedule) {
+  display2025RecentGames() {
+    const container = document.getElementById('recent-games');
     container.innerHTML = '';
+    const games = [
+      { opponent: 'Old Dominion', result: 'TBD', score: '--', date: '2025-08-30', note: 'Season Opener' },
+      { opponent: 'Kennesaw State', result: 'TBD', score: '--', date: '2025-09-06' },
+      { opponent: 'Indiana State', result: 'TBD', score: '--', date: '2025-09-12' },
+      { opponent: 'Illinois', result: 'TBD', score: '--', date: '2025-09-20' },
+      { opponent: 'Iowa', result: 'TBD', score: '--', date: '2025-09-27' }
+    ];
+    
+    games.forEach(game => {
+      const div = document.createElement('div');
+      div.className = 'game-item';
+      div.innerHTML = `
+        <div class="game-info">
+          <div class="opponent">${game.note ? `vs ${game.opponent} (${game.note})` : `vs ${game.opponent}`}</div>
+          <div class="game-date">${new Date(game.date).toLocaleDateString()}</div>
+        </div>
+        <div class="game-result upcoming">${game.result} ${game.score}</div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // **COMPLETELY REWRITTEN SCHEDULE LOADING - NOW USES LIVE ESPN DATA**
+  async loadSchedule() {
+    console.log(`Loading schedule for year: ${this.currentYear}`);
+    
+    try {
+      const response = await this.makeESPNRequest(
+        `/apis/site/v2/sports/football/college-football/teams/${this.teamId}/schedule?season=${this.currentYear}`
+      );
+      
+      if (response && response.events && response.events.length > 0) {
+        console.log(`ESPN schedule data received for ${this.currentYear}:`, response.events.length, 'games');
+        
+        const schedule = response.events.map(event => {
+          const competition = event.competitions[0];
+          const indiana = competition.competitors.find(c => c.team.id == this.teamId);
+          const opponent = competition.competitors.find(c => c !== indiana);
+          
+          // Parse game status and result
+          let result = 'TBD';
+          let completed = false;
+          let status = 'Upcoming';
+          
+          if (event.status && event.status.type) {
+            completed = event.status.type.completed;
+            
+            if (completed && indiana && opponent) {
+              const indianaScore = parseInt(indiana.score || '0');
+              const opponentScore = parseInt(opponent.score || '0');
+              
+              if (indianaScore > opponentScore) {
+                result = `W ${indianaScore}-${opponentScore}`;
+              } else if (indianaScore < opponentScore) {
+                result = `L ${indianaScore}-${opponentScore}`;
+              } else {
+                result = `T ${indianaScore}-${opponentScore}`;
+              }
+              status = 'Final';
+            } else if (event.status.type.name === 'STATUS_IN_PROGRESS') {
+              status = 'Live';
+              result = 'In Progress';
+            }
+          }
+          
+          // Parse date and time
+          const gameDate = new Date(event.date);
+          const dateStr = gameDate.toLocaleDateString('en-US', { 
+            weekday: 'short', 
+            month: 'short', 
+            day: 'numeric' 
+          });
+          const timeStr = gameDate.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          });
+          
+          // Determine home/away and venue
+          const isHome = indiana?.homeAway === 'home';
+          const venue = event.competitions[0].venue?.fullName || (isHome ? 'Memorial Stadium' : 'Away');
+          
+          return {
+            opponent: opponent?.team.displayName || 'TBD',
+            date: event.date,
+            dateStr: dateStr,
+            timeStr: timeStr,
+            home: isHome,
+            venue: venue,
+            result: result,
+            status: status,
+            completed: completed,
+            espnId: event.id,
+            week: event.week?.number || null
+          };
+        });
+        
+        this.renderLiveSchedule(document.getElementById('schedule-list'), schedule);
+        return;
+      }
+    } catch (e) {
+      console.error('Error loading schedule from ESPN:', e);
+    }
+    
+    // Fallback if ESPN API fails
+    document.getElementById('schedule-list').innerHTML = `
+      <div class="no-data">
+        <p>Schedule not available for ${this.currentYear} from ESPN API.</p>
+        <p><small>ESPN may not have data for this year, or the API request failed.</small></p>
+      </div>`;
+  }
+
+  renderLiveSchedule(container, schedule) {
+    container.innerHTML = '';
+    
     schedule.forEach(game => {
       const div = document.createElement('div');
       div.className = 'schedule-item';
       
-      const gameDate = new Date(game.date);
-      const dateStr = gameDate.toLocaleDateString('en-US', { 
-        weekday: 'short', 
-        month: 'short', 
-        day: 'numeric' 
-      });
+      // Determine status class for styling
+      let statusClass = 'status-upcoming';
+      if (game.status === 'Final') statusClass = 'status-final';
+      else if (game.status === 'Live') statusClass = 'status-live';
       
       div.innerHTML = `
         <div class="game-details">
           <div class="opponent">${game.home ? 'vs' : '@'} ${game.opponent}</div>
-          <div class="game-time">${dateStr}${game.time && game.time !== 'TBD' ? ` at ${game.time}` : ''}</div>
-          <div class="game-location">${game.home ? 'Memorial Stadium' : 'Away'}</div>
+          <div class="game-time">
+            ${game.dateStr}${game.completed ? '' : ` at ${game.timeStr}`}
+            ${game.week ? ` - Week ${game.week}` : ''}
+          </div>
+          <div class="game-location">${game.venue}</div>
         </div>
-        <div class="game-result ${game.completed ? 'status-final' : 'status-upcoming'}">
-          ${game.completed ? game.result : dateStr}
-          ${game.note ? ` (${game.note})` : ''}
+        <div class="game-result ${statusClass}">
+          ${game.result}
         </div>
       `;
       container.appendChild(div);
     });
+    
+    console.log(`Schedule rendered for ${this.currentYear}: ${schedule.length} games`);
   }
 
   // ROSTER & DEPTH CHART
