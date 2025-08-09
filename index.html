@@ -1,168 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indiana Hoosiers Football - 2025</title>
-    <link rel="icon" type="image/png" href="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png">
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indiana Hoosiers Football</title>
+  <link rel="icon" type="image/png" href="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-football-ball"></i>
-                    <h1>Indiana Hoosiers Football</h1>
-                </div>
-                <nav class="nav">
-                    <button class="nav-btn active" data-tab="current">Current Season</button>
-                    <button class="nav-btn" data-tab="schedule">Schedule</button>
-                    <button class="nav-btn" data-tab="roster">Roster & Depth Chart</button>
-                    <button class="nav-btn" data-tab="history">History</button>
-                </nav>
-            </div>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <i class="fas fa-football-ball"></i>
+          <h1>Indiana Hoosiers Football</h1>
         </div>
-    </header>
+        <nav class="nav">
+          <button class="nav-btn active" data-tab="current">Current Season</button>
+          <button class="nav-btn" data-tab="schedule">Schedule</button>
+          <button class="nav-btn" data-tab="roster">Roster & Depth Chart</button>
+          <button class="nav-btn" data-tab="history">History</button>
+        </nav>
+      </div>
+    </div>
+  </header>
 
-    <main class="main">
-        <div class="container">
-            <!-- Loading Spinner -->
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Loading Hoosiers data...</p>
+  <main class="main">
+    <div class="container">
+      <!-- Loading -->
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading Hoosiers data...</p>
+      </div>
+
+      <!-- Current Season Tab -->
+      <div id="current-tab" class="tab-content active">
+        <div class="stats-overview">
+          <div class="team-header">
+            <div class="team-info">
+              <img id="team-logo" src="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png" alt="Indiana Logo" class="team-logo">
+              <div>
+                <h2 id="team-name">Indiana Hoosiers</h2>
+                <p id="team-record" class="team-record">TBD</p>
+                <p id="conference-record" class="conference-record">Conference: Big Ten</p>
+              </div>
             </div>
-
-            <!-- Current Season Tab -->
-            <div id="current-tab" class="tab-content active">
-                <div class="stats-overview">
-                    <div class="team-header">
-                        <div class="team-info">
-                            <img id="team-logo" src="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png" alt="Indiana Logo" class="team-logo">
-                            <div>
-                                <h2 id="team-name">Indiana Hoosiers</h2>
-                                <p id="team-record" class="team-record">TBD (2025)</p>
-                                <p id="conference-record" class="conference-record">Conference: Big Ten</p>
-                            </div>
-                        </div>
-                        <div class="season-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Ranking</span>
-                                <span id="team-ranking" class="stat-value">Unranked</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Conference</span>
-                                <span id="conference-name" class="stat-value">Big Ten</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3><i class="fas fa-chart-line"></i> Offensive Stats</h3>
-                        <div id="offensive-stats" class="stats-content">
-                            <div class="stat-row">
-                                <span>Points Per Game</span>
-                                <span id="ppg">--</span>
-                            </div>
-                            <div class="stat-row">
-                                <span>Yards Per Game</span>
-                                <span id="ypg">--</span>
-                            </div>
-                            <div class="stat-row">
-                                <span>Pass Yards/Game</span>
-                                <span id="pass-ypg">--</span>
-                            </div>
-                            <div class="stat-row">
-                                <span>Rush Yards/Game</span>
-                                <span id="rush-ypg">--</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <h3><i class="fas fa-shield-alt"></i> Defensive Stats</h3>
-                        <div id="defensive-stats" class="stats-content">
-                            <div class="stat-row">
-                                <span>Points Allowed/Game</span>
-                                <span id="def-ppg">--</span>
-                            </div>
-                            <div class="stat-row">
-                                <span>Yards Allowed/Game</span>
-                                <span id="def-ypg">--</span>
-                            </div>
-                            <div class="stat-row">
-                                <span>Turnovers Forced</span>
-                                <span id="turnovers">--</span>
-                            </div>
-                            <div class="stat-row">
-                                <span>Sacks</span>
-                                <span id="sacks">--</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="stat-card recent-games">
-                        <h3><i class="fas fa-clock"></i> Recent Games</h3>
-                        <div id="recent-games" class="games-list">
-                            <!-- Recent games will be populated here -->
-                        </div>
-                    </div>
-                </div>
+            <div class="season-stats">
+              <div class="stat-item">
+                <span class="stat-label">Ranking</span>
+                <span id="team-ranking" class="stat-value">Unranked</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Conference</span>
+                <span id="conference-name" class="stat-value">Big Ten</span>
+              </div>
             </div>
-
-            <!-- Schedule Tab -->
-            <div id="schedule-tab" class="tab-content">
-                <div class="schedule-header">
-                    <h2>Indiana Schedule</h2>
-                    <div class="schedule-controls">
-                        <select id="season-select">
-                            <!-- Options will be populated by JavaScript -->
-                        </select>
-                    </div>
-                </div>
-                <div id="schedule-list" class="schedule-list">
-                    <!-- Schedule will be populated here -->
-                </div>
-            </div>
-
-            <!-- Roster Tab -->
-            <div id="roster-tab" class="tab-content">
-                <div class="roster-header">
-                    <h2>Indiana Football Roster & Depth Chart</h2>
-                </div>
-                <div id="roster-list" class="roster-list">
-                    <!-- Depth chart will be populated here -->
-                </div>
-            </div>
-
-            <!-- History Tab -->
-            <div id="history-tab" class="tab-content">
-                <div class="history-header">
-                    <h2>Historical Performance</h2>
-                </div>
-                <div class="history-grid">
-                    <div class="history-card">
-                        <h3>Season Records</h3>
-                        <div id="season-records" class="history-content">
-                            <!-- Historical records will be populated here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
-    </main>
 
-    <footer class="footer">
-        <div class="container">
-            <p>© 2025 Indiana Hoosiers Football Stats. Data provided by ESPN API and Sports Reference.</p>
-            <p>Nathan Ban</p>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3><i class="fas fa-chart-line"></i> Offensive Stats</h3>
+            <div id="offensive-stats" class="stats-content">
+              <div class="stat-row">
+                <span>Points Per Game</span>
+                <span id="ppg">--</span>
+              </div>
+              <div class="stat-row">
+                <span>Yards Per Game</span>
+                <span id="ypg">--</span>
+              </div>
+              <div class="stat-row">
+                <span>Pass Yards/Game</span>
+                <span id="pass-ypg">--</span>
+              </div>
+              <div class="stat-row">
+                <span>Rush Yards/Game</span>
+                <span id="rush-ypg">--</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <h3><i class="fas fa-shield-alt"></i> Defensive Stats</h3>
+            <div id="defensive-stats" class="stats-content">
+              <div class="stat-row">
+                <span>Points Allowed/Game</span>
+                <span id="def-ppg">--</span>
+              </div>
+              <div class="stat-row">
+                <span>Yards Allowed/Game</span>
+                <span id="def-ypg">--</span>
+              </div>
+              <div class="stat-row">
+                <span>Turnovers Forced</span>
+                <span id="turnovers">--</span>
+              </div>
+              <div class="stat-row">
+                <span>Sacks</span>
+                <span id="sacks">--</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card recent-games">
+            <h3><i class="fas fa-clock"></i> Recent Games</h3>
+            <div id="recent-games" class="games-list"></div>
+          </div>
         </div>
-    </footer>
+      </div>
 
-    <script src="script.js"></script>
+      <!-- Schedule Tab -->
+      <div id="schedule-tab" class="tab-content">
+        <div class="schedule-header">
+          <h2>Indiana Schedule</h2>
+          <div class="schedule-controls">
+            <select id="season-select"></select>
+          </div>
+        </div>
+        <div id="schedule-list" class="schedule-list"></div>
+      </div>
+
+      <!-- Roster & Depth -->
+      <div id="roster-tab" class="tab-content">
+        <div class="roster-header">
+          <h2>Indiana Football Roster & Depth Chart</h2>
+        </div>
+        <div id="roster-list" class="roster-list"></div>
+      </div>
+
+      <!-- History -->
+      <div id="history-tab" class="tab-content">
+        <div class="history-header">
+          <h2>Historical Performance</h2>
+        </div>
+        <div class="history-grid">
+          <div class="history-card">
+            <h3>Season Records (2001–Present)</h3>
+            <div id="season-records" class="history-content"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2025 Indiana Hoosiers Football Stats. Data provided by ESPN APIs.</p>
+      <p>Built by Nathan Ban</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
