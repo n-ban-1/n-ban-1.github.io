@@ -1,0 +1,40 @@
+1. Core Indiana Data
+Function	API Call
+List all College Football teams	https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams
+Get Indiana Team Info	https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/84
+Get Indiana Schedule	https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/84/schedule?season=2024
+Get Indiana Roster	https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/84/roster?enable=roster,projection,stats
+Get Indiana News	https://site.api.espn.com/apis/site/v2/sports/football/college-football/news?team=84
+
+2. League-Wide Data (Filter Indiana in Results)
+Function	API Call
+Scoreboard (All Dates)	https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=20240101-20241231
+Rankings	https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings
+Season Info (Start/End Dates)	https://site.api.espn.com/apis/common/v3/sports/football/college-football/season
+Events (Games)	https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events?dates=2024
+
+3. Game-Level Data
+(Replace {gameId} and {eid} with Indiana’s actual game/event IDs from schedule or scoreboard results)
+
+Function	API Call
+Game Summary	https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event={gameId}
+Box Score	https://cdn.espn.com/core/college-football/boxscore?gameId={gameId}&xhr=1
+Play-by-Play	https://cdn.espn.com/core/college-football/playbyplay?gameId={gameId}&xhr=1
+Core Plays	https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/{eid}/competitions/{eid}/plays?limit=300
+Drives	https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/{eid}/competitions/{eid}/drives
+
+4. Odds & Betting Data
+(Replace {eid} with Indiana’s event ID and {prov_id} with sportsbook provider ID, e.g., 38 for Caesars)
+
+Function	API Call
+Odds List	https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/{eid}/competitions/{eid}/odds
+Specific Provider Odds	https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/{eid}/competitions/{eid}/odds/{prov_id}
+Win Probabilities	https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/{eid}/competitions/{eid}/probabilities
+Against-the-Spread	https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2024/types/2/teams/84/ats
+
+5. Historical & Seasonal
+Function	API Call
+List Seasons	https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons?limit=100
+Season Details	https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2024
+Weeks in Season	https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2024/types/2/weeks
+Events by Week	https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2024/types/2/weeks/{week}/events
