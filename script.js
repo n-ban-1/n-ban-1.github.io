@@ -1,15 +1,11 @@
-/* Indiana Hoosiers Football — Live ESPN Data (Team 84)
-   Exclusively uses ESPN endpoints:
-   - site.api.espn.com (team, schedule, summary)
-   - cdn.espn.com (boxscore, play-by-play)
-   - sports.core.api.espn.com (plays, drives, odds, probabilities, ATS)
-   Features:
-   - Final scores, status, TV, venue, Top 25 ranks only, records, roster
-   - Per-game IU leaders in Recent Games
-   - Schedule items expand to show TV, odds (if available), and last win-probability snapshot
-   - Roster-derived depth chart with automatic fallback to prior season if roster missing
-   - History computed back to 2001 (overall and conference), ATS if available
-   - Mobile-friendly, request dedupe, caching, and timeouts
+/* Indiana Hoosiers Football — Hybrid Local + Live (Team 84)
+   Local folder (preferred up to and including 2025-08-08):
+     ./indiana_football_history/{year}/schedule.json
+     ./indiana_football_history/{year}/game_{eventId}/summary.json
+   Live ESPN (used for seasons newer than 2025-08-08, and as fallback if local missing):
+     Team schedule: https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/84/schedule?season=YYYY
+     Summary:       https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event={eventId}
+   Depth charts hardcoded for 2024 and 2025
 */
 
 (function () {
@@ -18,38 +14,36 @@
   class IndianaFootball {
     constructor() {
       // Config
-      this.TEAM_ID = 84; // IU
+      this.TEAM_ID = 84;
+      this.DATA_BASE = './indiana_football_history';
       this.MIN_YEAR = 2001;
-      this.SEASONTYPE = 2; // Regular season for ATS
-      const now = new Date();
-      this.currentYear = now.getFullYear();
-      this.availableYears = this.buildYears(this.currentYear, this.MIN_YEAR);
+      this.CUTOVER_TS = Date.parse('2025-08-08T00:00:00Z'); // anything newer than this => live
+      this.ESPN = { site: 'https://site.api.espn.com' };
 
-      // Bases
-      this.BASES = {
-        site: 'https://site.api.espn.com',
-        core: 'https://sports.core.api.espn.com',
-        cdn: 'https://cdn.espn.com',
-      };
+      // Years
+      const nowY = new Date().getFullYear();
+      this.currentYear = nowY;
+      this.availableYears = this.rangeYears(nowY, this.MIN_YEAR);
 
-      // Dedupe + mobile tuning
-      this.pending = new Map(); // key -> Promise
-      this.isMobile = typeof window.matchMedia === 'function'
-        ? window.matchMedia('(max-width: 768px)').matches
-        : false;
+      // Tuning
+      this.isMobile = typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 768px)').matches : false;
       this.summaryConcurrency = this.isMobile ? 2 : 4;
 
-      // DOM refs
+      // Caches
+      this.mem = new Map(); // in-memory
+      // Hardcoded depth charts
+      this.depthCharts = { 2025: this.dc2025(), 2024: this.dc2024() };
+      this.currentRosterYear = 2025;
+
+      // DOM
       this.dom = {
         loading: document.getElementById('loading'),
-        // header/current
         teamLogo: document.getElementById('team-logo'),
         teamName: document.getElementById('team-name'),
         teamRecord: document.getElementById('team-record'),
         confRecord: document.getElementById('conference-record'),
         confName: document.getElementById('conference-name'),
         teamRank: document.getElementById('team-ranking'),
-        // stats
         ppg: document.getElementById('ppg'),
         ypg: document.getElementById('ypg'),
         passYpg: document.getElementById('pass-ypg'),
@@ -58,7 +52,6 @@
         defYpg: document.getElementById('def-ypg'),
         turnovers: document.getElementById('turnovers'),
         sacks: document.getElementById('sacks'),
-        // lists
         recentGames: document.getElementById('recent-games'),
         scheduleList: document.getElementById('schedule-list'),
         seasonSelect: document.getElementById('season-select'),
@@ -70,12 +63,10 @@
       this.init();
     }
 
-    // Utils
-    buildYears(max, min) { const a=[]; for (let y=max; y>=min; y--) a.push(y); return a; }
-    sleep(ms) { return new Promise((r)=>setTimeout(r, ms)); }
+    // ---------------- Utils ----------------
+    rangeYears(max, min) { const a = []; for (let y = max; y >= min; y--) a.push(y); return a; }
     lsk(k) { return `iu:${k}`; }
-
-    getCache(key) {
+    getLS(key) {
       try {
         const raw = localStorage.getItem(this.lsk(key));
         if (!raw) return null;
@@ -84,12 +75,21 @@
         return data;
       } catch { return null; }
     }
-    setCache(key, data, ttlMs) {
-      try { localStorage.setItem(this.lsk(key), JSON.stringify({ t: Date.now(), ttl: ttlMs, data })); } catch {}
+    setLS(key, data, ttl) {
+      try { localStorage.setItem(this.lsk(key), JSON.stringify({ t: Date.now(), ttl, data })); } catch {}
     }
+    setText(el, v) { if (el) el.textContent = v; }
+    setStat(el, v) { if (el) el.textContent = v == null ? '--' : v; }
+    showLoading(){ if (this.dom.loading) this.dom.loading.style.display = 'block'; }
+    hideLoading(){ if (this.dom.loading) this.dom.loading.style.display = 'none'; }
+    fmtDateTime(s) { const d = new Date(s); if (Number.isNaN(d.getTime())) return ''; return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+    top25(n){ const x=Number(n); return Number.isFinite(x) && x>=1 && x<=25 ? x : null; }
+    isAfterCutover() { return Date.now() > this.CUTOVER_TS; }
+    // Use local if year < 2025, use live if year > 2025, if year == 2025 use local (cutover is for newer than 8/8/2025)
+    preferLocal(year) { return (year < 2025) || (year === 2025 && !this.isAfterCutover()); }
 
     async fetchJson(url, { retries = 1, timeout = 12000 } = {}) {
-      for (let attempt=0; attempt<=retries; attempt++) {
+      for (let a = 0; a <= retries; a++) {
         const ctrl = new AbortController();
         const timer = setTimeout(() => ctrl.abort(), timeout);
         try {
@@ -99,201 +99,378 @@
           return await res.json();
         } catch (e) {
           clearTimeout(timer);
-          if (attempt === retries) return null;
-          await this.sleep(300 * (attempt + 1));
+          if (a === retries) return null;
+          await new Promise(r => setTimeout(r, 300 * (a + 1)));
         }
       }
       return null;
     }
-
-    async once(key, fn) {
-      if (this.pending.has(key)) return this.pending.get(key);
-      const p = (async()=>{ try { return await fn(); } finally { this.pending.delete(key); } })();
-      this.pending.set(key, p);
-      return p;
+    async fetchLocal(path) {
+      try {
+        const res = await fetch(`${this.DATA_BASE}/${path}`, { headers: { Accept: 'application/json' } });
+        if (!res.ok) return null;
+        return await res.json();
+      } catch { return null; }
     }
 
-    setText(el, val) { if (el) el.textContent = val; }
-    setStat(el, val) { if (el) el.textContent = val == null ? '--' : val; }
-    showLoading() { if (this.dom.loading) this.dom.loading.style.display = 'block'; }
-    hideLoading() { if (this.dom.loading) this.dom.loading.style.display = 'none'; }
-
-    fmtDateTime(dtStr) {
-      const d = new Date(dtStr);
-      if (Number.isNaN(d.getTime())) return '';
-      return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    // -------------- Hardcoded Depth Charts --------------
+    dc2025() {
+      return {
+        offense: {
+          'X-WR':['Elijah Sarratt','EJ Williams Jr','Davion Chandler'],
+          'SL-WR':['Tyler Morris','Jonathan Brady','LeBron Bond','Myles Kendrick'],
+          'Z-WR':['Omar Cooper Jr','Makai Jackson','Charlie Becker'],
+          'LT':['Carter Smith','Evan Lawrence','Matt Marek'],
+          'LG':['Drew Evans','Kahlil Benson','Baylor Wilkin'],
+          'C':['Pat Coogan','Jack Greer','Mitch Verstegen'],
+          'RG':['Bray Lynch','Adedamola Ajani','Austin Leibfried'],
+          'RT':['Zen Michalski','Austin Barrett','Max Williams'],
+          'TE':['Holden Staes','Riley Nowakowski','James Bomba','Andrew Barker'],
+          'QB':['Fernando Mendoza','Alberto Mendoza','Grant Wilson','Jacob Bell','Tyler Cherry'],
+          'HB':['Kaelon Black','Roman Hemby','Lee Beebe','Khobie Martin','Sean Cuono','Solomon Vanhorse']
+        },
+        defense: {
+          'CB1':['D’Angelo Ponds','Amariyun Knighten','Dontrae Henderson'],
+          'CB2':['Jamari Sharpe','Ryland Gandy','Jaylen Bell'],
+          'STUD':['Mikail Kamara','Kellan Wyatt','Daniel Ndukwe','Triston Abram','Andrew Turvy'],
+          'DT1':['Hosea Wheeler','Dominique Ratcliff','Kyler Garcia'],
+          'DT2':['Tyrique Tucker','J’Mari Monette','Jhrevious Hall'],
+          'DE':['Stephen Daley','Mario Landino','Andrew Depaepe','Tyrone Burrus Jr'],
+          'LB1':['Rolijah Hardy','Isaiah Jones','Jeff Utzinger','Paul Nelson','Amari Kamara'],
+          'LB2':['Aiden Fisher','Kaiden Turner','Quentin Clark','Jamari Farmer'],
+          'FS':['Louis Moore','Bryson Bonds','Seaonta Stewart'],
+          'SS':['Amare Ferrell','Byron Baldwin'],
+          'Rover':['Devan Boykin','Jah Jah Boyd','Zacharey Smith','Garrett Reese']
+        },
+        specialists: {
+          'PK':['Nicolas Radicic','Brendan Franke'],
+          'KO':['Brendan Franke','Alejandro Quintero'],
+          'LS':['Mark Langston','Sam Lindsey'],
+          'PT':['Mitch McCarthy','Alejandro Quintero'],
+          'KR':['Solomon Vanhorse','EJ Williams Jr'],
+          'PR':['Tyler Morris','Solomon Vanhorse']
+        }
+      };
     }
-    top25(n) { const x = Number(n); return Number.isFinite(x) && x >= 1 && x <= 25 ? x : null; }
-
-    // TEAM INFO
-    async loadTeamInfo() {
-      const key = `team:${this.TEAM_ID}`;
-      const cached = this.getCache(key);
-      if (cached) return this.renderTeamInfo(cached);
-
-      const url = `${this.BASES.site}/apis/site/v2/sports/football/college-football/teams/${this.TEAM_ID}?enable=record,rankings,logos,conference`;
-      const data = await this.fetchJson(url, { timeout: 10000 });
-      const team = data?.team || null;
-      if (team) this.setCache(key, team, 5 * 60 * 1000);
-      this.renderTeamInfo(team);
-    }
-    renderTeamInfo(team) {
-      if (!team) {
-        this.dom.teamLogo.src = 'https://a.espncdn.com/i/teamlogos/ncaa/500/84.png';
-        this.setText(this.dom.teamName, 'Indiana Hoosiers');
-        this.setText(this.dom.teamRecord, 'TBD');
-        this.setText(this.dom.confRecord, 'Conference: Big Ten');
-        this.setText(this.dom.confName, 'Big Ten');
-        this.setText(this.dom.teamRank, 'Unranked');
-        return;
-      }
-      const logo = team.logos?.[0]?.href || 'https://a.espncdn.com/i/teamlogos/ncaa/500/84.png';
-      this.dom.teamLogo.src = logo;
-      this.setText(this.dom.teamName, team.displayName || 'Indiana Hoosiers');
-      this.setText(this.dom.confName, team.conference?.name || 'Big Ten');
-
-      // Records
-      let overall = 'TBD';
-      let conf = 'Conference: TBD';
-      const items = team.record?.items;
-      if (Array.isArray(items) && items.length) {
-        const total = items.find(i => i.type === 'total') || items[0];
-        if (total?.summary) overall = total.summary;
-        const vsConf = items.find(i => i.type === 'vsconf');
-        if (vsConf?.summary) conf = `Conference: ${vsConf.summary}`;
-      }
-      this.setText(this.dom.teamRecord, overall);
-      this.setText(this.dom.confRecord, conf);
-
-      // Rank (Top 25 only)
-      let rankOut = 'Unranked';
-      if (typeof team.rank === 'number') {
-        const top = this.top25(team.rank);
-        rankOut = top ? `#${top}` : 'Unranked';
-      } else if (Array.isArray(team.rankings) && team.rankings.length) {
-        const ap = team.rankings.find(r => (r.type || '').toLowerCase().includes('ap'));
-        const any = ap || team.rankings[0];
-        const top = this.top25(any?.rank);
-        rankOut = top ? `#${top}` : 'Unranked';
-      }
-      this.setText(this.dom.teamRank, rankOut);
+    dc2024() {
+      return {
+        offense: {
+          'X-WR':['Elijah Sarratt','EJ Williams Jr','Davion Chandler'],
+          'SL-WR':['Tyler Morris','Jonathan Brady','LeBron Bond','Myles Kendrick'],
+          'Z-WR':['Omar Cooper Jr','Makai Jackson','Charlie Becker'],
+          'LT':['Carter Smith','Evan Lawrence','Matt Marek'],
+          'LG':['Drew Evans','Kahlil Benson','Baylor Wilkin'],
+          'C':['Zach Carpenter','Jack Greer','Mitch Verstegen'],
+          'RG':['Bray Lynch','Adedamola Ajani','Austin Leibfried'],
+          'RT':['Zen Michalski','Austin Barrett','Max Williams'],
+          'TE':['James Bomba','Riley Nowakowski','Andrew Barker'],
+          'QB':['Brendan Sorsby','Tayven Jackson','Grant Wilson'],
+          'HB':['Trent Howland','Josh Henderson','Jaylin Lucas']
+        },
+        defense: {
+          'CB1':['Jamari Sharpe','Ryland Gandy','Jaylen Bell'],
+          'CB2':['Noah Pierre','Amariyun Knighten'],
+          'STUD':['Myles Jackson','Kellan Wyatt'],
+          'DT1':['Hosea Wheeler','Dominique Ratcliff'],
+          'DT2':['Tyrique Tucker','J’Mari Monette'],
+          'DE':['Andre Carter','Anthony Jones'],
+          'LB1':['Aaron Casey','Aiden Fisher'],
+          'LB2':['Kaiden Turner','Isaiah Jones'],
+          'FS':['Louis Moore','Bryson Bonds'],
+          'SS':['Amare Ferrell','Josh Sanguinetti'],
+          'Rover':['Devan Boykin','Noah Pierre']
+        },
+        specialists: {
+          'PK':['Nicolas Radicic','Chris Freeman'],
+          'KO':['Chris Freeman'],
+          'LS':['Sean Wracher'],
+          'PT':['James Evans'],
+          'KR':['Jaylin Lucas'],
+          'PR':['Jaylin Lucas']
+        }
+      };
     }
 
-    // SCHEDULE
-    async getSchedule(year) {
-      const y = year || this.currentYear;
-      const key = `schedule:${this.TEAM_ID}:${y}`;
-      const cached = this.getCache(key);
+    // -------------- Data selection with fallback --------------
+    async getSeasonSchedule(year) {
+      const key = `sched:${year}`;
+      const cached = this.mem.get(key) || this.getLS(key);
       if (cached) return cached;
 
-      return await this.once(key, async () => {
-        const url = `${this.BASES.site}/apis/site/v2/sports/football/college-football/teams/${this.TEAM_ID}/schedule?season=${y}`;
+      // 1) Preferred source
+      let events = [];
+      if (this.preferLocal(year)) {
+        const local = await this.fetchLocal(`${year}/schedule.json`);
+        events = this.pickEventsArray(local);
+        // robust fallback: if local missing/empty, try live
+        if (!events || events.length === 0) {
+          const url = `${this.ESPN.site}/apis/site/v2/sports/football/college-football/teams/${this.TEAM_ID}/schedule?season=${year}`;
+          const json = await this.fetchJson(url, { timeout: 12000 });
+          events = this.pickEventsArray(json);
+        }
+      } else {
+        const url = `${this.ESPN.site}/apis/site/v2/sports/football/college-football/teams/${this.TEAM_ID}/schedule?season=${year}`;
         const json = await this.fetchJson(url, { timeout: 12000 });
-        let events = [];
-        if (Array.isArray(json?.events)) events = json.events;
-        else if (Array.isArray(json?.team?.events)) events = json.team.events;
-        this.setCache(key, events, 10 * 60 * 1000);
-        return events;
-      });
-    }
-    async loadSchedule(year) {
-      const events = await this.getSchedule(year);
-      this.renderSchedule(events);
-      // attach click expand handlers
-      this.wireScheduleItemDetails();
+        events = this.pickEventsArray(json);
+      }
+
+      events = Array.isArray(events) ? events : [];
+      this.mem.set(key, events);
+      this.setLS(key, events, 12 * 60 * 60 * 1000);
       return events;
     }
 
-    renderSchedule(events) {
+    pickEventsArray(json) {
+      if (!json) return [];
+      if (Array.isArray(json.events)) return json.events;
+      if (Array.isArray(json?.team?.events)) return json.team.events;
+      if (Array.isArray(json?.season?.events)) return json.season.events;
+      return [];
+    }
+
+    async getSummary(year, eventId) {
+      const key = `sum:${year}:${eventId}`;
+      const cached = this.mem.get(key) || this.getLS(key);
+      if (cached) return cached;
+
+      let data = null;
+      if (this.preferLocal(year)) {
+        data = await this.fetchLocal(`${year}/game_${eventId}/summary.json`);
+        // fallback to live summary if local missing
+        if (!data) {
+          const url = `${this.ESPN.site}/apis/site/v2/sports/football/college-football/summary?event=${eventId}`;
+          data = await this.fetchJson(url, { timeout: 12000 });
+        }
+      } else {
+        const url = `${this.ESPN.site}/apis/site/v2/sports/football/college-football/summary?event=${eventId}`;
+        data = await this.fetchJson(url, { timeout: 12000 });
+      }
+
+      if (data) {
+        this.mem.set(key, data);
+        this.setLS(key, data, 6 * 60 * 60 * 1000);
+      }
+      return data;
+    }
+
+    // -------------- Team header --------------
+    async loadTeamInfo() {
+      this.setText(this.dom.confName, 'Big Ten'); // Always Big Ten for the first TBD
+      // Try live team info
+      try {
+        const url = `${this.ESPN.site}/apis/site/v2/sports/football/college-football/teams/${this.TEAM_ID}?enable=record,rankings,logos,conference`;
+        const resp = await this.fetchJson(url, { timeout: 10000 });
+        const team = resp?.team;
+        if (team) {
+          const logo = team.logos?.[0]?.href || 'https://a.espncdn.com/i/teamlogos/ncaa/500/84.png';
+          this.dom.teamLogo.src = logo;
+          this.setText(this.dom.teamName, team.displayName || 'Indiana Hoosiers');
+
+          let overall = 'TBD';
+          let conf = 'Conference: TBD';
+          const items = team.record?.items;
+          if (Array.isArray(items) && items.length) {
+            const total = items.find(i => i.type === 'total') || items[0];
+            if (total?.summary) overall = total.summary;
+            const vsConf = items.find(i => i.type === 'vsconf');
+            if (vsConf?.summary) conf = `Conference: ${vsConf.summary}`;
+          }
+          this.setText(this.dom.teamRecord, overall);
+          this.setText(this.dom.confRecord, conf);
+
+          let rankOut = 'Unranked';
+          if (typeof team.rank === 'number') {
+            const top = this.top25(team.rank);
+            rankOut = top ? `#${top}` : 'Unranked';
+          } else if (Array.isArray(team.rankings) && team.rankings.length) {
+            const ap = team.rankings.find(r => (r.type || '').toLowerCase().includes('ap'));
+            const any = ap || team.rankings[0];
+            const top = this.top25(any?.rank);
+            rankOut = top ? `#${top}` : 'Unranked';
+          }
+          this.setText(this.dom.teamRank, rankOut);
+          return;
+        }
+      } catch {}
+
+      // Fallback derive from schedule
+      const events = await this.getSeasonSchedule(this.currentYear);
+      const rec = await this.computeSeasonRecordFromEvents(this.currentYear, events);
+      const overall = (rec.w + rec.l + rec.t) > 0 ? `${rec.w}-${rec.l}${rec.t ? `-${rec.t}` : ''}` : 'TBD';
+      const conf = `${rec.cw}-${rec.cl}${rec.ct ? `-${rec.ct}` : ''}`;
+      this.dom.teamLogo.src = 'https://a.espncdn.com/i/teamlogos/ncaa/500/84.png';
+      this.setText(this.dom.teamName, 'Indiana Hoosiers');
+      this.setText(this.dom.teamRecord, overall);
+      this.setText(this.dom.confRecord, `Conference: ${conf}`);
+      this.setText(this.dom.teamRank, 'Unranked');
+    }
+
+    // -------------- Records (robust: use summary if schedule lacks data) --------------
+    async computeSeasonRecordFromEvents(year, events) {
+      let w=0,l=0,t=0,cw=0,cl=0,ct=0;
+      for (const e of (events || [])) {
+        const comp = e?.competitions?.[0];
+        const comps = comp?.competitors || [];
+        const mine = comps.find(x => String(x.team?.id) === String(this.TEAM_ID));
+        const opp = comps.find(x => x !== mine);
+        if (!mine || !opp) continue;
+
+        // Pull status and scores from schedule first
+        let st = e.status?.type || e.status || {};
+        let completed = !!(st && (st.state === 'post' || st.completed === true));
+        let my = toNumber(mine.score);
+        let th = toNumber(opp.score);
+        let isConf = comp?.conferenceCompetition === true;
+
+        // If schedule doesn't mark completed or scores missing, consult summary
+        if ((!completed || (!Number.isFinite(my) || !Number.isFinite(th))) || (isConf === undefined)) {
+          const sum = await this.getSummary(year, e.id);
+          const hcomp = sum?.header?.competitions?.[0];
+          const hcomps = hcomp?.competitors || [];
+          const hmine = hcomps.find(x => String(x.team?.id) === String(this.TEAM_ID));
+          const hopp = hcomps.find(x => x !== hmine);
+          const hst = hcomp?.status?.type || {};
+          if (!completed) completed = (hst.state === 'post' || hst.completed === true);
+          if (!Number.isFinite(my) || !Number.isFinite(th)) {
+            my = toNumber(hmine?.score);
+            th = toNumber(hopp?.score);
+          }
+          if (isConf === undefined) isConf = (hcomp?.conferenceCompetition === true);
+        }
+
+        if (!completed) continue;
+        if (!Number.isFinite(my) || !Number.isFinite(th)) continue;
+
+        if (my > th) { w++; if (isConf) cw++; }
+        else if (my < th) { l++; if (isConf) cl++; }
+        else { t++; if (isConf) ct++; }
+      }
+      return { w,l,t,cw,cl,ct };
+
+      function toNumber(v) { const n = Number(v); return Number.isFinite(n) ? n : NaN; }
+    }
+
+    // -------------- Schedule --------------
+    async loadSchedule(year) {
+      const y = year || this.currentYear;
+      const events = await this.getSeasonSchedule(y);
+      await this.renderSchedule(events, y);
+      return events;
+    }
+
+    async renderSchedule(events, year) {
       const c = this.dom.scheduleList;
       if (!c) return;
       c.innerHTML = '';
 
       if (!events || events.length === 0) {
-        const div = document.createElement('div');
-        div.className = 'schedule-item';
-        div.innerHTML = `
-          <div class="game-details">
-            <div class="opponent-name">No games found</div>
-            <div class="game-time">—</div>
-            <div class="game-location">—</div>
-          </div>
-          <div class="game-status status-upcoming">TBD</div>
-        `;
-        c.appendChild(div);
+        c.innerHTML = `
+          <div class="schedule-item">
+            <div class="game-details">
+              <div class="opponent-name">No games found</div>
+              <div class="game-time">—</div>
+              <div class="game-location">—</div>
+            </div>
+            <div class="game-status status-upcoming">TBD</div>
+          </div>`;
         return;
       }
 
-      events
-        .slice()
-        .sort((a, b) => new Date(a.date) - new Date(b.date))
-        .forEach((e) => {
-          const comp = e.competitions?.[0];
-          const comps = comp?.competitors || [];
-          const mine = comps.find(x => String(x.team?.id) === String(this.TEAM_ID));
-          const opp = comps.find(x => x !== mine);
-          const isHome = (mine?.homeAway) === 'home';
-          const oppName = opp?.team?.displayName || 'TBD';
-          const oppTop = this.top25(opp?.curatedRank?.current);
-          const oppRankText = oppTop ? `#${oppTop} ` : '';
-          const venue = comp?.venue?.fullName || (isHome ? 'Memorial Stadium' : 'Away');
+      const sorted = events.slice().sort((a,b)=> new Date(a.date) - new Date(b.date));
+      for (const e of sorted) {
+        const comp = e.competitions?.[0];
+        const comps = comp?.competitors || [];
+        const mine = comps.find(x => String(x.team?.id) === String(this.TEAM_ID));
+        const opp = comps.find(x => x !== mine);
+        const isHome = (mine?.homeAway) === 'home';
+        const oppName = opp?.team?.displayName || 'TBD';
+        const oppTop = this.top25(opp?.curatedRank?.current);
+        const oppRankText = oppTop ? `#${oppTop} ` : '';
+        const venue = comp?.venue?.fullName || (isHome ? 'Memorial Stadium' : 'Away');
+        const tvSched = comp?.broadcasts?.[0]?.names?.[0] || comp?.geoBroadcasts?.[0]?.shortName || '';
+        const timeStr = this.fmtDateTime(e.date);
 
-          // TV network
-          const tv =
-            comp?.broadcasts?.[0]?.names?.[0] ||
-            comp?.geoBroadcasts?.[0]?.shortName || '';
+        // Resolve status and scores robustly (use summary if schedule lacks them)
+        const { statusClass, statusText } = await this.resolveStatusAndScore(year, e, comp, mine, opp);
 
-          const timeStr = this.fmtDateTime(e.date);
+        const item = document.createElement('div');
+        item.className = 'schedule-item';
+        item.setAttribute('data-event-id', e.id || '');
+        item.setAttribute('data-year', String(year));
+        item.innerHTML = `
+          <div class="game-details">
+            <div class="opponent">${isHome ? 'vs' : '@'} ${oppRankText}${oppName}</div>
+            <div class="game-time">${timeStr}${tvSched ? ` • TV: ${tvSched}` : ''}</div>
+            <div class="game-location">${venue}</div>
+            <div class="game-extra" style="display:none;"></div>
+          </div>
+          <div class="game-status ${statusClass}">${statusText}</div>`;
+        c.appendChild(item);
+      }
 
-          // Status chip
-          let statusClass = 'status-upcoming';
-          let statusText = 'TBD';
-          const st = e.status?.type;
-          if (st?.state === 'pre') {
-            statusClass = 'status-upcoming';
-            statusText = 'TBD';
-          } else if (st?.state === 'in') {
-            statusClass = 'status-live';
-            const period = comp?.status?.period;
-            const clock = comp?.status?.displayClock;
-            statusText = (period && clock) ? `LIVE Q${period} ${clock}` : 'LIVE';
-          } else if (st?.state === 'post' || e.completed) {
-            statusClass = 'status-final';
-            if (mine && opp) {
-              const my = Number(mine.score || 0);
-              const th = Number(opp.score || 0);
-              const wl = my > th ? 'W' : (my < th ? 'L' : 'T');
-              statusText = `${wl} ${my}-${th}`;
-            } else {
-              statusText = 'Final';
-            }
-          }
+      this.wireScheduleItemDetails();
+    }
 
-          const item = document.createElement('div');
-          item.className = 'schedule-item';
-          item.setAttribute('data-event-id', e.id || '');
-          item.innerHTML = `
-            <div class="game-details">
-              <div class="opponent">${isHome ? 'vs' : '@'} ${oppRankText}${oppName}</div>
-              <div class="game-time">${timeStr}${tv ? ` • TV: ${tv}` : ''}</div>
-              <div class="game-location">${venue}</div>
-              <div class="game-extra" style="display:none;"></div>
-            </div>
-            <div class="game-status ${statusClass}">${statusText}</div>
-          `;
-          c.appendChild(item);
-        });
+    async resolveStatusAndScore(year, e, comp, mine, opp) {
+      const st = e.status?.type || e.status || {};
+      let statusClass = 'status-upcoming';
+      let statusText = 'TBD';
+
+      // Start with schedule values
+      if (st.state === 'pre') {
+        statusClass = 'status-upcoming';
+        statusText = 'TBD';
+      } else if (st.state === 'in') {
+        statusClass = 'status-live';
+        const period = comp?.status?.period;
+        const clock = comp?.status?.displayClock;
+        statusText = (period && clock) ? `LIVE Q${period} ${clock}` : 'LIVE';
+      } else if (st.state === 'post' || st.completed === true) {
+        statusClass = 'status-final';
+        const my = Number(mine?.score);
+        const th = Number(opp?.score);
+        if (Number.isFinite(my) && Number.isFinite(th)) {
+          const wl = my > th ? 'W' : (my < th ? 'L' : 'T');
+          statusText = `${wl} ${my}-${th}`;
+          return { statusClass, statusText };
+        }
+      }
+
+      // If we reach here and it's live or final but scores missing, consult summary
+      if (st.state === 'in' || st.state === 'post' || st.completed === true) {
+        const sum = await this.getSummary(year, e.id);
+        const hcomp = sum?.header?.competitions?.[0];
+        const hcomps = hcomp?.competitors || [];
+        const hmine = hcomps.find(x => String(x.team?.id) === String(this.TEAM_ID));
+        const hopp = hcomps.find(x => x !== hmine);
+        const my = Number(hmine?.score);
+        const th = Number(hopp?.score);
+        const hst = hcomp?.status?.type || {};
+        const final = (hst.state === 'post' || hst.completed === true);
+
+        if (final && Number.isFinite(my) && Number.isFinite(th)) {
+          statusClass = 'status-final';
+          const wl = my > th ? 'W' : (my < th ? 'L' : 'T');
+          statusText = `${wl} ${my}-${th}`;
+        } else if (hst.state === 'in') {
+          statusClass = 'status-live';
+          const period = hcomp?.status?.period;
+          const clock = hcomp?.status?.displayClock;
+          statusText = (period && clock) ? `LIVE Q${period} ${clock}` : 'LIVE';
+        }
+      }
+
+      return { statusClass, statusText };
     }
 
     wireScheduleItemDetails() {
-      if (!this.dom.scheduleList) return;
       this.dom.scheduleList.querySelectorAll('.schedule-item').forEach((item) => {
         item.addEventListener('click', async () => {
           const eid = item.getAttribute('data-event-id');
+          const year = parseInt(item.getAttribute('data-year'), 10);
           const extra = item.querySelector('.game-extra');
           if (!eid || !extra) return;
 
-          // Toggle open/close
           if (extra.style.display === 'block') {
             extra.style.display = 'none';
             extra.innerHTML = '';
@@ -301,104 +478,53 @@
           }
 
           extra.style.display = 'block';
-          extra.innerHTML = '<div class="row"><span class="badge">Loading game details...</span></div>';
+          extra.innerHTML = `<div class="row"><span class="badge">Loading game details...</span></div>`;
 
-          const details = await this.getGameDetails(eid);
-          this.renderGameExtras(extra, details);
+          const sum = await this.getSummary(year, eid);
+          const rows = [];
+
+          // TV
+          try {
+            const bs = sum?.header?.competitions?.[0]?.broadcasts || sum?.broadcasts || [];
+            if (Array.isArray(bs) && bs.length) {
+              const net = bs[0]?.names?.[0] || bs[0]?.shortName || bs[0]?.media?.shortName || '';
+              if (net) rows.push(`<div class="row"><span class="badge">TV</span><span>${net}</span></div>`);
+            }
+          } catch {}
+          // Venue / Attendance
+          try {
+            const v = sum?.gameInfo?.venue?.fullName || sum?.header?.competitions?.[0]?.venue?.fullName;
+            const a = sum?.gameInfo?.attendance;
+            if (v) rows.push(`<div class="row"><span class="badge">Venue</span><span>${v}${a ? ` • Att: ${a}` : ''}</span></div>`);
+          } catch {}
+          // Leaders quick line
+          try {
+            const cats = sum?.leaders?.leaders;
+            if (Array.isArray(cats) && cats.length) {
+              const short = (n)=>{ n=(n||'').toLowerCase(); if(n.includes('pass'))return'Pass'; if(n.includes('rush'))return'Rush'; if(n.includes('receiv'))return'Rec'; return n; };
+              const line = cats.slice(0,3).map(cat=>{
+                const nm = short(cat.name || cat.displayName);
+                const lead = cat.leaders?.[0];
+                const name = lead?.athlete?.displayName || '—';
+                const val = lead?.displayValue || lead?.value || '';
+                return `${nm}: ${name} ${val}`;
+              }).join(' • ');
+              if (line) rows.push(`<div class="row"><span class="badge">Leaders</span><span>${line}</span></div>`);
+            }
+          } catch {}
+
+          extra.innerHTML = rows.length ? rows.join('') : `<div class="row"><span>No extra details found.</span></div>`;
         });
       });
     }
 
-    async getGameDetails(eventId) {
-      // Fetch summary (site), odds (core), probabilities (core), try plays/drives optionally
-      const [summary, odds, probabilities] = await Promise.all([
-        this.fetchGameSummary(eventId),
-        this.fetchGameOdds(eventId),
-        this.fetchGameProbabilities(eventId),
-      ]);
-      return { summary, odds, probabilities };
-    }
-
-    renderGameExtras(container, data) {
-      const { summary, odds, probabilities } = data || {};
-      const rows = [];
-
-      // Leaders (both teams, concise)
-      try {
-        const leadersCats = summary?.leaders?.leaders;
-        if (Array.isArray(leadersCats) && leadersCats.length) {
-          const catShort = (n) => {
-            n = (n || '').toLowerCase();
-            if (n.includes('pass')) return 'Pass';
-            if (n.includes('rush')) return 'Rush';
-            if (n.includes('receiv')) return 'Rec';
-            return n;
-          };
-          const oneCat = leadersCats.slice(0,3).map((cat) => {
-            const nm = catShort(cat.name || cat.displayName);
-            const leader = cat.leaders?.[0];
-            const name = leader?.athlete?.displayName || '—';
-            const stat = leader?.displayValue || leader?.value || '';
-            return `${nm}: ${name} ${stat}`;
-          }).join(' • ');
-          if (oneCat) rows.push(`<div class="row"><span class="badge">Leaders</span><span>${oneCat}</span></div>`);
-        }
-      } catch {}
-
-      // Odds: show one provider line if exists (e.g., spread and O/U)
-      try {
-        const items = odds?.items || odds?.odds || odds; // endpoint returns items[]
-        let lineText = '';
-        if (Array.isArray(items) && items.length) {
-          const first = items[0];
-          const providerName = first?.provider?.name || first?.details || 'Odds';
-          // Try to extract spread and over/under
-          // Different shapes exist; try displayString or overUnder/spread
-          const ds = first?.displayString;
-          let ou = first?.overUnder;
-          let spr = first?.spread;
-          if (!ou && first?.overUnder?.alt) ou = first.overUnder.alt;
-          if (!spr && first?.spread?.alt) spr = first.spread.alt;
-          if (ds) lineText = ds;
-          else {
-            const parts = [];
-            if (spr != null) parts.push(`Spread: ${spr}`);
-            if (ou != null) parts.push(`O/U: ${ou}`);
-            lineText = parts.join(' • ');
-          }
-          if (lineText) rows.push(`<div class="row"><span class="badge">Odds</span><span>${providerName}: ${lineText}</span></div>`);
-        }
-      } catch {}
-
-      // Probabilities: Show last snapshot if available
-      try {
-        const probs = probabilities?.items || probabilities?.probabilities || probabilities;
-        if (Array.isArray(probs) && probs.length) {
-          const last = probs[probs.length - 1];
-          const homeWin = last?.homeWinPercentage ?? null;
-          const awayWin = last?.awayWinPercentage ?? null;
-          if (homeWin != null && awayWin != null) {
-            const hPct = Math.round(homeWin * 100);
-            const aPct = Math.round(awayWin * 100);
-            rows.push(`<div class="row"><span class="badge">Win Prob</span><span>Home ${hPct}% • Away ${aPct}%</span></div>`);
-          }
-        }
-      } catch {}
-
-      if (!rows.length) {
-        container.innerHTML = `<div class="row"><span>No extra details available.</span></div>`;
-      } else {
-        container.innerHTML = rows.join('');
-      }
-    }
-
-    // RECENT GAMES with per-game IU leaders
+    // -------------- Recent Games --------------
     async loadRecentGames() {
       const c = this.dom.recentGames;
       if (!c) return;
       c.innerHTML = '';
 
-      const events = await this.getSchedule(this.currentYear);
+      const events = await this.getSeasonSchedule(this.currentYear);
       if (!events || events.length === 0) {
         c.innerHTML = '<div class="game-item"><div>No recent games.</div></div>';
         return;
@@ -407,85 +533,93 @@
       const now = Date.now();
       const recent = events
         .filter((e) => {
-          const st = e.status?.type;
+          const st = e.status?.type || e.status;
           if (!st) return new Date(e.date).getTime() <= now;
-          return st.state === 'post' || e.completed || st.state === 'in' || new Date(e.date).getTime() <= now;
+          return st.state === 'post' || st.completed === true || st.state === 'in' || new Date(e.date).getTime() <= now;
         })
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .sort((a,b)=>new Date(b.date)-new Date(a.date))
         .slice(0, 5);
 
       if (recent.length === 0) {
-        const upcoming = events
-          .filter((e) => e.status?.type?.state === 'pre' || !e.status)
-          .sort((a, b) => new Date(a.date) - new Date(b.date))
+        const up = events
+          .filter((e) => { const st = e.status?.type || e.status; return !st || st.state === 'pre'; })
+          .sort((a,b)=>new Date(a.date)-new Date(b.date))
           .slice(0, 5);
-        upcoming.forEach((e) => {
+
+        up.forEach((e) => {
           const comp = e.competitions?.[0];
           const comps = comp?.competitors || [];
-          const mine = comps.find((x) => String(x.team?.id) === String(this.TEAM_ID));
-          const opp = comps.find((x) => x !== mine);
+          const mine = comps.find((x)=> String(x.team?.id)===String(this.TEAM_ID));
+          const opp = comps.find((x)=> x!==mine);
           const isHome = (mine?.homeAway) === 'home';
           const oppName = opp?.team?.displayName || 'TBD';
-
-          const div = document.createElement('div');
-          div.className = 'game-item';
-          div.innerHTML = `
+          const d = document.createElement('div');
+          d.className = 'game-item';
+          d.innerHTML = `
             <div class="game-info">
               <div class="opponent">${isHome ? 'vs' : '@'} ${oppName}</div>
               <div class="game-date">${this.fmtDateTime(e.date)}</div>
             </div>
-            <div class="game-result upcoming">—</div>
-          `;
-          c.appendChild(div);
+            <div class="game-result upcoming">—</div>`;
+          c.appendChild(d);
         });
         return;
       }
 
-      // Batch summaries
-      const batches = [];
-      for (let i = 0; i < recent.length; i += this.summaryConcurrency) {
-        batches.push(recent.slice(i, i + this.summaryConcurrency));
-      }
+      // batch summaries
+      const chunks = [];
+      for (let i=0;i<recent.length;i+=this.summaryConcurrency) chunks.push(recent.slice(i,i+this.summaryConcurrency));
 
-      for (const batch of batches) {
-        const summaries = await Promise.all(batch.map((e) => this.fetchGameSummary(e.id)));
+      for (const batch of chunks) {
+        const sums = await Promise.all(batch.map((e)=> this.getSummary(this.currentYear, e.id)));
         batch.forEach((e, idx) => {
           const comp = e.competitions?.[0];
           const comps = comp?.competitors || [];
-          const mine = comps.find((x) => String(x.team?.id) === String(this.TEAM_ID));
-          const opp = comps.find((x) => x !== mine);
+          const mine = comps.find((x)=> String(x.team?.id)===String(this.TEAM_ID));
+          const opp = comps.find((x)=> x!==mine);
           const isHome = (mine?.homeAway) === 'home';
           const oppName = opp?.team?.displayName || 'TBD';
 
+          // robust status
           let cls = 'upcoming';
           let resText = '—';
-          const st = e.status?.type;
-          if (st?.state === 'in') {
+          const st = e.status?.type || e.status || {};
+          if (st.state === 'in') {
             cls = 't';
             const period = comp?.status?.period;
             const clock = comp?.status?.displayClock;
             resText = (period && clock) ? `LIVE Q${period} ${clock}` : 'LIVE';
-          } else if (st?.state === 'post' || e.completed) {
-            const my = Number(mine?.score || 0);
-            const th = Number(opp?.score || 0);
-            const wl = my > th ? 'W' : (my < th ? 'L' : 'T');
-            cls = wl.toLowerCase();
-            resText = `${wl} ${my}-${th}`;
+          } else if (st.state === 'post' || st.completed === true) {
+            let my = Number(mine?.score), th = Number(opp?.score);
+            if (!Number.isFinite(my) || !Number.isFinite(th)) {
+              const hcomp = sums[idx]?.header?.competitions?.[0];
+              const hcomps = hcomp?.competitors || [];
+              const hmine = hcomps?.find(x => String(x.team?.id) === String(this.TEAM_ID));
+              const hopp = hcomps?.find(x => x !== hmine);
+              my = Number(hmine?.score); th = Number(hopp?.score);
+            }
+            if (Number.isFinite(my) && Number.isFinite(th)) {
+              const wl = my > th ? 'W' : (my < th ? 'L' : 'T');
+              cls = wl.toLowerCase();
+              resText = `${wl} ${my}-${th}`;
+            } else {
+              cls = 't'; resText = 'Final';
+            }
           }
 
-          const leaders = this.extractTeamLeaders(summaries[idx], this.TEAM_ID);
+          // IU leaders
           let leadersHtml = '';
+          const leaders = this.extractTeamLeaders(sums[idx], this.TEAM_ID);
           if (leaders) {
             const p = leaders.passing ? `${leaders.passing.name} ${leaders.passing.stat}` : '—';
             const r = leaders.rushing ? `${leaders.rushing.name} ${leaders.rushing.stat}` : '—';
             const rc = leaders.receiving ? `${leaders.receiving.name} ${leaders.receiving.stat}` : '—';
             leadersHtml = `
-              <div class="game-leaders" style="margin-top:6px; font-size: 0.85rem;">
+              <div class="game-leaders" style="margin-top:6px; font-size:0.85rem;">
                 <div>P: ${p}</div>
                 <div>R: ${r}</div>
                 <div>Rec: ${rc}</div>
-              </div>
-            `;
+              </div>`;
           }
 
           const d = document.createElement('div');
@@ -496,11 +630,10 @@
               <div class="game-date">${this.fmtDateTime(e.date)}</div>
               ${leadersHtml}
             </div>
-            <div class="game-result ${cls}">${resText}</div>
-          `;
+            <div class="game-result ${cls}">${resText}</div>`;
           this.dom.recentGames.appendChild(d);
         });
-        await this.sleep(this.isMobile ? 200 : 100);
+        if (this.isMobile) await new Promise(r => setTimeout(r, 150));
       }
     }
 
@@ -508,10 +641,7 @@
       try {
         const cats = summary?.leaders?.leaders;
         if (!Array.isArray(cats)) return null;
-
-        const findCat = (needle) =>
-          cats.find(c => (c.name || c.displayName || '').toString().toLowerCase().includes(needle));
-
+        const find = (needle)=> cats.find(c => (c.name || c.displayName || '').toLowerCase().includes(needle));
         const pack = (cat) => {
           if (!cat || !Array.isArray(cat.leaders)) return null;
           const mine = cat.leaders.find(l => String(l.team?.id) === String(teamId)) || cat.leaders[0];
@@ -520,59 +650,45 @@
           const stat = mine.displayValue || mine.value || '';
           return { name, stat };
         };
-
-        return {
-          passing: pack(findCat('pass')),
-          rushing: pack(findCat('rush')),
-          receiving: pack(findCat('receiv')),
-        };
-      } catch {
-        return null;
-      }
+        return { passing: pack(find('pass')), rushing: pack(find('rush')), receiving: pack(find('receiv')) };
+      } catch { return null; }
     }
 
-    // STATS aggregated from summaries
+    // -------------- Stats (current season; fallback to last season with finals) --------------
     async loadTeamStats() {
-      const events = await this.getSchedule(this.currentYear);
-      const completed = (events || []).filter((e) => {
-        const st = e.status?.type;
-        return st && (st.state === 'post' || e.completed);
-      });
+      // Try current year; if no completed games, walk back to prior years (local) until we find completed
+      let year = this.currentYear;
+      let events = await this.getSeasonSchedule(year);
+      let completed = this.filterCompleted(events);
+      let backSteps = 0;
+      while ((!completed || completed.length === 0) && year > this.MIN_YEAR && backSteps < 5) {
+        year -= 1; backSteps += 1;
+        events = await this.getSeasonSchedule(year);
+        completed = this.filterCompleted(events);
+      }
 
-      if (!completed.length) {
-        this.setStat(this.dom.ppg, '--');
-        this.setStat(this.dom.ypg, '--');
-        this.setStat(this.dom.passYpg, '--');
-        this.setStat(this.dom.rushYpg, '--');
-        this.setStat(this.dom.defPpg, '--');
-        this.setStat(this.dom.defYpg, '--');
-        this.setStat(this.dom.turnovers, '--');
-        this.setStat(this.dom.sacks, '--');
+      if (!completed || completed.length === 0) {
+        this.setStat(this.dom.ppg, '--'); this.setStat(this.dom.ypg, '--');
+        this.setStat(this.dom.passYpg, '--'); this.setStat(this.dom.rushYpg, '--');
+        this.setStat(this.dom.defPpg, '--'); this.setStat(this.dom.defYpg, '--');
+        this.setStat(this.dom.turnovers, '--'); this.setStat(this.dom.sacks, '--');
         return;
       }
 
-      const batches = [];
-      for (let i=0; i<completed.length; i+=this.summaryConcurrency) {
-        batches.push(completed.slice(i, i+this.summaryConcurrency));
-      }
+      let games = 0;
+      let pts=0, oppPts=0, passYds=0, rushYds=0, totalYds=0, oppTotalYds=0, sacks=0, toForced=0;
 
-      let games=0;
-      let pts=0, oppPts=0;
-      let passYds=0, rushYds=0, totalYds=0, oppTotalYds=0;
-      let sacks=0, toForced=0;
-
-      for (const batch of batches) {
-        const results = await Promise.all(batch.map((e) => this.fetchGameSummary(e.id)));
-        batch.forEach((ev, idx) => {
-          const p = this.parseSummaryStats(results[idx], ev);
-          if (!p) return;
-          games++;
-          pts += p.pts; oppPts += p.oppPts;
-          passYds += p.passYds; rushYds += p.rushYds; totalYds += p.totalYds;
-          oppTotalYds += p.oppTotalYds;
-          sacks += p.sacks; toForced += p.turnoversForced;
-        });
-        await this.sleep(this.isMobile ? 200 : 100);
+      for (let i=0;i<completed.length;i++) {
+        const e = completed[i];
+        const sum = await this.getSummary(year, e.id);
+        const parsed = this.parseSummaryStats(sum, e);
+        if (!parsed) continue;
+        games++;
+        pts += parsed.pts; oppPts += parsed.oppPts;
+        passYds += parsed.passYds; rushYds += parsed.rushYds; totalYds += parsed.totalYds;
+        oppTotalYds += parsed.oppTotalYds;
+        sacks += parsed.sacks; toForced += parsed.turnoversForced;
+        if (this.isMobile && (i % this.summaryConcurrency === 0)) await new Promise(r => setTimeout(r, 120));
       }
 
       const avg = (v)=> (games ? (v/games) : 0);
@@ -582,53 +698,74 @@
       this.setStat(this.dom.rushYpg, games ? avg(rushYds).toFixed(1) : '--');
       this.setStat(this.dom.defPpg, games ? avg(oppPts).toFixed(1) : '--');
       this.setStat(this.dom.defYpg, games ? avg(oppTotalYds).toFixed(1) : '--');
-      this.setStat(this.dom.turnovers, games ? toForced : '--'); // totals
-      this.setStat(this.dom.sacks, games ? sacks : '--'); // totals
+      this.setStat(this.dom.turnovers, games ? toForced : '--');
+      this.setStat(this.dom.sacks, games ? sacks : '--');
     }
 
-    parseSummaryStats(summary, eventFromSchedule) {
+    filterCompleted(events) {
+      return (events || []).filter((e) => {
+        const st = e.status?.type || e.status || {};
+        if (st.state === 'post' || st.completed === true) return true;
+        // also consider as completed if both competitors have numeric scores
+        const comp = e.competitions?.[0];
+        const comps = comp?.competitors || [];
+        const mine = comps.find(x => String(x.team?.id) === String(this.TEAM_ID));
+        const opp = comps.find(x => x !== mine);
+        const my = Number(mine?.score), th = Number(opp?.score);
+        return Number.isFinite(my) && Number.isFinite(th);
+      });
+    }
+
+    parseSummaryStats(summary, eFromSchedule) {
       let myPts=0, theirPts=0;
       try {
-        const comp = eventFromSchedule?.competitions?.[0];
+        const comp = eFromSchedule?.competitions?.[0];
         const comps = comp?.competitors || [];
-        const mine = comps.find((x) => String(x.team?.id) === String(this.TEAM_ID));
-        const opp = comps.find((x) => x !== mine);
-        myPts = Number(mine?.score || 0);
-        theirPts = Number(opp?.score || 0);
+        const mine = comps.find((x)=> String(x.team?.id)===String(this.TEAM_ID));
+        const opp = comps.find((x)=> x!==mine);
+        myPts = Number(mine?.score); theirPts = Number(opp?.score);
       } catch {}
+      if (!Number.isFinite(myPts) || !Number.isFinite(theirPts)) {
+        try {
+          const hcomp = summary?.header?.competitions?.[0];
+          const hcomps = hcomp?.competitors || [];
+          const hmine = hcomps?.find(x => String(x.team?.id) === String(this.TEAM_ID));
+          const hopp = hcomps?.find(x => x !== hmine);
+          myPts = Number(hmine?.score); theirPts = Number(hopp?.score);
+        } catch {}
+      }
 
       let totalYds=0, passYds=0, rushYds=0, oppTotalYds=0, sacks=0, turnoversForced=0;
       try {
         const teams = summary?.boxscore?.teams;
         if (Array.isArray(teams) && teams.length === 2) {
-          const idxMine = teams.findIndex((t) => String(t.team?.id) === String(this.TEAM_ID));
+          const idxMine = teams.findIndex((t)=> String(t.team?.id)===String(this.TEAM_ID));
           const idxOpp = idxMine === 0 ? 1 : 0;
-          const me = teams[idxMine];
-          const opp = teams[idxOpp];
+          const me = teams[idxMine], opp = teams[idxOpp];
+
           const grab = (obj, names) => {
             if (!obj || !Array.isArray(obj.statistics)) return 0;
             const flat = [];
-            obj.statistics.forEach((s) => {
+            obj.statistics.forEach((s)=> {
               flat.push(s);
-              if (Array.isArray(s.categories)) s.categories.forEach((cat) => {
-                if (Array.isArray(cat.stats)) flat.push(...cat.stats);
-              });
+              if (Array.isArray(s.categories)) s.categories.forEach((cat)=> { if (Array.isArray(cat.stats)) flat.push(...cat.stats); });
             });
             for (const entry of flat) {
-              const name = (entry.name || entry.displayName || '').toString().toLowerCase();
+              const name = (entry.name || entry.displayName || '').toLowerCase();
               if (names.some(n => name.includes(n))) {
                 const val = parseFloat(entry.value || entry.displayValue || '0');
                 if (!Number.isNaN(val)) return val;
                 const dv = (entry.displayValue || '').toString();
-                const first = parseFloat(dv.split(/[-\/:]/)[0]);
+                const first = parseFloat(dv.split(/[-/:]/)[0]);
                 if (!Number.isNaN(first)) return first;
               }
             }
             return 0;
           };
+
           totalYds = grab(me, ['total yards']);
-          passYds = grab(me, ['passing yards', 'pass yards']);
-          rushYds = grab(me, ['rushing yards', 'rush yards']);
+          passYds = grab(me, ['passing yards','pass yards']);
+          rushYds = grab(me, ['rushing yards','rush yards']);
           sacks += grab(me, ['sacks']);
           oppTotalYds = grab(opp, ['total yards']);
           turnoversForced += grab(opp, ['turnovers']);
@@ -639,110 +776,41 @@
       return { pts: myPts, oppPts: theirPts, totalYds, passYds, rushYds, oppTotalYds, sacks, turnoversForced };
     }
 
-    // GAME ENDPOINTS
-    async fetchGameSummary(eventId) {
-      const key = `summary:${eventId}`;
-      const cached = this.getCache(key);
-      if (cached) return cached;
-      const url = `${this.BASES.site}/apis/site/v2/sports/football/college-football/summary?event=${eventId}`;
-      const data = await this.fetchJson(url, { timeout: 12000 });
-      if (data) this.setCache(key, data, 15 * 60 * 1000);
-      return data;
-    }
-    async fetchGameOdds(eventId) {
-      const key = `odds:${eventId}`;
-      const cached = this.getCache(key);
-      if (cached !== null) return cached;
-      const url = `${this.BASES.core}/v2/sports/football/leagues/college-football/events/${eventId}/competitions/${eventId}/odds`;
-      const data = await this.fetchJson(url, { timeout: 10000 });
-      // Cache even null to avoid repeated calls
-      this.setCache(key, data, 15 * 60 * 1000);
-      return data;
-    }
-    async fetchGameProbabilities(eventId) {
-      const key = `prob:${eventId}`;
-      const cached = this.getCache(key);
-      if (cached !== null) return cached;
-      const url = `${this.BASES.core}/v2/sports/football/leagues/college-football/events/${eventId}/competitions/${eventId}/probabilities`;
-      const data = await this.fetchJson(url, { timeout: 10000 });
-      this.setCache(key, data, 15 * 60 * 1000);
-      return data;
-    }
+    // -------------- History --------------
+    async loadHistory() {
+      const container = this.dom.seasonRecords;
+      if (!container) return;
+      container.innerHTML = '';
 
-    // ROSTER + DEPTH (derived from roster positions) with fallback to prior season
-    async loadRosterAndDepthChart(year) {
-      const season = year || this.currentYear;
-      const { roster, seasonUsed } = await this.fetchRosterWithFallback(season);
-      this.renderDepthFromRoster(roster, season, seasonUsed);
-    }
-    async fetchRosterWithFallback(season) {
-      const trySeason = async (yr) => ({ list: await this.fetchRoster(yr), yr });
-      let { list, yr } = await trySeason(season);
-      if (!list || list.length === 0) {
-        for (let y = season - 1; y >= this.MIN_YEAR; y--) {
-          const t = await trySeason(y);
-          if (t.list && t.list.length) { list = t.list; yr = t.yr; break; }
-        }
+      const years = this.availableYears.slice().reverse(); // oldest -> newest
+      for (const y of years) {
+        const events = await this.getSeasonSchedule(y);
+        let rec;
+        if (events && events.length) rec = await this.computeSeasonRecordFromEvents(y, events);
+        const overall = rec && (rec.w + rec.l + rec.t) > 0 ? `Overall: ${rec.w}-${rec.l}${rec.t ? `-${rec.t}` : ''}` : 'Overall: —';
+        const conf = rec ? `Conference: ${rec.cw}-${rec.cl}${rec.ct ? `-${rec.ct}` : ''}` : 'Conference: 0-0';
+
+        const div = document.createElement('div');
+        div.className = 'season-record';
+        div.innerHTML = `
+          <span><strong>${y}</strong></span>
+          <span>${overall}</span>
+          <span>${conf}</span>`;
+        container.appendChild(div);
+        if (this.isMobile) await new Promise(r => setTimeout(r, 50));
       }
-      return { roster: list || [], seasonUsed: yr };
-    }
-    async fetchRoster(season) {
-      const key = `roster:${this.TEAM_ID}:${season}`;
-      const cached = this.getCache(key);
-      if (cached) return cached;
-
-      const url1 = `${this.BASES.site}/apis/site/v2/sports/football/college-football/teams/${this.TEAM_ID}/roster?season=${season}`;
-      let payload = await this.fetchJson(url1, { timeout: 12000 });
-      let roster = this.normalizeRoster(payload);
-
-      if (!roster) {
-        const url2 = `${this.BASES.site}/apis/site/v2/sports/football/college-football/teams/${this.TEAM_ID}?enable=roster`;
-        payload = await this.fetchJson(url2, { timeout: 12000 });
-        roster = this.normalizeRoster(payload);
-      }
-
-      if (!roster) roster = [];
-      this.setCache(key, roster, 30 * 60 * 1000);
-      return roster;
-    }
-    normalizeRoster(payload) {
-      let list = null;
-      if (Array.isArray(payload?.athletes)) list = payload.athletes;
-      else if (payload?.team?.athletes) list = payload.team.athletes;
-      else if (payload?.athletes?.athletes) list = payload.athletes.athletes;
-
-      const athletes = [];
-      if (Array.isArray(list)) {
-        list.forEach((grp) => {
-          if (Array.isArray(grp?.items)) grp.items.forEach((a) => athletes.push(a));
-          else if (Array.isArray(grp)) grp.forEach((a) => athletes.push(a));
-          else athletes.push(grp);
-        });
-      }
-
-      return (athletes || [])
-        .map((a) => {
-          const id = a.id || a.athlete?.id;
-          const displayName = a.displayName || a.athlete?.displayName;
-          const position = (a.position?.abbreviation || a.position?.name)
-            || a.athlete?.position?.abbreviation || a.athlete?.position?.name || '';
-          const jersey = a.jersey || a.athlete?.jersey || '';
-          return { id, displayName, position, jersey };
-        })
-        .filter(x => x.id && x.displayName);
     }
 
-    renderDepthFromRoster(roster, requestedSeason, seasonUsed) {
+    // -------------- Roster/Depth (hardcoded) --------------
+    async loadRoster() {
+      this.renderDepthShell();
+      this.displayDepthChart('offense');
+    }
+    renderDepthShell() {
       const host = this.dom.rosterTab;
       if (!host) return;
-
-      // Clear section if exists
-      const old = host.querySelector('#depth-chart-section');
-      if (old) old.remove();
-
-      const notice = (seasonUsed && seasonUsed !== requestedSeason)
-        ? `<div style="margin:0.5rem 0 1rem; color:#555; font-size:0.9rem;">Roster for ${requestedSeason} not yet on ESPN. Showing ${seasonUsed} roster.</div>`
-        : '';
+      const existing = document.getElementById('depth-chart-section');
+      if (existing) existing.remove();
 
       const section = document.createElement('div');
       section.id = 'depth-chart-section';
@@ -751,243 +819,116 @@
           <h2>Indiana Football Depth Chart</h2>
           <div class="depth-chart-controls">
             <select id="roster-year-select" class="year-select">
-              ${this.availableYears.map((y) => `<option value="${y}" ${y === requestedSeason ? 'selected' : ''}>${y}</option>`).join('')}
+              ${[2025, 2024].map(y => `<option value="${y}" ${y===this.currentRosterYear?'selected':''}>${y}</option>`).join('')}
             </select>
             <button class="depth-btn active" data-unit="offense">Offense</button>
             <button class="depth-btn" data-unit="defense">Defense</button>
             <button class="depth-btn" data-unit="specialists">Specialists</button>
           </div>
         </div>
-        ${notice}
-        <div id="depth-chart-content" class="depth-chart-content"></div>
-      `;
+        <div id="depth-chart-content" class="depth-chart-content"></div>`;
       host.appendChild(section);
 
-      section.querySelector('#roster-year-select').addEventListener('change', async (e) => {
-        const y = parseInt(e.target.value, 10);
-        await this.loadRosterAndDepthChart(y);
+      section.querySelector('#roster-year-select').addEventListener('change', (e) => {
+        this.currentRosterYear = parseInt(e.target.value, 10);
+        section.querySelectorAll('.depth-btn').forEach(b => b.classList.remove('active'));
+        section.querySelector('[data-unit="offense"]').classList.add('active');
+        this.displayDepthChart('offense');
       });
-
-      const groups = this.groupRoster(roster);
-      const contentEl = section.querySelector('#depth-chart-content');
-      const buttons = section.querySelectorAll('.depth-btn');
-      buttons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          buttons.forEach((b) => b.classList.remove('active'));
-          btn.classList.add('active');
-          this.renderDepthUnit(contentEl, groups, btn.dataset.unit);
+      section.querySelectorAll('.depth-btn').forEach((b) => {
+        b.addEventListener('click', () => {
+          section.querySelectorAll('.depth-btn').forEach(bb => bb.classList.remove('active'));
+          b.classList.add('active');
+          this.displayDepthChart(b.dataset.unit);
         });
       });
-      this.renderDepthUnit(contentEl, groups, 'offense');
-
-      // Simple roster grid
-      this.renderRosterGrid(roster);
     }
-
-    groupRoster(roster) {
-      const posMap = {};
-      const byPos = new Map();
-      (roster || []).forEach((p) => {
-        const pos = (p.position || '').toUpperCase() || 'UNK';
-        if (!byPos.has(pos)) byPos.set(pos, []);
-        byPos.get(pos).push(p);
-      });
-      for (const [pos, list] of byPos.entries()) {
-        list.sort((a, b) => {
-          const ja = parseInt(a.jersey || '999', 10);
-          const jb = parseInt(b.jersey || '999', 10);
-          if (Number.isFinite(ja) && Number.isFinite(jb) && ja !== jb) return ja - jb;
-          return a.displayName.localeCompare(b.displayName);
-        });
-        posMap[pos] = list.map((x) => x.displayName);
-      }
-
-      // Heuristic grouping
-      const offenseSet = new Set(['QB','RB','TB','HB','FB','WR','XWR','ZWR','SLWR','TE','LT','LG','C','RG','RT','OL']);
-      const defenseSet = new Set(['DE','DT','NT','DL','EDGE','LB','MLB','WLB','SLB','CB','DB','S','FS','SS','NB','ROVER','STUD']);
-      const specSet = new Set(['K','PK','P','PT','LS','KR','PR','KO','H']);
-
-      const groups = { offense: {}, defense: {}, specialists: {} };
-      const normalize = (p) => p.replace(/[^A-Z]/gi, '').toUpperCase();
-
-      Object.keys(posMap).forEach((pos) => {
-        const key = normalize(pos);
-        if (offenseSet.has(key)) groups.offense[pos] = posMap[pos];
-        else if (defenseSet.has(key)) groups.defense[pos] = posMap[pos];
-        else if (specSet.has(key)) groups.specialists[pos] = posMap[pos];
-        else {
-          if (key.includes('WR')||key.includes('QB')||key.includes('RB')||key.includes('TE')||key.includes('OL')) groups.offense[pos] = posMap[pos];
-          else if (key.includes('CB')||key.includes('LB')||key.includes('S')||key.includes('DT')||key.includes('DE')) groups.defense[pos] = posMap[pos];
-          else groups.specialists[pos] = posMap[pos];
-        }
-      });
-      return groups;
-    }
-
-    renderDepthUnit(container, groups, unit) {
-      const data = groups[unit] || {};
-      const posKeys = Object.keys(data).sort();
-      if (!posKeys.length) {
-        container.innerHTML = '<div class="no-data"><p>No roster data available from ESPN for this season.</p></div>';
+    displayDepthChart(unit) {
+      const container = document.getElementById('depth-chart-content');
+      const dc = this.depthCharts[this.currentRosterYear];
+      if (!dc || !dc[unit]) {
+        container.innerHTML = '<div class="no-data"><p>No depth chart data available for this year.</p></div>';
         return;
       }
-      const chunk = 5;
-      const lines = [];
-      for (let i=0; i<posKeys.length; i+=chunk) {
-        const slice = posKeys.slice(i, i+chunk);
-        lines.push(`
-          <div class="formation-line ${unit==='offense'?'offensive-line': unit==='defense'?'defensive-line':'special-teams'}">
-            ${slice.map((pos)=>`
-              <div class="position-group">
-                <h4>${pos}</h4>
-                ${this.renderPlayersList(data[pos])}
-              </div>
-            `).join('')}
+      if (unit === 'offense') this.renderOffense(container, dc[unit]);
+      else if (unit === 'defense') this.renderDefense(container, dc[unit]);
+      else this.renderSpecial(container, dc[unit]);
+    }
+    renderOffense(container, data) {
+      container.innerHTML = `
+        <div class="formation">
+          <div class="formation-line skill-positions">
+            <div class="position-group"><h4>X-WR</h4>${this.playersHtml(data['X-WR'])}</div>
+            <div class="position-group"><h4>SL-WR</h4>${this.playersHtml(data['SL-WR'])}</div>
+            <div class="position-group"><h4>Z-WR</h4>${this.playersHtml(data['Z-WR'])}</div>
           </div>
-        `);
-      }
-      container.innerHTML = `<div class="formation">${lines.join('')}</div>`;
+          <div class="formation-line backfield">
+            <div class="position-group"><h4>QB</h4>${this.playersHtml(data['QB'])}</div>
+            <div class="position-group"><h4>HB</h4>${this.playersHtml(data['HB'])}</div>
+            <div class="position-group"><h4>TE</h4>${this.playersHtml(data['TE'])}</div>
+          </div>
+          <div class="formation-line offensive-line">
+            <div class="position-group"><h4>LT</h4>${this.playersHtml(data['LT'])}</div>
+            <div class="position-group"><h4>LG</h4>${this.playersHtml(data['LG'])}</div>
+            <div class="position-group"><h4>C</h4>${this.playersHtml(data['C'])}</div>
+            <div class="position-group"><h4>RG</h4>${this.playersHtml(data['RG'])}</div>
+            <div class="position-group"><h4>RT</h4>${this.playersHtml(data['RT'])}</div>
+          </div>
+        </div>`;
     }
-
-    renderPlayersList(players) {
-      if (!players || !players.length) return `<div class="depth-player backup"><span class="depth-name">No players listed</span></div>`;
-      return players.map((name, i)=>`
-        <div class="depth-player ${i===0?'starter':'backup'}"><span class="depth-name">${name}</span></div>
-      `).join('');
+    renderDefense(container, data) {
+      const keys = Object.keys(data);
+      const line = keys.filter(k=>k.includes('DT')||k.includes('DE')||k==='STUD');
+      const lbs = keys.filter(k=>k.includes('LB')||k==='Rover');
+      const sec = keys.filter(k=>k.includes('CB')||k.includes('SS')||k.includes('FS')||k==='NB');
+      container.innerHTML = `
+        <div class="formation">
+          <div class="formation-line defensive-line">
+            ${line.map(p=>`<div class="position-group"><h4>${p}</h4>${this.playersHtml(data[p])}</div>`).join('')}
+          </div>
+          <div class="formation-line linebackers">
+            ${lbs.map(p=>`<div class="position-group"><h4>${p}</h4>${this.playersHtml(data[p])}</div>`).join('')}
+          </div>
+          <div class="formation-line secondary">
+            ${sec.map(p=>`<div class="position-group"><h4>${p}</h4>${this.playersHtml(data[p])}</div>`).join('')}
+          </div>
+        </div>`;
     }
-
-    renderRosterGrid(roster) {
-      const host = this.dom.rosterList;
-      if (!host) return;
-      host.innerHTML = '';
-
-      if (!Array.isArray(roster) || !roster.length) {
-        host.innerHTML = '<div class="player-card">No roster data available from ESPN.</div>';
-        return;
-      }
-
-      const sorted = roster.slice().sort((a, b) => {
-        const pa = (a.position || '').toUpperCase();
-        const pb = (b.position || '').toUpperCase();
-        if (pa !== pb) return pa.localeCompare(pb);
-        const ja = parseInt(a.jersey || '999', 10);
-        const jb = parseInt(b.jersey || '999', 10);
-        if (Number.isFinite(ja) && Number.isFinite(jb) && ja !== jb) return ja - jb;
-        return a.displayName.localeCompare(b.displayName);
-      });
-
-      sorted.forEach((p) => {
-        const card = document.createElement('div');
-        card.className = 'player-card';
-        card.innerHTML = `
-          <div class="player-number">#${p.jersey || '–'}</div>
-          <div class="player-name">${p.displayName}</div>
-          <div class="player-position">${p.position || ''}</div>
-        `;
-        host.appendChild(card);
-      });
+    renderSpecial(container, data) {
+      container.innerHTML = `
+        <div class="formation special-teams">
+          <div class="formation-line">
+            ${Object.keys(data).map(p=>`<div class="position-group"><h4>${p}</h4>${this.playersHtml(data[p])}</div>`).join('')}
+          </div>
+        </div>`;
     }
+    playersHtml(arr){ if(!arr||!arr.length)return `<div class="depth-player backup"><span class="depth-name">No players listed</span></div>`; return arr.map((n,i)=>`<div class="depth-player ${i===0?'starter':'backup'}"><span class="depth-name">${n}</span></div>`).join(''); }
 
-    // HISTORY 2001–present: overall/conf from schedule; ATS (if available)
-    async loadHistory() {
-      const container = this.dom.seasonRecords;
-      if (!container) return;
-      container.innerHTML = '';
-
-      const years = this.availableYears.slice().reverse(); // oldest to newest
-      // Compute sequentially to avoid hammering the API on mobile
-      for (const y of years) {
-        const rec = await this.computeSeasonRecord(y);
-        const ats = await this.fetchSeasonATS(y);
-        const div = document.createElement('div');
-        div.className = 'season-record';
-        const overallValid = (rec.wins + rec.losses + (rec.ties || 0)) > 0;
-        const overall = overallValid ? `Overall: ${rec.wins}-${rec.losses}${rec.ties ? `-${rec.ties}` : ''}` : 'Overall: —';
-        const conf = (rec.confWins != null) ? `Conference: ${rec.confWins}-${rec.confLosses}${rec.confTies ? `-${rec.confTies}` : ''}` : 'Conference: —';
-        const atsText = ats ? ` • ATS: ${ats}` : '';
-        div.innerHTML = `
-          <span><strong>${y}</strong></span>
-          <span>${overall}</span>
-          <span>${conf}${atsText}</span>
-        `;
-        container.appendChild(div);
-        await this.sleep(this.isMobile ? 100 : 50);
-      }
-    }
-
-    async computeSeasonRecord(year) {
-      const events = await this.getSchedule(year);
-      let wins=0, losses=0, ties=0, confWins=0, confLosses=0, confTies=0;
-
-      (events || []).forEach((e) => {
-        const st = e.status?.type;
-        if (!(st && (st.state === 'post' || e.completed))) return;
-        const comp = e.competitions?.[0];
-        const comps = comp?.competitors || [];
-        const mine = comps.find((x) => String(x.team?.id) === String(this.TEAM_ID));
-        const opp = comps.find((x) => x !== mine);
-        if (!mine || !opp) return;
-        const my = Number(mine.score || 0);
-        const th = Number(opp.score || 0);
-        const isConf = (comp?.conferenceCompetition === true) ||
-          ((e.groups?.[0]?.name) ? /big ten/i.test(e.groups[0].name) : false);
-
-        if (my > th) { wins++; if (isConf) confWins++; }
-        else if (my < th) { losses++; if (isConf) confLosses++; }
-        else { ties++; if (isConf) confTies++; }
-      });
-
-      return { wins, losses, ties, confWins, confLosses, confTies };
-    }
-
-    async fetchSeasonATS(year) {
-      // Best effort; not available for all years
-      const key = `ats:${this.TEAM_ID}:${year}`;
-      const cached = this.getCache(key);
-      if (cached !== null) return cached;
-
-      const url = `${this.BASES.core}/v2/sports/football/leagues/college-football/seasons/${year}/types/${this.SEASONTYPE}/teams/${this.TEAM_ID}/ats`;
-      const data = await this.fetchJson(url, { timeout: 10000 });
-      // Try to format e.g., "8-4-1"
-      let out = null;
-      try {
-        const w = data?.record?.wins ?? data?.wins;
-        const l = data?.record?.losses ?? data?.losses;
-        const t = data?.record?.ties ?? data?.ties;
-        if (w != null && l != null) out = `${w}-${l}${t ? `-${t}` : ''}`;
-      } catch {}
-      this.setCache(key, out, 60 * 60 * 1000);
-      return out;
-    }
-
-    // UI
+    // -------------- UI + init --------------
     setupListeners() {
-      // Tabs
       document.querySelectorAll('.nav-btn').forEach((btn) => {
         btn.addEventListener('click', async () => {
           const tab = btn.dataset.tab;
-          document.querySelectorAll('.nav-btn').forEach((b)=>b.classList.remove('active'));
+          document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
           btn.classList.add('active');
-          document.querySelectorAll('.tab-content').forEach((tc)=>tc.classList.remove('active'));
-          const t = document.getElementById(`${tab}-tab`);
-          if (t) t.classList.add('active');
+          document.querySelectorAll('.tab-content').forEach(tc=>tc.classList.remove('active'));
+          document.getElementById(`${tab}-tab`).classList.add('active');
 
           if (tab === 'current') {
             await Promise.all([ this.loadTeamInfo(), this.loadRecentGames(), this.loadTeamStats() ]);
           } else if (tab === 'schedule') {
             await this.loadSchedule(this.currentYear);
           } else if (tab === 'roster') {
-            await this.loadRosterAndDepthChart(this.currentYear);
+            await this.loadRoster();
           } else if (tab === 'history') {
             await this.loadHistory();
           }
         });
       });
 
-      // Season selector (schedule)
       if (this.dom.seasonSelect) {
         this.dom.seasonSelect.innerHTML = this.availableYears
-          .map((y)=>`<option value="${y}" ${y===this.currentYear?'selected':''}>${y}</option>`)
+          .map(y=>`<option value="${y}" ${y===this.currentYear?'selected':''}>${y}</option>`)
           .join('');
         this.dom.seasonSelect.addEventListener('change', async (e) => {
           this.currentYear = parseInt(e.target.value, 10);
@@ -997,8 +938,8 @@
     }
 
     async init() {
-      this.showLoading();
       this.setupListeners();
+      this.showLoading();
       try {
         await Promise.all([ this.loadTeamInfo(), this.loadRecentGames(), this.loadTeamStats() ]);
       } finally {
