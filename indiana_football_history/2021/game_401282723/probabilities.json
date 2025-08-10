@@ -1,0 +1,658 @@
+{
+  "count": 167,
+  "pageIndex": 1,
+  "pageSize": 25,
+  "pageCount": 7,
+  "items": [
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101849901?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101849901?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.5829,
+      "awayWinPercentage": 0.4171,
+      "lastModified": "2021-09-04T22:40Z",
+      "sequenceNumber": "101849901",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101849902?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101849902?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.6073,
+      "awayWinPercentage": 0.39270000000000005,
+      "lastModified": "2021-09-04T22:41Z",
+      "sequenceNumber": "101849902",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101854401?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101854401?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.6171,
+      "awayWinPercentage": 0.3829,
+      "lastModified": "2021-09-04T22:41Z",
+      "sequenceNumber": "101854401",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101856401?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101856401?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.6197,
+      "awayWinPercentage": 0.38029999999999997,
+      "lastModified": "2021-09-04T22:42Z",
+      "sequenceNumber": "101856401",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101865401?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101865401?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.599,
+      "awayWinPercentage": 0.401,
+      "lastModified": "2021-09-04T22:43Z",
+      "sequenceNumber": "101865401",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101866401?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101866401?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.7241,
+      "awayWinPercentage": 0.27590000000000003,
+      "lastModified": "2021-09-04T22:44Z",
+      "sequenceNumber": "101866401",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101866403?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101866403?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.7201,
+      "awayWinPercentage": 0.27990000000000004,
+      "lastModified": "2021-09-04T22:45Z",
+      "sequenceNumber": "101866403",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101867701?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101867701?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.7245,
+      "awayWinPercentage": 0.27549999999999997,
+      "lastModified": "2021-09-04T22:46Z",
+      "sequenceNumber": "101867701",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101874501?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101874501?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.7347,
+      "awayWinPercentage": 0.2653,
+      "lastModified": "2021-09-04T22:49Z",
+      "sequenceNumber": "101874501",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101875401?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101875401?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.84,
+      "awayWinPercentage": 0.16000000000000003,
+      "lastModified": "2021-09-04T22:51Z",
+      "sequenceNumber": "101875401",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101875403?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101875403?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8432,
+      "awayWinPercentage": 0.15680000000000005,
+      "lastModified": "2021-09-04T22:54Z",
+      "sequenceNumber": "101875403",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101876201?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101876201?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8523,
+      "awayWinPercentage": 0.14770000000000005,
+      "lastModified": "2021-09-04T22:54Z",
+      "sequenceNumber": "101876201",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101879101?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101879101?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8452,
+      "awayWinPercentage": 0.15480000000000005,
+      "lastModified": "2021-09-04T22:55Z",
+      "sequenceNumber": "101879101",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101879901?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101879901?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8235,
+      "awayWinPercentage": 0.1765,
+      "lastModified": "2021-09-04T22:56Z",
+      "sequenceNumber": "101879901",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101889901?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101889901?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.831,
+      "awayWinPercentage": 0.16900000000000004,
+      "lastModified": "2021-09-04T22:58Z",
+      "sequenceNumber": "101889901",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101896201?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101896201?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8428,
+      "awayWinPercentage": 0.1572,
+      "lastModified": "2021-09-04T22:57Z",
+      "sequenceNumber": "101896201",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101898601?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101898601?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8487,
+      "awayWinPercentage": 0.1513,
+      "lastModified": "2021-09-04T22:57Z",
+      "sequenceNumber": "101898601",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101899101?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101899101?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8567,
+      "awayWinPercentage": 0.14329999999999998,
+      "lastModified": "2021-09-04T22:58Z",
+      "sequenceNumber": "101899101",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101899901?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101899901?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8569,
+      "awayWinPercentage": 0.1431,
+      "lastModified": "2021-09-04T22:59Z",
+      "sequenceNumber": "101899901",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101906201?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101906201?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8626,
+      "awayWinPercentage": 0.13739999999999997,
+      "lastModified": "2021-09-04T23:02Z",
+      "sequenceNumber": "101906201",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101907701?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101907701?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8466,
+      "awayWinPercentage": 0.15339999999999998,
+      "lastModified": "2021-09-04T23:02Z",
+      "sequenceNumber": "101907701",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101914901?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101914901?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8373,
+      "awayWinPercentage": 0.16269999999999996,
+      "lastModified": "2021-09-04T23:03Z",
+      "sequenceNumber": "101914901",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101918701?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101918701?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8443,
+      "awayWinPercentage": 0.15569999999999995,
+      "lastModified": "2021-09-04T23:07Z",
+      "sequenceNumber": "101918701",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101925202?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101925202?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.849,
+      "awayWinPercentage": 0.15100000000000002,
+      "lastModified": "2021-09-04T23:07Z",
+      "sequenceNumber": "101925202",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/probabilities/401282723101928101?lang=en&region=us",
+      "competition": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723?lang=en&region=us"
+      },
+      "play": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/401282723/competitions/401282723/plays/401282723101928101?lang=en&region=us"
+      },
+      "homeTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/2294?lang=en&region=us"
+      },
+      "awayTeam": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2021/teams/84?lang=en&region=us"
+      },
+      "tiePercentage": 0.0,
+      "homeWinPercentage": 0.8382,
+      "awayWinPercentage": 0.16180000000000005,
+      "lastModified": "2021-09-04T23:07Z",
+      "sequenceNumber": "101928101",
+      "source": {
+        "id": "2",
+        "description": "feed",
+        "state": "full"
+      },
+      "secondsLeft": 0
+    }
+  ]
+}

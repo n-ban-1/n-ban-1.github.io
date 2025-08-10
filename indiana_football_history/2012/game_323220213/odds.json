@@ -1,0 +1,339 @@
+{
+  "count": 4,
+  "pageIndex": 1,
+  "pageSize": 25,
+  "pageCount": 1,
+  "items": [
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/odds/1001?lang=en&region=us",
+      "provider": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/providers/1001?lang=en&region=us",
+        "id": "1001",
+        "name": "accuscore",
+        "priority": 0
+      },
+      "details": "PSU -17",
+      "overUnder": 56.5,
+      "spread": -17.0,
+      "overOdds": 57.3,
+      "underOdds": 42.5,
+      "awayTeamOdds": {
+        "averageScore": 22.9,
+        "winPercentage": 22.4,
+        "bigWinPercentage": 11.0,
+        "closeWinPercentage": 6.6,
+        "favorite": false,
+        "underdog": true,
+        "moneyLine": 621,
+        "spreadOdds": 55.6,
+        "current": {
+          "pointSpread": {
+            "alternateDisplayValue": "+17",
+            "american": "+17"
+          },
+          "spread": {
+            "alternateDisplayValue": "+56",
+            "american": "+56"
+          },
+          "moneyLine": {
+            "alternateDisplayValue": "+621",
+            "american": "+621"
+          }
+        },
+        "team": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2012/teams/84?lang=en&region=us"
+        }
+      },
+      "homeTeamOdds": {
+        "averageScore": 37.6,
+        "winPercentage": 77.6,
+        "bigWinPercentage": 59.7,
+        "closeWinPercentage": 8.4,
+        "favorite": true,
+        "underdog": false,
+        "moneyLine": -775,
+        "spreadOdds": 42.1,
+        "current": {
+          "pointSpread": {
+            "alternateDisplayValue": "-17",
+            "american": "-17"
+          },
+          "spread": {
+            "alternateDisplayValue": "+42",
+            "american": "+42"
+          },
+          "moneyLine": {
+            "alternateDisplayValue": "-775",
+            "american": "-775"
+          }
+        },
+        "team": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2012/teams/213?lang=en&region=us"
+        }
+      },
+      "moneylineWinner": false,
+      "spreadWinner": false,
+      "current": {
+        "over": {
+          "alternateDisplayValue": "+57",
+          "american": "+57"
+        },
+        "under": {
+          "alternateDisplayValue": "+43",
+          "american": "+43"
+        },
+        "total": {
+          "alternateDisplayValue": "56.5",
+          "american": "56.5"
+        }
+      }
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/odds/1004?lang=en&region=us",
+      "provider": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/providers/1004?lang=en&region=us",
+        "id": "1004",
+        "name": "consensus",
+        "priority": 0
+      },
+      "details": "PSU -14",
+      "spread": -14.0,
+      "awayTeamOdds": {
+        "winPercentage": 50.059,
+        "favorite": false,
+        "underdog": true,
+        "current": {
+          "pointSpread": {
+            "alternateDisplayValue": "+14",
+            "american": "+14"
+          }
+        },
+        "team": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2012/teams/84?lang=en&region=us"
+        }
+      },
+      "homeTeamOdds": {
+        "winPercentage": 49.942,
+        "favorite": true,
+        "underdog": false,
+        "current": {
+          "pointSpread": {
+            "alternateDisplayValue": "-14",
+            "american": "-14"
+          }
+        },
+        "team": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2012/teams/213?lang=en&region=us"
+        }
+      },
+      "moneylineWinner": false,
+      "spreadWinner": false
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/odds/1003?lang=en&region=us",
+      "provider": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/providers/1003?lang=en&region=us",
+        "id": "1003",
+        "name": "numberfire",
+        "priority": 0
+      },
+      "details": "PSU -17",
+      "overUnder": 56.5,
+      "spread": -17.0,
+      "overOdds": 56.2,
+      "underOdds": 43.8,
+      "awayTeamOdds": {
+        "averageScore": 19.75,
+        "winPercentage": 11.57,
+        "favorite": false,
+        "underdog": true,
+        "moneyLine": 635,
+        "moneyLineOdds": 11.57,
+        "moneyLineReturn": -0.15,
+        "spreadOdds": 36.36,
+        "similarities": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/competitors/84/odds/1003/similarities?lang=en&region=us"
+        },
+        "spreadReturn": -0.306,
+        "current": {
+          "pointSpread": {
+            "alternateDisplayValue": "+17",
+            "american": "+17"
+          },
+          "spread": {
+            "alternateDisplayValue": "+36",
+            "american": "+36"
+          },
+          "moneyLine": {
+            "alternateDisplayValue": "+635",
+            "american": "+635"
+          }
+        },
+        "team": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2012/teams/84?lang=en&region=us"
+        }
+      },
+      "homeTeamOdds": {
+        "averageScore": 40.99,
+        "winPercentage": 88.43,
+        "favorite": true,
+        "underdog": false,
+        "moneyLine": -800,
+        "moneyLineOdds": 88.43,
+        "moneyLineReturn": -0.005,
+        "spreadOdds": 63.64,
+        "similarities": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/competitors/213/odds/1003/similarities?lang=en&region=us"
+        },
+        "spreadReturn": 0.215,
+        "current": {
+          "pointSpread": {
+            "alternateDisplayValue": "-17",
+            "american": "-17"
+          },
+          "spread": {
+            "alternateDisplayValue": "+64",
+            "american": "+64"
+          },
+          "moneyLine": {
+            "alternateDisplayValue": "-800",
+            "american": "-800"
+          }
+        },
+        "team": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2012/teams/213?lang=en&region=us"
+        }
+      },
+      "headToHeads": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/odds/1003/head-to-heads?lang=en&region=us"
+      },
+      "predictors": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/odds/1003/predictors?lang=en&region=us"
+      },
+      "moneylineWinner": false,
+      "spreadWinner": false,
+      "current": {
+        "over": {
+          "alternateDisplayValue": "+56",
+          "american": "+56"
+        },
+        "under": {
+          "alternateDisplayValue": "+44",
+          "american": "+44"
+        },
+        "total": {
+          "alternateDisplayValue": "56.5",
+          "american": "56.5"
+        }
+      }
+    },
+    {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/odds/1002?lang=en&region=us",
+      "provider": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/providers/1002?lang=en&region=us",
+        "id": "1002",
+        "name": "teamrankings",
+        "priority": 0
+      },
+      "details": "PSU -16.5",
+      "overUnder": 55.5,
+      "spread": -16.5,
+      "overOdds": -108.0,
+      "underOdds": -102.0,
+      "awayTeamOdds": {
+        "averageScore": 20.2,
+        "favorite": false,
+        "underdog": true,
+        "moneyLine": 618,
+        "spreadRecord": {
+          "wins": 0,
+          "losses": 0,
+          "pushes": 0,
+          "summary": "0-0-0"
+        },
+        "spreadOdds": -102.0,
+        "pastPerformances": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/teams/84/odds/1002/past-performances?lang=en&region=us"
+        },
+        "current": {
+          "pointSpread": {
+            "alternateDisplayValue": "+16.5",
+            "american": "+16.5"
+          },
+          "spread": {
+            "alternateDisplayValue": "-102",
+            "american": "-102"
+          },
+          "moneyLine": {
+            "alternateDisplayValue": "+618",
+            "american": "+618"
+          }
+        },
+        "team": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2012/teams/84?lang=en&region=us"
+        }
+      },
+      "homeTeamOdds": {
+        "averageScore": 37.7,
+        "favorite": true,
+        "underdog": false,
+        "moneyLine": -770,
+        "spreadRecord": {
+          "wins": 0,
+          "losses": 0,
+          "pushes": 0,
+          "summary": "0-0-0"
+        },
+        "spreadOdds": -108.0,
+        "pastPerformances": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/teams/213/odds/1002/past-performances?lang=en&region=us"
+        },
+        "current": {
+          "pointSpread": {
+            "alternateDisplayValue": "-16.5",
+            "american": "-16.5"
+          },
+          "spread": {
+            "alternateDisplayValue": "-108",
+            "american": "-108"
+          },
+          "moneyLine": {
+            "alternateDisplayValue": "-770",
+            "american": "-770"
+          }
+        },
+        "team": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/2012/teams/213?lang=en&region=us"
+        }
+      },
+      "moneyLineHistory": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/odds/1002/history/0?lang=en&region=us"
+      },
+      "spreadHistory": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/odds/1002/history/1?lang=en&region=us"
+      },
+      "totalHistory": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/odds/1002/history/2?lang=en&region=us"
+      },
+      "headToHeads": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/323220213/competitions/323220213/odds/1002/head-to-heads?lang=en&region=us"
+      },
+      "moneylineWinner": false,
+      "spreadWinner": false,
+      "current": {
+        "over": {
+          "alternateDisplayValue": "-108",
+          "american": "-108"
+        },
+        "under": {
+          "alternateDisplayValue": "-102",
+          "american": "-102"
+        },
+        "total": {
+          "alternateDisplayValue": "55.5",
+          "american": "55.5"
+        }
+      }
+    }
+  ]
+}
