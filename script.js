@@ -1,6 +1,6 @@
-/* Indiana Hoosiers Football - COMPLETE VERSION WITH 3RD/4TH DOWN STATS
+/* Indiana Hoosiers Football - COMPLETE VERSION
    Date: October 18, 2025
-   Updated defensive stats to show opponent down conversion percentages
+   Features: 3rd/4th down stats, improved game details, wins chart, no duplicate headings
 */
 
 (function () {
@@ -23,6 +23,7 @@
       this.mem = new Map();
       this.depthCharts = { 2025: this.dc2025(), 2024: this.dc2024() };
       this.currentRosterYear = 2025;
+      this.winsChart = null;
 
       this.dom = {
         loading: document.getElementById('loading'),
@@ -46,7 +47,7 @@
         seasonRecords: document.getElementById('season-records'),
       };
 
-      console.log('🏈 Indiana Football App Initialized - Version 3.0 (Down Conversion Stats)');
+      console.log('🏈 Indiana Football App Initialized - Version 4.0 (Complete)');
       this.init();
     }
 
@@ -81,7 +82,6 @@
     
     top25(n) { const x = Number(n); return Number.isFinite(x) && x >= 1 && x <= 25 ? x : null; }
 
-    // CRITICAL: Score extraction from ESPN's format
     getScore(scoreObj) {
       if (!scoreObj) return null;
       if (typeof scoreObj === 'object' && scoreObj.value !== undefined) {
@@ -92,7 +92,6 @@
       return Number.isFinite(val) ? val : null;
     }
 
-    // FIXED: Simple year-based logic - NO local files for 2025
     useLocalData(year) {
       return year < 2025;
     }
@@ -206,7 +205,7 @@
       };
     }
 
-    // ============ DATA RETRIEVAL - FIXED ============
+    // ============ DATA RETRIEVAL ============
     async getSeasonSchedule(year) {
       console.log(`📅 Getting schedule for ${year}`);
       const key = `sched:${year}`;
@@ -218,7 +217,6 @@
 
       let events = [];
       
-      // FIXED: Use API for 2025, local for older years
       if (this.useLocalData(year)) {
         console.log(`📂 Trying local data for ${year}`);
         const local = await this.fetchLocal(`${year}/schedule.json`);
@@ -262,7 +260,6 @@
 
       let data = null;
       
-      // FIXED: Use API for 2025, local for older years
       if (this.useLocalData(year)) {
         data = await this.fetchLocal(`${year}/game_${eventId}/summary.json`);
         if (!data) {
@@ -281,7 +278,7 @@
       return data;
     }
 
-    // ============ GAME LEADERS - FIXED ============
+    // ============ GAME LEADERS ============
     extractGameLeaders(summary, teamId) {
       try {
         const cats = summary?.leaders?.leaders;
@@ -351,7 +348,6 @@
         console.warn('⚠️ Team API failed, computing from games:', e);
       }
 
-      // Fallback
       const events = await this.getSeasonSchedule(this.currentYear);
       const rec = await this.computeSeasonRecordFromEvents(this.currentYear, events);
       const overall = (rec.w + rec.l + rec.t) > 0 ? `${rec.w}-${rec.l}${rec.t ? `-${rec.t}` : ''}` : 'TBD';
@@ -362,13 +358,12 @@
       this.setText(this.dom.teamRank, 'Unranked');
     }
 
-    // ============ RECORDS - FIXED TO ALWAYS FETCH SUMMARIES ============
+    // ============ RECORDS ============
     async computeSeasonRecordFromEvents(year, events) {
       console.log(`📊 Computing record for ${year} from ${events?.length || 0} events`);
       let w = 0, l = 0, t = 0, cw = 0, cl = 0, ct = 0;
       
       for (const e of (events || [])) {
-        // CRITICAL: Always fetch summary to get accurate data
         const sum = await this.getSummary(year, e.id);
         if (!sum) continue;
 
@@ -493,26 +488,49 @@
           const oppScore = this.getScore(hopp?.score);
           
           if (myScore !== null && oppScore !== null) {
-            rows.push(`<div class="row"><span class="badge">Score</span><span style="font-weight:700; font-size:1.1em;">Indiana ${myScore}, ${hopp?.team?.displayName || 'Opponent'} ${oppScore}</span></div>`);
+            rows.push(`<div class="final-score-box">
+              <div class="score-display">
+                <span class="team-name">Indiana</span>
+                <span class="score">${myScore}</span>
+              </div>
+              <div class="score-divider">-</div>
+              <div class="score-display">
+                <span class="team-name">${hopp?.team?.displayName || 'Opponent'}</span>
+                <span class="score">${oppScore}</span>
+              </div>
+            </div>`);
           }
 
-          // GAME LEADERS - PROMINENTLY DISPLAYED
           const leaders = this.extractGameLeaders(sum, this.TEAM_ID);
           if (leaders && (leaders.passing || leaders.rushing || leaders.receiving)) {
-            rows.push(`<div class="row" style="font-weight:700; margin-top:16px; font-size:1.1em; color:#990000; border-bottom:2px solid #990000; padding-bottom:8px;"><span>🏆 GAME LEADERS</span></div>`);
+            rows.push(`<div class="section-header">🏆 GAME LEADERS</div>`);
+            rows.push(`<div class="leaders-grid">`);
             
             if (leaders.passing) {
-              rows.push(`<div class="row" style="margin-top:8px;"><span class="badge" style="background:#990000; color:white; font-weight:600;">Passing</span><span style="font-weight:600;">${leaders.passing.name} - ${leaders.passing.stat}</span></div>`);
+              rows.push(`<div class="leader-item">
+                <div class="leader-category">Passing</div>
+                <div class="leader-name">${leaders.passing.name}</div>
+                <div class="leader-stat">${leaders.passing.stat}</div>
+              </div>`);
             }
             if (leaders.rushing) {
-              rows.push(`<div class="row"><span class="badge" style="background:#990000; color:white; font-weight:600;">Rushing</span><span style="font-weight:600;">${leaders.rushing.name} - ${leaders.rushing.stat}</span></div>`);
+              rows.push(`<div class="leader-item">
+                <div class="leader-category">Rushing</div>
+                <div class="leader-name">${leaders.rushing.name}</div>
+                <div class="leader-stat">${leaders.rushing.stat}</div>
+              </div>`);
             }
             if (leaders.receiving) {
-              rows.push(`<div class="row"><span class="badge" style="background:#990000; color:white; font-weight:600;">Receiving</span><span style="font-weight:600;">${leaders.receiving.name} - ${leaders.receiving.stat}</span></div>`);
+              rows.push(`<div class="leader-item">
+                <div class="leader-category">Receiving</div>
+                <div class="leader-name">${leaders.receiving.name}</div>
+                <div class="leader-stat">${leaders.receiving.stat}</div>
+              </div>`);
             }
+            
+            rows.push(`</div>`);
           }
 
-          // COMPREHENSIVE STATS
           try {
             const teams = sum?.boxscore?.teams;
             if (Array.isArray(teams) && teams.length === 2) {
@@ -527,65 +545,62 @@
                 return stat?.displayValue || stat?.value || null;
               };
 
-              const myStats = {
-                '1st Downs': getStat(me, 'firstDowns'),
-                'Total Yards': getStat(me, 'totalYards'),
-                'Passing': getStat(me, 'netPassingYards'),
-                'Comp/Att': getStat(me, 'completionAttempts'),
-                'Yards/Pass': getStat(me, 'yardsPerPass'),
-                'Rushing': getStat(me, 'rushingYards'),
-                'Rushing Attempts': getStat(me, 'rushingAttempts'),
-                'Yards/Rush': getStat(me, 'yardsPerRushAttempt'),
-                'Penalties': getStat(me, 'totalPenaltiesYards'),
-                'Turnovers': getStat(me, 'turnovers'),
-                '3rd Down Conv': getStat(me, 'thirdDownEff'),
-                '4th Down Conv': getStat(me, 'fourthDownEff'),
-                'Red Zone': getStat(me, 'redZoneAttempts'),
-                'Sacks': getStat(me, 'sacks'),
-                'Tackles For Loss': getStat(me, 'tacklesForLoss'),
-                'Possession': getStat(me, 'possessionTime')
-              };
+              rows.push(`<div class="section-header">📊 TEAM STATISTICS</div>`);
+              rows.push(`<div class="stats-comparison">`);
+              
+              const statsList = [
+                { label: '1st Downs', myKey: 'firstDowns', oppKey: 'firstDowns' },
+                { label: 'Total Yards', myKey: 'totalYards', oppKey: 'totalYards' },
+                { label: 'Passing', myKey: 'netPassingYards', oppKey: 'netPassingYards' },
+                { label: 'Comp-Att', myKey: 'completionAttempts', oppKey: 'completionAttempts' },
+                { label: 'Yards/Pass', myKey: 'yardsPerPass', oppKey: 'yardsPerPass' },
+                { label: 'Rushing', myKey: 'rushingYards', oppKey: 'rushingYards' },
+                { label: 'Rush Attempts', myKey: 'rushingAttempts', oppKey: 'rushingAttempts' },
+                { label: 'Yards/Rush', myKey: 'yardsPerRushAttempt', oppKey: 'yardsPerRushAttempt' },
+                { label: 'Penalties', myKey: 'totalPenaltiesYards', oppKey: 'totalPenaltiesYards' },
+                { label: 'Turnovers', myKey: 'turnovers', oppKey: 'turnovers' },
+                { label: '3rd Down', myKey: 'thirdDownEff', oppKey: 'thirdDownEff' },
+                { label: '4th Down', myKey: 'fourthDownEff', oppKey: 'fourthDownEff' },
+                { label: 'Red Zone', myKey: 'redZoneAttempts', oppKey: 'redZoneAttempts' },
+                { label: 'Sacks', myKey: 'sacks', oppKey: 'sacks' },
+                { label: 'TFL', myKey: 'tacklesForLoss', oppKey: 'tacklesForLoss' },
+                { label: 'Possession', myKey: 'possessionTime', oppKey: 'possessionTime' }
+              ];
 
-              const oppStats = {
-                '1st Downs': getStat(oppTeam, 'firstDowns'),
-                'Total Yards': getStat(oppTeam, 'totalYards'),
-                'Passing': getStat(oppTeam, 'netPassingYards'),
-                'Comp/Att': getStat(oppTeam, 'completionAttempts'),
-                'Rushing': getStat(oppTeam, 'rushingYards'),
-                'Rushing Attempts': getStat(oppTeam, 'rushingAttempts'),
-                'Penalties': getStat(oppTeam, 'totalPenaltiesYards'),
-                'Turnovers': getStat(oppTeam, 'turnovers'),
-                '3rd Down Conv': getStat(oppTeam, 'thirdDownEff'),
-                '4th Down Conv': getStat(oppTeam, 'fourthDownEff')
-              };
-
-              rows.push(`<div class="row" style="font-weight:600; margin-top:16px; font-size:1.05em; color:#990000; border-bottom:2px solid #990000; padding-bottom:6px;"><span>INDIANA STATS</span></div>`);
-              Object.entries(myStats).forEach(([label, val]) => {
-                if (val) rows.push(`<div class="row"><span class="badge">${label}</span><span style="font-weight:600;">${val}</span></div>`);
+              statsList.forEach(({ label, myKey, oppKey }) => {
+                const myStat = getStat(me, myKey);
+                const oppStat = getStat(oppTeam, oppKey);
+                if (myStat || oppStat) {
+                  rows.push(`<div class="stat-comparison-row">
+                    <div class="stat-value indiana-stat">${myStat || '-'}</div>
+                    <div class="stat-label">${label}</div>
+                    <div class="stat-value opp-stat">${oppStat || '-'}</div>
+                  </div>`);
+                }
               });
-
-              rows.push(`<div class="row" style="font-weight:600; margin-top:16px; font-size:1.05em; color:#990000; border-bottom:2px solid #990000; padding-bottom:6px;"><span>OPPONENT STATS</span></div>`);
-              Object.entries(oppStats).forEach(([label, val]) => {
-                if (val) rows.push(`<div class="row"><span class="badge">${label}</span><span style="font-weight:600;">${val}</span></div>`);
-              });
+              
+              rows.push(`</div>`);
             }
           } catch (e) {
             console.warn('⚠️ Failed to extract boxscore stats:', e);
           }
 
-          // Additional info
           try {
+            rows.push(`<div class="section-header">📺 GAME INFO</div>`);
+            rows.push(`<div class="game-info-grid">`);
+            
             const bs = sum?.header?.competitions?.[0]?.broadcasts || [];
             if (Array.isArray(bs) && bs.length) {
               const net = bs[0]?.names?.[0] || '';
-              if (net) rows.push(`<div class="row" style="margin-top:12px;"><span class="badge">TV</span><span>${net}</span></div>`);
+              if (net) rows.push(`<div class="info-item"><span class="info-label">TV:</span><span>${net}</span></div>`);
             }
-          } catch {}
 
-          try {
             const v = sum?.gameInfo?.venue?.fullName || sum?.header?.competitions?.[0]?.venue?.fullName;
             const a = sum?.gameInfo?.attendance;
-            if (v) rows.push(`<div class="row"><span class="badge">Venue</span><span>${v}${a ? ` (${a})` : ''}</span></div>`);
+            if (v) rows.push(`<div class="info-item"><span class="info-label">Venue:</span><span>${v}</span></div>`);
+            if (a) rows.push(`<div class="info-item"><span class="info-label">Attendance:</span><span>${a.toLocaleString()}</span></div>`);
+            
+            rows.push(`</div>`);
           } catch {}
 
           extra.innerHTML = rows.length ? rows.join('') : `<div class="row"><span>No details</span></div>`;
@@ -593,7 +608,7 @@
       });
     }
 
-    // ============ RECENT GAMES - WITH LEADERS ============
+    // ============ RECENT GAMES ============
     async loadRecentGames() {
       console.log('🎮 Loading recent games...');
       const c = this.dom.recentGames;
@@ -671,7 +686,7 @@
       console.log(`✅ Loaded ${recent.length} recent games`);
     }
 
-    // ============ TEAM STATS - UPDATED FOR 3RD/4TH DOWN % ============
+    // ============ TEAM STATS - 3RD/4TH DOWN % ============
     async loadTeamStats() {
       console.log('📊 Loading team stats...');
       let year = this.currentYear;
@@ -808,10 +823,7 @@
               const name = (stat.name || stat.displayName || '').toLowerCase().replace(/\s+/g, '');
               if (names.some(n => name.includes(n.toLowerCase().replace(/\s+/g, '')))) {
                 const val = parseFloat(stat.value !== undefined ? stat.value : stat.displayValue);
-                if (!Number.isNaN(val)) {
-                  console.log(`  📊 Found ${stat.name}: ${val}`);
-                  return val;
-                }
+                if (!Number.isNaN(val)) return val;
               }
             }
             return 0;
@@ -828,7 +840,6 @@
                 if (parts.length === 2) {
                   const conv = parseInt(parts[0]) || 0;
                   const att = parseInt(parts[1]) || 0;
-                  console.log(`  📊 Found ${stat.name}: ${conv}/${att}`);
                   return { conv, att };
                 }
               }
@@ -836,12 +847,10 @@
             return { conv: 0, att: 0 };
           };
 
-          // Offensive stats
           totalYds = grab(me, ['totalyards', 'totaloffensiveyards']);
           passYds = grab(me, ['netpassingyards', 'passingyards']);
           rushYds = grab(me, ['rushingyards']);
           
-          // OPPONENT down conversions (defensive stats)
           const oppThird = grabEff(oppTeam, ['thirddowneff', '3rddowneff']);
           oppThirdConv = oppThird.conv;
           oppThirdAtt = oppThird.att;
@@ -869,7 +878,7 @@
       };
     }
 
-    // ============ HISTORY ============
+    // ============ HISTORY WITH CHART ============
     async loadHistory() {
       console.log('📜 Loading history...');
       const container = this.dom.seasonRecords;
@@ -877,6 +886,7 @@
       container.innerHTML = '';
 
       const years = this.availableYears.slice().reverse();
+      const chartData = { years: [], wins: [], losses: [], confWins: [] };
       
       for (const y of years) {
         const events = await this.getSeasonSchedule(y);
@@ -886,6 +896,13 @@
         
         const overall = rec && (rec.w + rec.l + rec.t) > 0 ? `Overall: ${rec.w}-${rec.l}${rec.t ? `-${rec.t}` : ''}` : 'Overall: —';
         const conf = rec && (rec.cw + rec.cl + rec.ct) > 0 ? `Conference: ${rec.cw}-${rec.cl}${rec.ct ? `-${rec.ct}` : ''}` : 'Conference: 0-0';
+
+        if (rec && (rec.w + rec.l + rec.t) > 0) {
+          chartData.years.push(y);
+          chartData.wins.push(rec.w);
+          chartData.losses.push(rec.l);
+          chartData.confWins.push(rec.cw);
+        }
 
         const div = document.createElement('div');
         div.className = 'season-record';
@@ -897,7 +914,92 @@
         
         if (this.isMobile) await new Promise(r => setTimeout(r, 50));
       }
+      
+      this.createWinsChart(chartData);
       console.log('✅ History loaded');
+    }
+
+    createWinsChart(data) {
+      const canvas = document.getElementById('wins-chart');
+      if (!canvas || data.years.length === 0) return;
+
+      if (this.winsChart) {
+        this.winsChart.destroy();
+      }
+
+      const ctx = canvas.getContext('2d');
+      this.winsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.years,
+          datasets: [
+            {
+              label: 'Total Wins',
+              data: data.wins,
+              backgroundColor: '#990000',
+              borderColor: '#660000',
+              borderWidth: 1
+            },
+            {
+              label: 'Total Losses',
+              data: data.losses,
+              backgroundColor: '#cccccc',
+              borderColor: '#999999',
+              borderWidth: 1
+            },
+            {
+              label: 'Conference Wins',
+              data: data.confWins,
+              backgroundColor: '#FFC42E',
+              borderColor: '#D9A42B',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                font: { size: 12, family: 'Inter' },
+                padding: 15
+              }
+            },
+            title: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleFont: { size: 14, family: 'Inter' },
+              bodyFont: { size: 13, family: 'Inter' },
+              padding: 12,
+              cornerRadius: 8
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                font: { size: 11, family: 'Inter' },
+                maxRotation: 45,
+                minRotation: 45
+              }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1,
+                font: { size: 11, family: 'Inter' }
+              },
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            }
+          }
+        }
+      });
     }
 
     // ============ ROSTER ============
@@ -917,7 +1019,6 @@
       section.id = 'depth-chart-section';
       section.innerHTML = `
         <div class="depth-chart-header">
-          <h2>Indiana Football Depth Chart</h2>
           <div class="depth-chart-controls">
             <select id="roster-year-select" class="year-select">
               ${[2025, 2024].map(y => `<option value="${y}" ${y === this.currentRosterYear ? 'selected' : ''}>${y}</option>`).join('')}

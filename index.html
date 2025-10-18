@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
   <!-- Header -->
@@ -72,7 +73,7 @@
             </div>
           </div>
 
-          <!-- Defensive Stats (UPDATED) -->
+          <!-- Defensive Stats -->
           <div class="stat-card">
             <h3><i class="fas fa-shield-alt"></i> Defensive Stats</h3>
             <div class="stats-content">
@@ -109,12 +110,7 @@
 
       <!-- Roster Tab -->
       <div id="roster-tab" class="tab-content">
-        <div class="roster-header">
-          <h2>Roster & Depth Chart</h2>
-        </div>
-        <div id="roster-list" class="roster-list">
-          <!-- Depth chart will be populated here -->
-        </div>
+        <!-- Depth chart will be populated here by JavaScript -->
       </div>
 
       <!-- History Tab -->
@@ -230,6 +226,14 @@
             <h3><i class="fas fa-chart-bar"></i> Season-by-Season Records (2001–Present)</h3>
             <div id="season-records" class="season-records-grid">
               <!-- Historical records will be populated here -->
+            </div>
+          </div>
+
+          <!-- Wins Over Time Chart -->
+          <div class="history-card full-width">
+            <h3><i class="fas fa-chart-line"></i> Wins Over Time (2001–Present)</h3>
+            <div class="chart-container">
+              <canvas id="wins-chart"></canvas>
             </div>
           </div>
         </div>
