@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Indiana Hoosiers Football</title>
-  <link rel="icon" type="image/png" href="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Header -->
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -27,9 +27,10 @@
     </div>
   </header>
 
+  <!-- Main Content -->
   <main class="main">
     <div class="container">
-      <!-- Loading -->
+      <!-- Loading Indicator -->
       <div id="loading" class="loading">
         <div class="spinner"></div>
         <p>Loading Hoosiers data...</p>
@@ -37,77 +38,56 @@
 
       <!-- Current Season Tab -->
       <div id="current-tab" class="tab-content active">
-        <div class="stats-overview">
-          <div class="team-header">
-            <div class="team-info">
-              <img id="team-logo" src="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png" alt="Indiana Logo" class="team-logo">
-              <div>
-                <h2 id="team-name">Indiana Hoosiers</h2>
-                <p id="team-record" class="team-record">TBD</p>
-                <p id="conference-record" class="conference-record">Conference: Big Ten</p>
-              </div>
+        <!-- Team Header -->
+        <div class="team-header">
+          <div class="team-info">
+            <img id="team-logo" src="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png" alt="Indiana Logo" class="team-logo">
+            <div>
+              <h2 id="team-name">Indiana Hoosiers</h2>
+              <div id="team-record" class="team-record">TBD</div>
             </div>
-            <div class="season-stats">
-              <div class="stat-item">
-                <span class="stat-label">Ranking</span>
-                <span id="team-ranking" class="stat-value">Unranked</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-label">Conference</span>
-                <span id="conference-name" class="stat-value">Big Ten</span>
-              </div>
+          </div>
+          <div class="season-stats">
+            <div class="stat-item">
+              <span class="stat-label">Ranking</span>
+              <span id="team-ranking" class="stat-value">Unranked</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Conference</span>
+              <span id="conference-name" class="stat-value">Big Ten</span>
             </div>
           </div>
         </div>
 
+        <!-- Stats Grid -->
         <div class="stats-grid">
+          <!-- Offensive Stats -->
           <div class="stat-card">
-            <h3><i class="fas fa-chart-line"></i> Offensive Stats</h3>
-            <div id="offensive-stats" class="stats-content">
-              <div class="stat-row">
-                <span>Points Per Game</span>
-                <span id="ppg">--</span>
-              </div>
-              <div class="stat-row">
-                <span>Yards Per Game</span>
-                <span id="ypg">--</span>
-              </div>
-              <div class="stat-row">
-                <span>Pass Yards/Game</span>
-                <span id="pass-ypg">--</span>
-              </div>
-              <div class="stat-row">
-                <span>Rush Yards/Game</span>
-                <span id="rush-ypg">--</span>
-              </div>
+            <h3><i class="fas fa-fire"></i> Offensive Stats</h3>
+            <div class="stats-content">
+              <div class="stat-row"><span>Points Per Game</span><span id="ppg">--</span></div>
+              <div class="stat-row"><span>Yards Per Game</span><span id="ypg">--</span></div>
+              <div class="stat-row"><span>Pass Yards/Game</span><span id="pass-ypg">--</span></div>
+              <div class="stat-row"><span>Rush Yards/Game</span><span id="rush-ypg">--</span></div>
             </div>
           </div>
 
+          <!-- Defensive Stats (UPDATED) -->
           <div class="stat-card">
             <h3><i class="fas fa-shield-alt"></i> Defensive Stats</h3>
-            <div id="defensive-stats" class="stats-content">
-              <div class="stat-row">
-                <span>Points Allowed/Game</span>
-                <span id="def-ppg">--</span>
-              </div>
-              <div class="stat-row">
-                <span>Yards Allowed/Game</span>
-                <span id="def-ypg">--</span>
-              </div>
-              <div class="stat-row">
-                <span>Turnovers Forced</span>
-                <span id="turnovers">--</span>
-              </div>
-              <div class="stat-row">
-                <span>Tackles For Loss </span>
-                <span id="sacks">--</span>
-              </div>
+            <div class="stats-content">
+              <div class="stat-row"><span>Points Allowed/Game</span><span id="def-ppg">--</span></div>
+              <div class="stat-row"><span>Opp 3rd Down %</span><span id="opp-third-down">--</span></div>
+              <div class="stat-row"><span>Opp 4th Down %</span><span id="opp-fourth-down">--</span></div>
             </div>
           </div>
 
-          <div class="stat-card recent-games">
-            <h3><i class="fas fa-clock"></i> Recent Games</h3>
-            <div id="recent-games" class="games-list"></div>
+          <!-- Recent Games -->
+          <div class="stat-card">
+            <h3><i class="fas fa-calendar-alt"></i> Recent Games</h3>
+            <div id="recent-games" class="games-list">
+              <!-- Recent games will be populated here -->
+            </div>
           </div>
         </div>
       </div>
@@ -117,36 +97,147 @@
         <div class="schedule-header">
           <h2>Indiana Schedule</h2>
           <div class="schedule-controls">
-            <select id="season-select"></select>
+            <select id="season-select" class="year-select">
+              <!-- Years will be populated by JavaScript -->
+            </select>
           </div>
         </div>
-        <div id="schedule-list" class="schedule-list"></div>
+        <div id="schedule-list" class="schedule-list">
+          <!-- Schedule items will be populated here -->
+        </div>
       </div>
 
-      <!-- Roster & Depth -->
+      <!-- Roster Tab -->
       <div id="roster-tab" class="tab-content">
         <div class="roster-header">
-          <h2>Indiana Football Roster & Depth Chart</h2>
+          <h2>Roster & Depth Chart</h2>
         </div>
-        <div id="roster-list" class="roster-list"></div>
+        <div id="roster-list" class="roster-list">
+          <!-- Depth chart will be populated here -->
+        </div>
       </div>
 
-      <!-- History -->
+      <!-- History Tab -->
       <div id="history-tab" class="tab-content">
         <div class="history-header">
           <h2>Historical Performance</h2>
         </div>
+        
         <div class="history-grid">
+          <!-- Program Overview -->
           <div class="history-card">
-            <h3>Season Records (2001–Present)</h3>
-            <div id="season-records" class="history-content"></div>
+            <h3><i class="fas fa-info-circle"></i> Program Overview</h3>
+            <div class="history-content">
+              <div class="history-stat">
+                <span class="history-label">Established</span>
+                <span class="history-value">1887</span>
+              </div>
+              <div class="history-stat">
+                <span class="history-label">Stadium</span>
+                <span class="history-value">Memorial Stadium</span>
+              </div>
+              <div class="history-stat">
+                <span class="history-label">Capacity</span>
+                <span class="history-value">52,626</span>
+              </div>
+              <div class="history-stat">
+                <span class="history-label">Head Coach</span>
+                <span class="history-value">Curt Cignetti</span>
+              </div>
+              <div class="history-stat">
+                <span class="history-label">Conference</span>
+                <span class="history-value">Big Ten</span>
+              </div>
+              <div class="history-stat">
+                <span class="history-label">Colors</span>
+                <span class="history-value">Cream & Crimson</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notable Achievements -->
+          <div class="history-card">
+            <h3><i class="fas fa-trophy"></i> Notable Achievements</h3>
+            <div class="history-content">
+              <div class="achievement-item">
+                <i class="fas fa-medal achievement-icon"></i>
+                <div>
+                  <div class="achievement-title">Big Ten Championships</div>
+                  <div class="achievement-years">1945, 1967 (Co-Champions)</div>
+                </div>
+              </div>
+              <div class="achievement-item">
+                <i class="fas fa-star achievement-icon"></i>
+                <div>
+                  <div class="achievement-title">Bowl Game Appearances</div>
+                  <div class="achievement-years">14 total (as of 2024)</div>
+                </div>
+              </div>
+              <div class="achievement-item">
+                <i class="fas fa-award achievement-icon"></i>
+                <div>
+                  <div class="achievement-title">All-Americans</div>
+                  <div class="achievement-years">30+ players honored</div>
+                </div>
+              </div>
+              <div class="achievement-item">
+                <i class="fas fa-graduation-cap achievement-icon"></i>
+                <div>
+                  <div class="achievement-title">Academic Excellence</div>
+                  <div class="achievement-years">Multiple Academic All-Big Ten selections</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bowl Game History -->
+          <div class="history-card">
+            <h3><i class="fas fa-football-ball"></i> Bowl Game History</h3>
+            <div class="history-content">
+              <div class="achievement-item">
+                <i class="fas fa-calendar achievement-icon"></i>
+                <div>
+                  <div class="achievement-title">Recent Bowls</div>
+                  <div class="achievement-years">Gator Bowl (2020), TaxSlayer Bowl (2016)</div>
+                </div>
+              </div>
+              <div class="achievement-item">
+                <i class="fas fa-check-circle achievement-icon"></i>
+                <div>
+                  <div class="achievement-title">Bowl Wins</div>
+                  <div class="achievement-years">6 victories in bowl games</div>
+                </div>
+              </div>
+              <div class="achievement-item">
+                <i class="fas fa-users achievement-icon"></i>
+                <div>
+                  <div class="achievement-title">Notable NFL Players</div>
+                  <div class="achievement-years">Antwaan Randle El, Tracy Porter, Tevin Coleman</div>
+                </div>
+              </div>
+              <div class="achievement-item">
+                <i class="fas fa-chart-line achievement-icon"></i>
+                <div>
+                  <div class="achievement-title">Program Milestones</div>
+                  <div class="achievement-years">900+ all-time wins since 1887</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Season Records -->
+          <div class="history-card full-width">
+            <h3><i class="fas fa-chart-bar"></i> Season-by-Season Records (2001–Present)</h3>
+            <div id="season-records" class="season-records-grid">
+              <!-- Historical records will be populated here -->
+            </div>
           </div>
         </div>
       </div>
-
     </div>
   </main>
 
+  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <p>© 2025 Indiana Hoosiers Football Stats. Data provided by ESPN APIs.</p>

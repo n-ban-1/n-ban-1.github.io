@@ -1,5 +1,6 @@
-/* Indiana Hoosiers Football — Complete Fixed Version
-   Fixes: Score extraction from {value: X} format, comprehensive stats display
+/* Indiana Hoosiers Football - COMPLETE VERSION WITH 3RD/4TH DOWN STATS
+   Date: October 18, 2025
+   Updated defensive stats to show opponent down conversion percentages
 */
 
 (function () {
@@ -10,7 +11,6 @@
       this.TEAM_ID = 84;
       this.DATA_BASE = './indiana_football_history';
       this.MIN_YEAR = 2001;
-      this.CUTOVER_TS = Date.parse('2025-08-08T00:00:00Z');
       this.ESPN = { site: 'https://site.api.espn.com' };
 
       const nowY = new Date().getFullYear();
@@ -29,7 +29,6 @@
         teamLogo: document.getElementById('team-logo'),
         teamName: document.getElementById('team-name'),
         teamRecord: document.getElementById('team-record'),
-        confRecord: document.getElementById('conference-record'),
         confName: document.getElementById('conference-name'),
         teamRank: document.getElementById('team-ranking'),
         ppg: document.getElementById('ppg'),
@@ -37,9 +36,8 @@
         passYpg: document.getElementById('pass-ypg'),
         rushYpg: document.getElementById('rush-ypg'),
         defPpg: document.getElementById('def-ppg'),
-        defYpg: document.getElementById('def-ypg'),
-        turnovers: document.getElementById('turnovers'),
-        sacks: document.getElementById('sacks'),
+        oppThirdDown: document.getElementById('opp-third-down'),
+        oppFourthDown: document.getElementById('opp-fourth-down'),
         recentGames: document.getElementById('recent-games'),
         scheduleList: document.getElementById('schedule-list'),
         seasonSelect: document.getElementById('season-select'),
@@ -48,6 +46,7 @@
         seasonRecords: document.getElementById('season-records'),
       };
 
+      console.log('🏈 Indiana Football App Initialized - Version 3.0 (Down Conversion Stats)');
       this.init();
     }
 
@@ -81,26 +80,26 @@
     }
     
     top25(n) { const x = Number(n); return Number.isFinite(x) && x >= 1 && x <= 25 ? x : null; }
-    isAfterCutover() { return Date.now() > this.CUTOVER_TS; }
-    preferLocal(year) { return (year < 2025) || (year === 2025 && !this.isAfterCutover()); }
 
-    /**
-     * CRITICAL FIX: Extract score from ESPN's {value: X, displayValue: "X"} format
-     */
+    // CRITICAL: Score extraction from ESPN's format
     getScore(scoreObj) {
       if (!scoreObj) return null;
-      // Handle object format: {value: 30, displayValue: "30"}
       if (typeof scoreObj === 'object' && scoreObj.value !== undefined) {
         const val = Number(scoreObj.value);
         return Number.isFinite(val) ? val : null;
       }
-      // Handle direct number/string
       const val = Number(scoreObj);
       return Number.isFinite(val) ? val : null;
     }
 
+    // FIXED: Simple year-based logic - NO local files for 2025
+    useLocalData(year) {
+      return year < 2025;
+    }
+
     // ============ NETWORK ============
     async fetchJson(url, { retries = 1, timeout = 12000 } = {}) {
+      console.log(`🌐 Fetching: ${url}`);
       for (let a = 0; a <= retries; a++) {
         const ctrl = new AbortController();
         const timer = setTimeout(() => ctrl.abort(), timeout);
@@ -108,9 +107,11 @@
           const res = await fetch(url, { headers: { Accept: 'application/json' }, signal: ctrl.signal });
           clearTimeout(timer);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          console.log(`✅ Fetch success: ${url}`);
           return await res.json();
         } catch (e) {
           clearTimeout(timer);
+          console.warn(`❌ Fetch failed (attempt ${a + 1}): ${url}`, e.message);
           if (a === retries) return null;
           await new Promise(r => setTimeout(r, 300 * (a + 1)));
         }
@@ -205,28 +206,38 @@
       };
     }
 
-    // ============ DATA RETRIEVAL ============
+    // ============ DATA RETRIEVAL - FIXED ============
     async getSeasonSchedule(year) {
+      console.log(`📅 Getting schedule for ${year}`);
       const key = `sched:${year}`;
       const cached = this.mem.get(key) || this.getLS(key);
-      if (cached) return cached;
+      if (cached) {
+        console.log(`✅ Using cached schedule for ${year}`);
+        return cached;
+      }
 
       let events = [];
-      if (this.preferLocal(year)) {
+      
+      // FIXED: Use API for 2025, local for older years
+      if (this.useLocalData(year)) {
+        console.log(`📂 Trying local data for ${year}`);
         const local = await this.fetchLocal(`${year}/schedule.json`);
         events = this.pickEventsArray(local);
         if (!events || events.length === 0) {
+          console.log(`⚠️ Local data failed, using API for ${year}`);
           const url = `${this.ESPN.site}/apis/site/v2/sports/football/college-football/teams/${this.TEAM_ID}/schedule?season=${year}`;
-          const json = await this.fetchJson(url, { timeout: 12000 });
+          const json = await this.fetchJson(url);
           events = this.pickEventsArray(json);
         }
       } else {
+        console.log(`🌐 Using API for ${year}`);
         const url = `${this.ESPN.site}/apis/site/v2/sports/football/college-football/teams/${this.TEAM_ID}/schedule?season=${year}`;
-        const json = await this.fetchJson(url, { timeout: 12000 });
+        const json = await this.fetchJson(url);
         events = this.pickEventsArray(json);
       }
 
       events = Array.isArray(events) ? events : [];
+      console.log(`✅ Got ${events.length} events for ${year}`);
       this.mem.set(key, events);
       this.setLS(key, events, 12 * 60 * 60 * 1000);
       return events;
@@ -241,20 +252,26 @@
     }
 
     async getSummary(year, eventId) {
+      console.log(`📄 Getting summary for event ${eventId} (${year})`);
       const key = `sum:${year}:${eventId}`;
       const cached = this.mem.get(key) || this.getLS(key);
-      if (cached) return cached;
+      if (cached) {
+        console.log(`✅ Using cached summary for ${eventId}`);
+        return cached;
+      }
 
       let data = null;
-      if (this.preferLocal(year)) {
+      
+      // FIXED: Use API for 2025, local for older years
+      if (this.useLocalData(year)) {
         data = await this.fetchLocal(`${year}/game_${eventId}/summary.json`);
         if (!data) {
           const url = `${this.ESPN.site}/apis/site/v2/sports/football/college-football/summary?event=${eventId}`;
-          data = await this.fetchJson(url, { timeout: 12000 });
+          data = await this.fetchJson(url);
         }
       } else {
         const url = `${this.ESPN.site}/apis/site/v2/sports/football/college-football/summary?event=${eventId}`;
-        data = await this.fetchJson(url, { timeout: 12000 });
+        data = await this.fetchJson(url);
       }
 
       if (data) {
@@ -264,13 +281,41 @@
       return data;
     }
 
+    // ============ GAME LEADERS - FIXED ============
+    extractGameLeaders(summary, teamId) {
+      try {
+        const cats = summary?.leaders?.leaders;
+        if (!Array.isArray(cats)) return null;
+        
+        const find = (needle) => cats.find(c => (c.name || c.displayName || '').toLowerCase().includes(needle));
+        const pack = (cat) => {
+          if (!cat || !Array.isArray(cat.leaders)) return null;
+          const mine = cat.leaders.find(l => String(l.team?.id) === String(teamId)) || cat.leaders[0];
+          if (!mine?.athlete) return null;
+          const name = mine.athlete.displayName || mine.athlete.shortName || '—';
+          const stat = mine.displayValue || mine.value || '';
+          return { name, stat };
+        };
+        
+        return {
+          passing: pack(find('pass')),
+          rushing: pack(find('rush')),
+          receiving: pack(find('receiv'))
+        };
+      } catch (e) {
+        console.warn('⚠️ Failed to extract game leaders:', e);
+        return null;
+      }
+    }
+
     // ============ TEAM INFO ============
     async loadTeamInfo() {
+      console.log('🏈 Loading team info...');
       this.setText(this.dom.confName, 'Big Ten');
       
       try {
         const url = `${this.ESPN.site}/apis/site/v2/sports/football/college-football/teams/${this.TEAM_ID}?enable=record,rankings,logos,conference`;
-        const resp = await this.fetchJson(url, { timeout: 10000 });
+        const resp = await this.fetchJson(url);
         const team = resp?.team;
         
         if (team) {
@@ -279,18 +324,14 @@
           this.setText(this.dom.teamName, team.displayName || 'Indiana Hoosiers');
 
           let overall = 'TBD';
-          let conf = 'Conference: TBD';
           const items = team.record?.items;
           
           if (Array.isArray(items) && items.length) {
             const total = items.find(i => i.type === 'total') || items[0];
             if (total?.summary) overall = total.summary;
-            const vsConf = items.find(i => i.type === 'vsconf');
-            if (vsConf?.summary) conf = `Conference: ${vsConf.summary}`;
           }
           
           this.setText(this.dom.teamRecord, overall);
-          this.setText(this.dom.confRecord, conf);
 
           let rankOut = 'Unranked';
           if (typeof team.rank === 'number') {
@@ -303,57 +344,43 @@
             rankOut = top ? `#${top}` : 'Unranked';
           }
           this.setText(this.dom.teamRank, rankOut);
+          console.log('✅ Team info loaded');
           return;
         }
-      } catch {}
+      } catch (e) {
+        console.warn('⚠️ Team API failed, computing from games:', e);
+      }
 
+      // Fallback
       const events = await this.getSeasonSchedule(this.currentYear);
       const rec = await this.computeSeasonRecordFromEvents(this.currentYear, events);
       const overall = (rec.w + rec.l + rec.t) > 0 ? `${rec.w}-${rec.l}${rec.t ? `-${rec.t}` : ''}` : 'TBD';
-      const conf = `${rec.cw}-${rec.cl}${rec.ct ? `-${rec.ct}` : ''}`;
       
       this.dom.teamLogo.src = 'https://a.espncdn.com/i/teamlogos/ncaa/500/84.png';
       this.setText(this.dom.teamName, 'Indiana Hoosiers');
       this.setText(this.dom.teamRecord, overall);
-      this.setText(this.dom.confRecord, `Conference: ${conf}`);
       this.setText(this.dom.teamRank, 'Unranked');
     }
 
-    // ============ RECORDS ============
+    // ============ RECORDS - FIXED TO ALWAYS FETCH SUMMARIES ============
     async computeSeasonRecordFromEvents(year, events) {
+      console.log(`📊 Computing record for ${year} from ${events?.length || 0} events`);
       let w = 0, l = 0, t = 0, cw = 0, cl = 0, ct = 0;
       
       for (const e of (events || [])) {
-        const comp = e?.competitions?.[0];
-        const comps = comp?.competitors || [];
-        const mine = comps.find(x => String(x.team?.id) === String(this.TEAM_ID));
-        const opp = comps.find(x => x !== mine);
-        if (!mine || !opp) continue;
+        // CRITICAL: Always fetch summary to get accurate data
+        const sum = await this.getSummary(year, e.id);
+        if (!sum) continue;
 
-        let st = e.status?.type || e.status || {};
-        let completed = !!(st && (st.state === 'post' || st.completed === true));
+        const hcomp = sum?.header?.competitions?.[0];
+        const hcomps = hcomp?.competitors || [];
+        const hmine = hcomps.find(x => String(x.team?.id) === String(this.TEAM_ID));
+        const hopp = hcomps.find(x => x !== hmine);
         
-        // FIXED: Use getScore helper
-        let my = this.getScore(mine.score);
-        let th = this.getScore(opp.score);
-        let isConf = comp?.conferenceCompetition === true;
-
-        if ((!completed || my === null || th === null) || (isConf === undefined)) {
-          const sum = await this.getSummary(year, e.id);
-          const hcomp = sum?.header?.competitions?.[0];
-          const hcomps = hcomp?.competitors || [];
-          const hmine = hcomps.find(x => String(x.team?.id) === String(this.TEAM_ID));
-          const hopp = hcomps.find(x => x !== hmine);
-          const hst = hcomp?.status?.type || {};
-          if (!completed) completed = (hst.state === 'post' || hst.completed === true);
-          if (my === null || th === null) {
-            my = this.getScore(hmine?.score);
-            th = this.getScore(hopp?.score);
-          }
-          if (isConf === undefined) isConf = (hcomp?.conferenceCompetition === true);
-        }
-
-        if (!completed) continue;
+        const my = this.getScore(hmine?.score);
+        const th = this.getScore(hopp?.score);
+        const isConf = hcomp?.conferenceCompetition === true;
+        
         if (my === null || th === null) continue;
 
         if (my > th) { w++; if (isConf) cw++; }
@@ -361,6 +388,7 @@
         else { t++; if (isConf) ct++; }
       }
       
+      console.log(`✅ Record: ${w}-${l}-${t}, Conf: ${cw}-${cl}-${ct}`);
       return { w, l, t, cw, cl, ct };
     }
 
@@ -378,7 +406,7 @@
       c.innerHTML = '';
 
       if (!events || events.length === 0) {
-        c.innerHTML = `<div class="schedule-item"><div class="game-details"><div class="opponent-name">No games found</div></div></div>`;
+        c.innerHTML = `<div class="schedule-item"><div class="game-details"><div class="opponent">No games found</div></div></div>`;
         return;
       }
 
@@ -419,48 +447,21 @@
     }
 
     async resolveStatusAndScore(year, e, comp, mine, opp) {
-      const st = e.status?.type || e.status || {};
-      let statusClass = 'status-upcoming';
-      let statusText = 'TBD';
-
-      if (st.state === 'pre') {
-        return { statusClass: 'status-upcoming', statusText: 'TBD' };
+      const sum = await this.getSummary(year, e.id);
+      const hcomp = sum?.header?.competitions?.[0];
+      const hcomps = hcomp?.competitors || [];
+      const hmine = hcomps?.find(x => String(x.team?.id) === String(this.TEAM_ID));
+      const hopp = hcomps?.find(x => x !== hmine);
+      
+      let my = this.getScore(hmine?.score);
+      let th = this.getScore(hopp?.score);
+      
+      if (my !== null && th !== null && my >= 0 && th >= 0) {
+        const wl = my > th ? 'W' : (my < th ? 'L' : 'T');
+        return { statusClass: 'status-final', statusText: `${wl} ${my}-${th}` };
       }
       
-      if (st.state === 'in') {
-        statusClass = 'status-live';
-        const period = comp?.status?.period;
-        const clock = comp?.status?.displayClock;
-        statusText = (period && clock) ? `LIVE Q${period} ${clock}` : 'LIVE';
-        return { statusClass, statusText };
-      }
-      
-      if (st.state === 'post' || st.completed === true) {
-        statusClass = 'status-final';
-        
-        // FIXED: Use getScore helper
-        let my = this.getScore(mine?.score);
-        let th = this.getScore(opp?.score);
-        
-        if (my === null || th === null) {
-          const sum = await this.getSummary(year, e.id);
-          const hcomp = sum?.header?.competitions?.[0];
-          const hcomps = hcomp?.competitors || [];
-          const hmine = hcomps.find(x => String(x.team?.id) === String(this.TEAM_ID));
-          const hopp = hcomps.find(x => x !== hmine);
-          my = this.getScore(hmine?.score);
-          th = this.getScore(hopp?.score);
-        }
-        
-        if (my !== null && th !== null) {
-          const wl = my > th ? 'W' : (my < th ? 'L' : 'T');
-          statusText = `${wl} ${my}-${th}`;
-        } else {
-          statusText = 'Final';
-        }
-      }
-
-      return { statusClass, statusText };
+      return { statusClass: 'status-upcoming', statusText: 'TBD' };
     }
 
     wireScheduleItemDetails() {
@@ -483,7 +484,6 @@
           const sum = await this.getSummary(year, eid);
           const rows = [];
 
-          // Get scores
           const hcomp = sum?.header?.competitions?.[0];
           const hcomps = hcomp?.competitors || [];
           const hmine = hcomps?.find(x => String(x.team?.id) === String(this.TEAM_ID));
@@ -493,10 +493,26 @@
           const oppScore = this.getScore(hopp?.score);
           
           if (myScore !== null && oppScore !== null) {
-            rows.push(`<div class="row"><span class="badge">Score</span><span>Indiana ${myScore}, ${hopp?.team?.displayName || 'Opponent'} ${oppScore}</span></div>`);
+            rows.push(`<div class="row"><span class="badge">Score</span><span style="font-weight:700; font-size:1.1em;">Indiana ${myScore}, ${hopp?.team?.displayName || 'Opponent'} ${oppScore}</span></div>`);
           }
 
-          // ALL BOXSCORE STATS
+          // GAME LEADERS - PROMINENTLY DISPLAYED
+          const leaders = this.extractGameLeaders(sum, this.TEAM_ID);
+          if (leaders && (leaders.passing || leaders.rushing || leaders.receiving)) {
+            rows.push(`<div class="row" style="font-weight:700; margin-top:16px; font-size:1.1em; color:#990000; border-bottom:2px solid #990000; padding-bottom:8px;"><span>🏆 GAME LEADERS</span></div>`);
+            
+            if (leaders.passing) {
+              rows.push(`<div class="row" style="margin-top:8px;"><span class="badge" style="background:#990000; color:white; font-weight:600;">Passing</span><span style="font-weight:600;">${leaders.passing.name} - ${leaders.passing.stat}</span></div>`);
+            }
+            if (leaders.rushing) {
+              rows.push(`<div class="row"><span class="badge" style="background:#990000; color:white; font-weight:600;">Rushing</span><span style="font-weight:600;">${leaders.rushing.name} - ${leaders.rushing.stat}</span></div>`);
+            }
+            if (leaders.receiving) {
+              rows.push(`<div class="row"><span class="badge" style="background:#990000; color:white; font-weight:600;">Receiving</span><span style="font-weight:600;">${leaders.receiving.name} - ${leaders.receiving.stat}</span></div>`);
+            }
+          }
+
+          // COMPREHENSIVE STATS
           try {
             const teams = sum?.boxscore?.teams;
             if (Array.isArray(teams) && teams.length === 2) {
@@ -516,9 +532,17 @@
                 'Total Yards': getStat(me, 'totalYards'),
                 'Passing': getStat(me, 'netPassingYards'),
                 'Comp/Att': getStat(me, 'completionAttempts'),
+                'Yards/Pass': getStat(me, 'yardsPerPass'),
                 'Rushing': getStat(me, 'rushingYards'),
+                'Rushing Attempts': getStat(me, 'rushingAttempts'),
+                'Yards/Rush': getStat(me, 'yardsPerRushAttempt'),
                 'Penalties': getStat(me, 'totalPenaltiesYards'),
                 'Turnovers': getStat(me, 'turnovers'),
+                '3rd Down Conv': getStat(me, 'thirdDownEff'),
+                '4th Down Conv': getStat(me, 'fourthDownEff'),
+                'Red Zone': getStat(me, 'redZoneAttempts'),
+                'Sacks': getStat(me, 'sacks'),
+                'Tackles For Loss': getStat(me, 'tacklesForLoss'),
                 'Possession': getStat(me, 'possessionTime')
               };
 
@@ -526,31 +550,38 @@
                 '1st Downs': getStat(oppTeam, 'firstDowns'),
                 'Total Yards': getStat(oppTeam, 'totalYards'),
                 'Passing': getStat(oppTeam, 'netPassingYards'),
-                'Rushing': getStat(oppTeam, 'rushingYards')
+                'Comp/Att': getStat(oppTeam, 'completionAttempts'),
+                'Rushing': getStat(oppTeam, 'rushingYards'),
+                'Rushing Attempts': getStat(oppTeam, 'rushingAttempts'),
+                'Penalties': getStat(oppTeam, 'totalPenaltiesYards'),
+                'Turnovers': getStat(oppTeam, 'turnovers'),
+                '3rd Down Conv': getStat(oppTeam, 'thirdDownEff'),
+                '4th Down Conv': getStat(oppTeam, 'fourthDownEff')
               };
 
-              rows.push(`<div class="row" style="font-weight:600; margin-top:8px;"><span>INDIANA STATS</span></div>`);
+              rows.push(`<div class="row" style="font-weight:600; margin-top:16px; font-size:1.05em; color:#990000; border-bottom:2px solid #990000; padding-bottom:6px;"><span>INDIANA STATS</span></div>`);
               Object.entries(myStats).forEach(([label, val]) => {
-                if (val) rows.push(`<div class="row"><span class="badge">${label}</span><span>${val}</span></div>`);
+                if (val) rows.push(`<div class="row"><span class="badge">${label}</span><span style="font-weight:600;">${val}</span></div>`);
               });
 
-              rows.push(`<div class="row" style="font-weight:600; margin-top:8px;"><span>OPPONENT STATS</span></div>`);
+              rows.push(`<div class="row" style="font-weight:600; margin-top:16px; font-size:1.05em; color:#990000; border-bottom:2px solid #990000; padding-bottom:6px;"><span>OPPONENT STATS</span></div>`);
               Object.entries(oppStats).forEach(([label, val]) => {
-                if (val) rows.push(`<div class="row"><span class="badge">${label}</span><span>${val}</span></div>`);
+                if (val) rows.push(`<div class="row"><span class="badge">${label}</span><span style="font-weight:600;">${val}</span></div>`);
               });
             }
-          } catch {}
+          } catch (e) {
+            console.warn('⚠️ Failed to extract boxscore stats:', e);
+          }
 
-          // TV
+          // Additional info
           try {
             const bs = sum?.header?.competitions?.[0]?.broadcasts || [];
             if (Array.isArray(bs) && bs.length) {
               const net = bs[0]?.names?.[0] || '';
-              if (net) rows.push(`<div class="row"><span class="badge">TV</span><span>${net}</span></div>`);
+              if (net) rows.push(`<div class="row" style="margin-top:12px;"><span class="badge">TV</span><span>${net}</span></div>`);
             }
           } catch {}
 
-          // Venue
           try {
             const v = sum?.gameInfo?.venue?.fullName || sum?.header?.competitions?.[0]?.venue?.fullName;
             const a = sum?.gameInfo?.attendance;
@@ -562,8 +593,9 @@
       });
     }
 
-    // ============ RECENT GAMES ============
+    // ============ RECENT GAMES - WITH LEADERS ============
     async loadRecentGames() {
+      console.log('🎮 Loading recent games...');
       const c = this.dom.recentGames;
       if (!c) return;
       c.innerHTML = '';
@@ -574,44 +606,32 @@
         return;
       }
 
-      const now = Date.now();
-      const recent = events
-        .filter((e) => {
-          const st = e.status?.type || e.status;
-          if (!st) return new Date(e.date).getTime() <= now;
-          return st.state === 'post' || st.completed === true || st.state === 'in' || new Date(e.date).getTime() <= now;
-        })
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
+      const completedGames = [];
+      for (const e of events) {
+        const sum = await this.getSummary(this.currentYear, e.id);
+        const hcomp = sum?.header?.competitions?.[0];
+        const hcomps = hcomp?.competitors || [];
+        const hmine = hcomps?.find(x => String(x.team?.id) === String(this.TEAM_ID));
+        const hopp = hcomps?.find(x => x !== hmine);
+        
+        const my = this.getScore(hmine?.score);
+        const th = this.getScore(hopp?.score);
+        
+        if (my !== null && th !== null && my >= 0 && th >= 0) {
+          completedGames.push({ event: e, summary: sum, myScore: my, oppScore: th });
+        }
+      }
+
+      const recent = completedGames
+        .sort((a, b) => new Date(b.event.date) - new Date(a.event.date))
         .slice(0, 5);
 
       if (recent.length === 0) {
-        const up = events
-          .filter((e) => { const st = e.status?.type || e.status; return !st || st.state === 'pre'; })
-          .sort((a, b) => new Date(a.date) - new Date(b.date))
-          .slice(0, 5);
-
-        up.forEach((e) => {
-          const comp = e.competitions?.[0];
-          const comps = comp?.competitors || [];
-          const mine = comps.find(x => String(x.team?.id) === String(this.TEAM_ID));
-          const opp = comps.find(x => x !== mine);
-          const isHome = (mine?.homeAway) === 'home';
-          const oppName = opp?.team?.displayName || 'TBD';
-          
-          const d = document.createElement('div');
-          d.className = 'game-item';
-          d.innerHTML = `
-            <div class="game-info">
-              <div class="opponent">${isHome ? 'vs' : '@'} ${oppName}</div>
-              <div class="game-date">${this.fmtDateTime(e.date)}</div>
-            </div>
-            <div class="game-result upcoming">—</div>`;
-          c.appendChild(d);
-        });
+        c.innerHTML = '<div class="game-item"><div>No completed games yet.</div></div>';
         return;
       }
 
-      for (const e of recent) {
+      for (const { event: e, summary, myScore, oppScore } of recent) {
         const comp = e.competitions?.[0];
         const comps = comp?.competitors || [];
         const mine = comps.find(x => String(x.team?.id) === String(this.TEAM_ID));
@@ -619,52 +639,21 @@
         const isHome = (mine?.homeAway) === 'home';
         const oppName = opp?.team?.displayName || 'TBD';
 
-        const summary = await this.getSummary(this.currentYear, e.id);
-        
-        let cls = 'upcoming';
-        let resText = '—';
-        const st = e.status?.type || e.status || {};
-        
-        if (st.state === 'in') {
-          cls = 't';
-          const period = comp?.status?.period;
-          const clock = comp?.status?.displayClock;
-          resText = (period && clock) ? `LIVE Q${period} ${clock}` : 'LIVE';
-        } else if (st.state === 'post' || st.completed === true) {
-          // FIXED: Use getScore
-          let my = this.getScore(mine?.score);
-          let th = this.getScore(opp?.score);
-          
-          if (my === null || th === null) {
-            const hcomp = summary?.header?.competitions?.[0];
-            const hcomps = hcomp?.competitors || [];
-            const hmine = hcomps?.find(x => String(x.team?.id) === String(this.TEAM_ID));
-            const hopp = hcomps?.find(x => x !== hmine);
-            my = this.getScore(hmine?.score);
-            th = this.getScore(hopp?.score);
-          }
-          
-          if (my !== null && th !== null) {
-            const wl = my > th ? 'W' : (my < th ? 'L' : 'T');
-            cls = wl.toLowerCase();
-            resText = `${wl} ${my}-${th}`;
-          } else {
-            cls = 't';
-            resText = 'Final';
-          }
-        }
+        const wl = myScore > oppScore ? 'W' : (myScore < oppScore ? 'L' : 'T');
+        const cls = wl.toLowerCase();
+        const resText = `${wl} ${myScore}-${oppScore}`;
 
         let leadersHtml = '';
-        const leaders = this.extractTeamLeaders(summary, this.TEAM_ID);
+        const leaders = this.extractGameLeaders(summary, this.TEAM_ID);
         if (leaders) {
           const p = leaders.passing ? `${leaders.passing.name} ${leaders.passing.stat}` : '—';
           const r = leaders.rushing ? `${leaders.rushing.name} ${leaders.rushing.stat}` : '—';
           const rc = leaders.receiving ? `${leaders.receiving.name} ${leaders.receiving.stat}` : '—';
           leadersHtml = `
-            <div class="game-leaders" style="margin-top:6px; font-size:0.85rem;">
-              <div>P: ${p}</div>
-              <div>R: ${r}</div>
-              <div>Rec: ${rc}</div>
+            <div class="game-leaders" style="margin-top:6px; font-size:0.85rem; color:#666;">
+              <div><strong>P:</strong> ${p}</div>
+              <div><strong>R:</strong> ${r}</div>
+              <div><strong>Rec:</strong> ${rc}</div>
             </div>`;
         }
 
@@ -678,70 +667,54 @@
           </div>
           <div class="game-result ${cls}">${resText}</div>`;
         c.appendChild(d);
-        
-        if (this.isMobile) await new Promise(r => setTimeout(r, 150));
       }
+      console.log(`✅ Loaded ${recent.length} recent games`);
     }
 
-    extractTeamLeaders(summary, teamId) {
-      try {
-        const cats = summary?.leaders?.leaders;
-        if (!Array.isArray(cats)) return null;
-        
-        const find = (needle) => cats.find(c => (c.name || c.displayName || '').toLowerCase().includes(needle));
-        const pack = (cat) => {
-          if (!cat || !Array.isArray(cat.leaders)) return null;
-          const mine = cat.leaders.find(l => String(l.team?.id) === String(teamId)) || cat.leaders[0];
-          if (!mine?.athlete) return null;
-          const name = mine.athlete.displayName || mine.athlete.shortName || '—';
-          const stat = mine.displayValue || mine.value || '';
-          return { name, stat };
-        };
-        
-        return {
-          passing: pack(find('pass')),
-          rushing: pack(find('rush')),
-          receiving: pack(find('receiv'))
-        };
-      } catch { return null; }
-    }
-
-    // ============ TEAM STATS ============
+    // ============ TEAM STATS - UPDATED FOR 3RD/4TH DOWN % ============
     async loadTeamStats() {
+      console.log('📊 Loading team stats...');
       let year = this.currentYear;
       let events = await this.getSeasonSchedule(year);
-      let completed = this.filterCompleted(events);
+      let completed = await this.filterCompleted(events, year);
       let backSteps = 0;
       
       while ((!completed || completed.length === 0) && year > this.MIN_YEAR && backSteps < 5) {
         year -= 1;
         backSteps += 1;
         events = await this.getSeasonSchedule(year);
-        completed = this.filterCompleted(events);
+        completed = await this.filterCompleted(events, year);
       }
 
       if (!completed || completed.length === 0) {
+        console.warn('⚠️ No completed games found');
         this.setStat(this.dom.ppg, '--');
         this.setStat(this.dom.ypg, '--');
         this.setStat(this.dom.passYpg, '--');
         this.setStat(this.dom.rushYpg, '--');
         this.setStat(this.dom.defPpg, '--');
-        this.setStat(this.dom.defYpg, '--');
-        this.setStat(this.dom.turnovers, '--');
-        this.setStat(this.dom.sacks, '--');
+        this.setStat(this.dom.oppThirdDown, '--');
+        this.setStat(this.dom.oppFourthDown, '--');
         return;
       }
 
+      console.log(`📊 Computing stats from ${completed.length} games in ${year}`);
+
       let games = 0;
       let pts = 0, oppPts = 0, passYds = 0, rushYds = 0, totalYds = 0;
-      let oppTotalYds = 0, sacks = 0, toForced = 0;
+      let oppThirdConv = 0, oppThirdAtt = 0, oppFourthConv = 0, oppFourthAtt = 0;
 
       for (let i = 0; i < completed.length; i++) {
         const e = completed[i];
         const sum = await this.getSummary(year, e.id);
         const parsed = this.parseSummaryStats(sum, e);
         
-        if (!parsed) continue;
+        if (!parsed) {
+          console.warn(`⚠️ Failed to parse stats for event ${e.id}`);
+          continue;
+        }
+        
+        console.log(`✅ Game ${i + 1}: ${parsed.pts}-${parsed.oppPts}, Opp 3rd: ${parsed.oppThirdConv}/${parsed.oppThirdAtt}, Opp 4th: ${parsed.oppFourthConv}/${parsed.oppFourthAtt}`);
         
         games++;
         pts += parsed.pts;
@@ -749,9 +722,10 @@
         passYds += parsed.passYds;
         rushYds += parsed.rushYds;
         totalYds += parsed.totalYds;
-        oppTotalYds += parsed.oppTotalYds;
-        sacks += parsed.sacks;
-        toForced += parsed.turnoversForced;
+        oppThirdConv += parsed.oppThirdConv;
+        oppThirdAtt += parsed.oppThirdAtt;
+        oppFourthConv += parsed.oppFourthConv;
+        oppFourthAtt += parsed.oppFourthAtt;
         
         if (this.isMobile && (i % this.summaryConcurrency === 0)) {
           await new Promise(r => setTimeout(r, 120));
@@ -759,32 +733,43 @@
       }
 
       const avg = (v) => (games ? (v / games) : 0);
+      const pct = (conv, att) => (att > 0 ? ((conv / att) * 100).toFixed(1) + '%' : '0.0%');
+      
+      console.log(`📊 Final Stats - Games: ${games}, Opp 3rd: ${oppThirdConv}/${oppThirdAtt}, Opp 4th: ${oppFourthConv}/${oppFourthAtt}`);
       
       this.setStat(this.dom.ppg, games ? avg(pts).toFixed(1) : '--');
       this.setStat(this.dom.ypg, games ? avg(totalYds).toFixed(1) : '--');
       this.setStat(this.dom.passYpg, games ? avg(passYds).toFixed(1) : '--');
       this.setStat(this.dom.rushYpg, games ? avg(rushYds).toFixed(1) : '--');
       this.setStat(this.dom.defPpg, games ? avg(oppPts).toFixed(1) : '--');
-      this.setStat(this.dom.defYpg, games ? avg(oppTotalYds).toFixed(1) : '--');
-      this.setStat(this.dom.turnovers, games ? toForced : '--');
-      this.setStat(this.dom.sacks, games ? sacks : '--');
+      this.setStat(this.dom.oppThirdDown, games ? pct(oppThirdConv, oppThirdAtt) : '--');
+      this.setStat(this.dom.oppFourthDown, games ? pct(oppFourthConv, oppFourthAtt) : '--');
+      
+      console.log('✅ Team stats loaded');
     }
 
-    filterCompleted(events) {
-      return (events || []).filter((e) => {
-        const st = e.status?.type || e.status || {};
-        if (st.state === 'post' || st.completed === true) return true;
+    async filterCompleted(events, year) {
+      const completed = [];
+      
+      for (const e of (events || [])) {
+        const sum = await this.getSummary(year, e.id);
         
-        const comp = e.competitions?.[0];
-        const comps = comp?.competitors || [];
-        const mine = comps.find(x => String(x.team?.id) === String(this.TEAM_ID));
-        const opp = comps.find(x => x !== mine);
+        if (!sum) continue;
         
-        // FIXED: Use getScore
-        const my = this.getScore(mine?.score);
-        const th = this.getScore(opp?.score);
-        return my !== null && th !== null;
-      });
+        const hcomp = sum?.header?.competitions?.[0];
+        const hcomps = hcomp?.competitors || [];
+        const hmine = hcomps.find(x => String(x.team?.id) === String(this.TEAM_ID));
+        const hopp = hcomps.find(x => x !== hmine);
+        
+        const my = this.getScore(hmine?.score);
+        const th = this.getScore(hopp?.score);
+        
+        if (my !== null && th !== null && my >= 0 && th >= 0) {
+          completed.push(e);
+        }
+      }
+      
+      return completed;
     }
 
     parseSummaryStats(summary, eFromSchedule) {
@@ -793,7 +778,6 @@
       const mine = comps.find(x => String(x.team?.id) === String(this.TEAM_ID));
       const opp = comps.find(x => x !== mine);
       
-      // FIXED: Use getScore
       let myPts = this.getScore(mine?.score) || 0;
       let theirPts = this.getScore(opp?.score) || 0;
       
@@ -806,7 +790,8 @@
         theirPts = this.getScore(hopp?.score) || 0;
       }
 
-      let totalYds = 0, passYds = 0, rushYds = 0, oppTotalYds = 0, sacks = 0, turnoversForced = 0;
+      let totalYds = 0, passYds = 0, rushYds = 0;
+      let oppThirdConv = 0, oppThirdAtt = 0, oppFourthConv = 0, oppFourthAtt = 0;
       
       try {
         const teams = summary?.boxscore?.teams;
@@ -820,24 +805,54 @@
             if (!obj || !Array.isArray(obj.statistics)) return 0;
             
             for (const stat of obj.statistics) {
-              const name = (stat.name || stat.displayName || '').toLowerCase();
-              if (names.some(n => name.includes(n))) {
+              const name = (stat.name || stat.displayName || '').toLowerCase().replace(/\s+/g, '');
+              if (names.some(n => name.includes(n.toLowerCase().replace(/\s+/g, '')))) {
                 const val = parseFloat(stat.value !== undefined ? stat.value : stat.displayValue);
-                if (!Number.isNaN(val)) return val;
+                if (!Number.isNaN(val)) {
+                  console.log(`  📊 Found ${stat.name}: ${val}`);
+                  return val;
+                }
               }
             }
             return 0;
           };
 
-          totalYds = grab(me, ['totalyards', 'total yards']);
-          passYds = grab(me, ['netpassingyards', 'passing yards']);
-          rushYds = grab(me, ['rushingyards', 'rushing yards']);
-          sacks = grab(me, ['sacks']);
+          const grabEff = (obj, names) => {
+            if (!obj || !Array.isArray(obj.statistics)) return { conv: 0, att: 0 };
+            
+            for (const stat of obj.statistics) {
+              const name = (stat.name || stat.displayName || '').toLowerCase().replace(/\s+/g, '');
+              if (names.some(n => name.includes(n.toLowerCase().replace(/\s+/g, '')))) {
+                const val = stat.displayValue || stat.value || '';
+                const parts = String(val).split(/[-/]/);
+                if (parts.length === 2) {
+                  const conv = parseInt(parts[0]) || 0;
+                  const att = parseInt(parts[1]) || 0;
+                  console.log(`  📊 Found ${stat.name}: ${conv}/${att}`);
+                  return { conv, att };
+                }
+              }
+            }
+            return { conv: 0, att: 0 };
+          };
+
+          // Offensive stats
+          totalYds = grab(me, ['totalyards', 'totaloffensiveyards']);
+          passYds = grab(me, ['netpassingyards', 'passingyards']);
+          rushYds = grab(me, ['rushingyards']);
           
-          oppTotalYds = grab(oppTeam, ['totalyards', 'total yards']);
-          turnoversForced = grab(oppTeam, ['turnovers']);
+          // OPPONENT down conversions (defensive stats)
+          const oppThird = grabEff(oppTeam, ['thirddowneff', '3rddowneff']);
+          oppThirdConv = oppThird.conv;
+          oppThirdAtt = oppThird.att;
+          
+          const oppFourth = grabEff(oppTeam, ['fourthdowneff', '4thdowneff']);
+          oppFourthConv = oppFourth.conv;
+          oppFourthAtt = oppFourth.att;
         }
-      } catch {}
+      } catch (e) {
+        console.warn('⚠️ Error extracting stats:', e);
+      }
 
       if (!totalYds && (passYds || rushYds)) totalYds = passYds + rushYds;
       
@@ -846,15 +861,17 @@
         oppPts: theirPts, 
         totalYds, 
         passYds, 
-        rushYds, 
-        oppTotalYds, 
-        sacks, 
-        turnoversForced 
+        rushYds,
+        oppThirdConv,
+        oppThirdAtt,
+        oppFourthConv,
+        oppFourthAtt
       };
     }
 
     // ============ HISTORY ============
     async loadHistory() {
+      console.log('📜 Loading history...');
       const container = this.dom.seasonRecords;
       if (!container) return;
       container.innerHTML = '';
@@ -868,7 +885,7 @@
         if (events && events.length) rec = await this.computeSeasonRecordFromEvents(y, events);
         
         const overall = rec && (rec.w + rec.l + rec.t) > 0 ? `Overall: ${rec.w}-${rec.l}${rec.t ? `-${rec.t}` : ''}` : 'Overall: —';
-        const conf = rec ? `Conference: ${rec.cw}-${rec.cl}${rec.ct ? `-${rec.ct}` : ''}` : 'Conference: 0-0';
+        const conf = rec && (rec.cw + rec.cl + rec.ct) > 0 ? `Conference: ${rec.cw}-${rec.cl}${rec.ct ? `-${rec.ct}` : ''}` : 'Conference: 0-0';
 
         const div = document.createElement('div');
         div.className = 'season-record';
@@ -880,6 +897,7 @@
         
         if (this.isMobile) await new Promise(r => setTimeout(r, 50));
       }
+      console.log('✅ History loaded');
     }
 
     // ============ ROSTER ============
