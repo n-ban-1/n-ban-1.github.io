@@ -630,3 +630,59 @@ body {
 @media (max-width: 768px) {
   .roster-hometown-hdr { display: none; }
 }
+
+/* ============================================================
+   DEFENSIVE STATS — fill card height naturally (no stretch gap)
+============================================================ */
+.stats-grid { align-items: start !important; }
+
+/* ============================================================
+   GAME DETAIL — player stats tables
+============================================================ */
+.game-detail-loading {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 1rem; color: #666; font-size: 0.9rem;
+}
+.game-info-bar {
+  display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem;
+  padding: 0.6rem 0.75rem; background: #f8f9fa;
+  border-radius: 8px; font-size: 0.85rem; color: #444;
+  margin-bottom: 0.25rem;
+}
+.info-sep { color: #ccc; }
+
+.player-stat-section {
+  margin-bottom: 1rem;
+}
+.player-stat-cat {
+  font-weight: 700; font-size: 0.75rem; text-transform: uppercase;
+  letter-spacing: 0.8px; color: #990000;
+  padding: 0.35rem 0.5rem; background: #fff3f3;
+  border-left: 3px solid #990000; margin-bottom: 0;
+}
+.player-stat-table {
+  width: 100%; border-collapse: collapse; font-size: 0.82rem;
+}
+.player-stat-table thead tr { background: #f8f9fa; }
+.player-stat-table th {
+  padding: 0.3rem 0.5rem; text-align: center;
+  font-weight: 600; color: #555; font-size: 0.72rem;
+  text-transform: uppercase; letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.player-stat-table th.pst-name { text-align: left; }
+.player-stat-table td {
+  padding: 0.35rem 0.5rem; border-bottom: 1px solid #f0f0f0;
+  text-align: center; color: #333;
+}
+.player-stat-table td.pst-name { text-align: left; }
+.player-stat-table tr:hover td { background: #fff8f8; }
+.player-stat-table tr:last-child td { border-bottom: none; }
+
+.score-win  { color: #1a7c3e !important; }
+.score-loss { color: #cc0000 !important; }
+
+@media (max-width: 600px) {
+  .player-stat-table { font-size: 0.75rem; }
+  .player-stat-table th, .player-stat-table td { padding: 0.25rem 0.3rem; }
+}

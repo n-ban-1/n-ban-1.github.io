@@ -116,6 +116,9 @@
         defPpg:        document.getElementById('def-ppg'),
         oppThirdDown:  document.getElementById('opp-third-down'),
         oppFourthDown: document.getElementById('opp-fourth-down'),
+        oppYpg:        document.getElementById('opp-ypg'),
+        oppPassYpg:    document.getElementById('opp-pass-ypg'),
+        oppRushYpg:    document.getElementById('opp-rush-ypg'),
         turnoverMargin:document.getElementById('turnover-margin'),
         ourThirdDown:  document.getElementById('red-zone-pct'),
         firstDownsPg:  document.getElementById('first-downs-pg'),
@@ -335,45 +338,43 @@
        HARDCODED DEPTH CHARTS (fallback)
     ============================================================ */
     dc2026() {
-      // 2026 depth chart — key returners from 2025 + expected spring depth
-      // Update when official IU Athletics depth chart is released
+      // Source: IU Reactionary @ Hoosier Huddle depth chart, as of 2/10/2026
       return {
         offense: {
-          'X-WR':  ['Elijah Sarratt', 'Davion Chandler', 'Will Pauling'],
-          'SL-WR': ['Tyler Morris', 'LeBron Bond', 'Myles Kendrick'],
-          'Z-WR':  ['Omar Cooper Jr', 'Makai Jackson', 'Charlie Becker'],
-          'LT':    ['Evan Lawrence', 'Matt Marek', 'Connor Colby'],
-          'LG':    ['Kahlil Benson', 'Baylor Wilkin', 'Adedamola Ajani'],
-          'C':     ['Jack Greer', 'Mitch Verstegen', 'Rylan Rollins'],
-          'RG':    ['Bray Lynch', 'Austin Leibfried', 'Adedamola Ajani'],
-          'RT':    ['Austin Barrett', 'Max Williams', 'Connor Colby'],
-          'TE':    ['Riley Nowakowski', 'James Bomba', 'Andrew Barker'],
-          'QB':    ['Fernando Mendoza', 'Alberto Mendoza', 'Jacob Bell'],
-          'HB':    ['Roman Hemby', 'Kaelon Black', 'Lee Beebe', 'Khobie Martin'],
+          'WR':    ['Nick Marsh', 'Davion Chandler', 'Kortez Rupert'],
+          'Slot':  ['Tyler Morris', 'LeBron Bond', 'Lavar Keys'],
+          'WR2':   ['Charlie Becker', 'Shazz Preston', 'Myles Kendrick'],
+          'LT':    ['Carter Smith', 'Benjamin Novak'],
+          'LG':    ['Drew Evans', 'Austin Leibfried'],
+          'C':     ['Bray Lynch', 'Matt Marek'],
+          'RG':    ['Joe Brunner', 'Evan Parker'],
+          'RT':    ['Adedamola Ajani', 'Baylor Wilkin', 'Sam Simpson'],
+          'TE':    ['Brock Schott', 'Andrew Barker', 'Blake Thiry', 'Parker Elmore'],
+          'QB':    ['Josh Hoover', 'Grant Wilson', 'Tyler Cherry', 'Jacob Bell'],
+          'HB':    ['Lee Beebe', 'Turbo Richard', 'Khobie Martin', 'Sean Cuono'],
         },
         defense: {
-          'CB1':   ['Amariyun Knighten', 'Dontrae Henderson', 'Jaylen Bell'],
-          'CB2':   ['Ryland Gandy', 'Kamari Lassiter', 'Marquise Lightfoot'],
-          'STUD':  ['Kellan Wyatt', 'Daniel Ndukwe', 'Triston Abram', 'Andrew Turvy'],
-          'DT1':   ['Hosea Wheeler', 'Dominique Ratcliff', 'Kyler Garcia'],
-          'DT2':   ["J'Mari Monette", 'Jhrevious Hall', 'DJ McKinney'],
-          'DE':    ['Mario Landino', 'Andrew Depaepe', 'Tyrone Burrus Jr', 'Luca Saitta'],
-          'LB1':   ['Aiden Fisher', 'Isaiah Jones', 'Jeff Utzinger', 'Paul Nelson'],
-          'LB2':   ['Kaiden Turner', 'Quentin Clark', 'Jamari Farmer'],
-          'FS':    ['Bryson Bonds', 'Seaonta Stewart', 'Garrett Reese'],
-          'SS':    ['Amare Ferrell', 'Byron Baldwin', 'Zacharey Smith'],
-          'Rover': ['Jah Jah Boyd', 'Zacharey Smith', 'Gavin Brooks'],
+          'CB1':   ['Jamari Sharpe', 'Carson Williams', 'Jaylen Bell'],
+          'CB2':   ['Ryland Gandy', 'AJ Harris', 'Zacharey Smith'],
+          'STUD':  ['Tobi Osunsanmi', 'Daniel Ndukwe', 'Quentin Clark', 'Triston Abram'],
+          'SDE':   ['Chiddi Obiazor', 'Joshua Burnham', 'Tyrone Burrus'],
+          'DT':    ['Mario Landino', 'Joe Hjelle', 'Kyler Garcia'],
+          'NT':    ['Tyrique Tucker', 'Jhrevious Hall', 'Cameron McHaney'],
+          'MLB':   ['Isaiah Jones', 'Kaiden Turner', 'Henry Ohlinger'],
+          'WILL':  ['Rolijah Hardy', 'PJ Nelson', 'Amari Kamara'],
+          'S1':    ['Preston Zachman', 'Seaonta Stewart'],
+          'S2':    ['Amare Ferrell', 'Garrett Reese'],
+          'Rover': ['Byron Baldwin', 'Quan Sanks'],
         },
         specialists: {
-          'PK':  ['Nicolas Radicic', 'Brendan Franke'],
-          'KO':  ['Brendan Franke', 'Alejandro Quintero'],
-          'LS':  ['Sam Lindsey', 'Kollin Ellsworth'],
-          'PT':  ['Mitch McCarthy', 'Alejandro Quintero'],
-          'KR':  ['Roman Hemby', 'Myles Kendrick'],
-          'PR':  ['Tyler Morris', 'Myles Kendrick'],
+          'K':   ['Nicolas Radicic', 'Josh Placzek'],
+          'P':   ['Billy Gowers'],
+          'LS':  ['Drew Clausen', 'Sam Lindsey'],
+          'KOS': ['Paddy McAteer', 'Quinn Warren'],
         },
       };
     }
+
 
     dc2025() {
       return {
@@ -812,7 +813,7 @@
           }
 
           extra.style.display = 'block';
-          extra.innerHTML = `<div class="row"><span class="badge">Loading game details...</span></div>`;
+          extra.innerHTML = `<div class="game-detail-loading"><div class="spinner" style="border-top-color:#990000;border-color:rgba(153,0,0,0.2);"></div> Loading game details…</div>`;
 
           const sum    = await this.getSummary(year, eid);
           const rows   = [];
@@ -825,15 +826,18 @@
           const myScore  = this.getScore(hmine?.score);
           const oppScore = this.getScore(hopp?.score);
           const oppName  = SEC.esc(hopp?.team?.displayName || 'Opponent');
+          const oppAbbr  = SEC.esc(hopp?.team?.abbreviation || 'OPP');
 
+          // ── Final score ──────────────────────────────────────────────
           if (myScore !== null && oppScore !== null) {
+            const wl = myScore > oppScore ? 'W' : myScore < oppScore ? 'L' : 'T';
             rows.push(`
               <div class="final-score-box">
                 <div class="score-display">
                   <span class="team-name">Indiana</span>
-                  <span class="score">${myScore}</span>
+                  <span class="score ${wl === 'W' ? 'score-win' : wl === 'L' ? 'score-loss' : ''}">${myScore}</span>
                 </div>
-                <div class="score-divider">-</div>
+                <div class="score-divider">–</div>
                 <div class="score-display">
                   <span class="team-name">${oppName}</span>
                   <span class="score">${oppScore}</span>
@@ -841,18 +845,67 @@
               </div>`);
           }
 
-          // Game leaders
-          const leaders = this.extractGameLeaders(sum, this.TEAM_ID);
-          if (leaders && (leaders.passing || leaders.rushing || leaders.receiving)) {
-            rows.push(`<div class="section-header">GAME LEADERS</div>`);
-            rows.push(`<div class="leaders-grid">`);
-            if (leaders.passing)   rows.push(this._leaderCard('Passing',   leaders.passing));
-            if (leaders.rushing)   rows.push(this._leaderCard('Rushing',   leaders.rushing));
-            if (leaders.receiving) rows.push(this._leaderCard('Receiving', leaders.receiving));
-            rows.push(`</div>`);
+          // ── Game Info bar ────────────────────────────────────────────
+          try {
+            const bs  = hcomp?.broadcasts || [];
+            const net = bs[0]?.names?.[0];
+            const v   = sum?.gameInfo?.venue?.fullName || hcomp?.venue?.fullName;
+            const a   = sum?.gameInfo?.attendance;
+            const infoParts = [];
+            if (net) infoParts.push(`<span><strong>TV:</strong> ${SEC.esc(net)}</span>`);
+            if (v)   infoParts.push(`<span><strong>Venue:</strong> ${SEC.esc(v)}</span>`);
+            if (a)   infoParts.push(`<span><strong>Att:</strong> ${Number(a).toLocaleString()}</span>`);
+            if (infoParts.length) rows.push(`<div class="game-info-bar">${infoParts.join('<span class="info-sep">·</span>')}</div>`);
+          } catch {}
+
+          // ── Player Stats ─────────────────────────────────────────────
+          // ESPN summary.boxscore.players is an array of team entries,
+          // each with statistics[] → categories (Passing, Rushing, Receiving, etc.)
+          // each category has athletes[] with stats[]
+          try {
+            const bPlayers = sum?.boxscore?.players;
+            if (Array.isArray(bPlayers) && bPlayers.length >= 1) {
+              // Find IU's entry
+              const iuEntry = bPlayers.find(t => String(t.team?.id) === String(this.TEAM_ID));
+              if (iuEntry?.statistics?.length) {
+                rows.push(`<div class="section-header">PLAYER STATISTICS — INDIANA</div>`);
+
+                for (const cat of iuEntry.statistics) {
+                  const catName = SEC.esc(cat.name || cat.displayName || '');
+                  const athletes = cat.athletes || [];
+                  if (!athletes.length) continue;
+
+                  // Headers come from cat.labels or cat.keys
+                  const labels = (cat.labels || cat.keys || []).map(l => SEC.esc(String(l)));
+
+                  rows.push(`<div class="player-stat-section">`);
+                  rows.push(`<div class="player-stat-cat">${catName}</div>`);
+                  rows.push(`<table class="player-stat-table">`);
+                  rows.push(`<thead><tr><th class="pst-name">Player</th>${labels.map(l => `<th>${l}</th>`).join('')}</tr></thead>`);
+                  rows.push(`<tbody>`);
+
+                  // Sort passers by yards (first numeric stat), show top entries
+                  const sorted = [...athletes].sort((a, b) => {
+                    const aVal = parseFloat(a.stats?.[0]) || 0;
+                    const bVal = parseFloat(b.stats?.[0]) || 0;
+                    return bVal - aVal;
+                  });
+
+                  for (const ath of sorted.slice(0, 8)) {
+                    const name = SEC.esc(ath.athlete?.shortName || ath.athlete?.displayName || '?');
+                    const stats = (ath.stats || []).map(s => `<td>${SEC.esc(String(s ?? '—'))}</td>`).join('');
+                    rows.push(`<tr><td class="pst-name"><strong>${name}</strong></td>${stats}</tr>`);
+                  }
+
+                  rows.push(`</tbody></table></div>`);
+                }
+              }
+            }
+          } catch (e) {
+            LOG.warn('Player stats extraction failed', e.message);
           }
 
-          // Box score team stats
+          // ── Team Stats comparison ────────────────────────────────────
           try {
             const teams = sum?.boxscore?.teams;
             if (Array.isArray(teams) && teams.length === 2) {
@@ -866,9 +919,6 @@
                 const stat = obj.statistics.find(s => (s.name || '').toLowerCase() === name.toLowerCase());
                 return stat ? SEC.esc(String(stat.displayValue ?? stat.value ?? '')) : null;
               };
-
-              rows.push(`<div class="section-header">TEAM STATISTICS</div>`);
-              rows.push(`<div class="stats-comparison">`);
 
               const statsList = [
                 { label: '1st Downs',      key: 'firstDowns' },
@@ -889,37 +939,31 @@
                 { label: 'Possession',     key: 'possessionTime' },
               ];
 
-              statsList.forEach(({ label, key }) => {
+              const statRows = statsList.map(({ label, key }) => {
                 const myStat  = getStat(me, key);
                 const oppStat = getStat(oppTeam, key);
-                if (myStat || oppStat) {
-                  rows.push(`
-                    <div class="stat-comparison-row">
+                return (myStat || oppStat)
+                  ? `<div class="stat-comparison-row">
                       <div class="stat-value indiana-stat">${myStat || '-'}</div>
                       <div class="stat-label">${SEC.esc(label)}</div>
                       <div class="stat-value opp-stat">${oppStat || '-'}</div>
-                    </div>`);
-                }
-              });
-              rows.push(`</div>`);
+                    </div>`
+                  : null;
+              }).filter(Boolean);
+
+              if (statRows.length) {
+                rows.push(`<div class="section-header">TEAM STATISTICS</div>`);
+                rows.push(`<div class="stat-comparison-header">
+                  <div class="stat-value indiana-stat" style="font-weight:800;color:#990000">IU</div>
+                  <div class="stat-label"></div>
+                  <div class="stat-value opp-stat" style="font-weight:800;">${oppAbbr}</div>
+                </div>`);
+                rows.push(`<div class="stats-comparison">${statRows.join('')}</div>`);
+              }
             }
           } catch (e) {
             LOG.warn('Failed to extract boxscore stats', e.message);
           }
-
-          // Game info
-          try {
-            rows.push(`<div class="section-header">GAME INFO</div>`);
-            rows.push(`<div class="game-info-grid">`);
-            const bs  = hcomp?.broadcasts || [];
-            const net = bs[0]?.names?.[0];
-            if (net) rows.push(`<div class="info-item"><span class="info-label">TV:</span><span>${SEC.esc(net)}</span></div>`);
-            const v = sum?.gameInfo?.venue?.fullName || hcomp?.venue?.fullName;
-            const a = sum?.gameInfo?.attendance;
-            if (v) rows.push(`<div class="info-item"><span class="info-label">Venue:</span><span>${SEC.esc(v)}</span></div>`);
-            if (a) rows.push(`<div class="info-item"><span class="info-label">Attendance:</span><span>${Number(a).toLocaleString()}</span></div>`);
-            rows.push(`</div>`);
-          } catch {}
 
           extra.innerHTML = rows.length
             ? rows.join('')
@@ -1040,6 +1084,7 @@
       if (!completed || completed.length === 0) {
         LOG.warn('No completed games found for stats');
         ['ppg','ypg','passYpg','rushYpg','defPpg','oppThirdDown','oppFourthDown',
+         'oppYpg','oppPassYpg','oppRushYpg',
          'turnoverMargin','ourThirdDown','firstDownsPg'].forEach(k => {
           this.setStat(this.dom[k], '--');
         });
@@ -1050,6 +1095,7 @@
 
       let games = 0;
       let pts = 0, oppPts = 0, passYds = 0, rushYds = 0, totalYds = 0;
+      let oppTotalYds = 0, oppPassYds = 0, oppRushYds = 0;
       let oppThirdConv = 0, oppThirdAtt = 0, oppFourthConv = 0, oppFourthAtt = 0;
       let myTurnovers = 0, oppTurnovers = 0;
       let redZoneConv = 0, redZoneAtt = 0;
@@ -1078,6 +1124,9 @@
         passYds       += p.passYds;
         rushYds       += p.rushYds;
         totalYds      += p.totalYds;
+        oppTotalYds   += p.oppTotalYds || 0;
+        oppPassYds    += p.oppPassYds  || 0;
+        oppRushYds    += p.oppRushYds  || 0;
         oppThirdConv  += p.oppThirdConv;
         oppThirdAtt   += p.oppThirdAtt;
         oppFourthConv += p.oppFourthConv;
@@ -1117,9 +1166,12 @@
       this.setStat(this.dom.firstDownsPg, games ? avg(firstDowns).toFixed(1): '--');
       this.setStat(this.dom.turnoverMargin, marginStr);
       this.setStat(this.dom.ourThirdDown, pct(our3Conv, our3Att));
-      this.setStat(this.dom.defPpg,       games ? avg(oppPts).toFixed(1)   : '--');
-      this.setStat(this.dom.oppThirdDown, pct(oppThirdConv, oppThirdAtt));
-      this.setStat(this.dom.oppFourthDown,pct(oppFourthConv, oppFourthAtt));
+      this.setStat(this.dom.defPpg,        games ? avg(oppPts).toFixed(1)       : '--');
+      this.setStat(this.dom.oppYpg,        games ? avg(oppTotalYds).toFixed(1)  : '--');
+      this.setStat(this.dom.oppPassYpg,    games ? avg(oppPassYds).toFixed(1)   : '--');
+      this.setStat(this.dom.oppRushYpg,    games ? avg(oppRushYds).toFixed(1)   : '--');
+      this.setStat(this.dom.oppThirdDown,  pct(oppThirdConv, oppThirdAtt));
+      this.setStat(this.dom.oppFourthDown, pct(oppFourthConv, oppFourthAtt));
 
       LOG.load('Team stats loaded successfully');
     }
@@ -1234,6 +1286,11 @@
           myTurnovers  = myInt  + myFum;
           oppTurnovers = oppInt + oppFum;
 
+          // Opponent yardage — for defensive stats card
+          const oppTotalYds = grab(oppTeam, 'totalyards', 'totaloffensiveyards');
+          const oppPassYds  = grab(oppTeam, 'netpassingyards', 'passingyards');
+          const oppRushYds  = grab(oppTeam, 'rushingyards');
+
           // Our 3rd down efficiency (IU offense) — ESPN always provides this
           const our3 = grabEff(me, 'thirddowneff', '3rddowneff');
           our3Conv = our3.conv;
@@ -1257,6 +1314,7 @@
       return {
         pts: myPts, oppPts: theirPts,
         totalYds, passYds, rushYds,
+        oppTotalYds, oppPassYds, oppRushYds,
         oppThirdConv, oppThirdAtt, oppFourthConv, oppFourthAtt,
         myTurnovers, oppTurnovers,
         redZoneConv, redZoneAtt,
@@ -1485,6 +1543,9 @@
           <div class="achievement-item"><i class="fas fa-star achievement-icon" aria-hidden="true"></i><div>
             <div class="achievement-title">2024 Season</div>
             <div class="achievement-years">11-1 regular season — best in program history</div></div></div>
+          <div class="achievement-item"><i class="fas fa-map-marker-alt achievement-icon" aria-hidden="true"></i><div>
+            <div class="achievement-title">Memorial Stadium</div>
+            <div class="achievement-years">Opened 1925 &bull; Capacity 52,626 &bull; Bloomington, IN</div></div></div>
         </div>`;
       grid.appendChild(achCard);
 
@@ -1685,7 +1746,7 @@
       // For 2026, try Google Sheets live first (requires sheet shared as "Anyone can view")
       if (this.currentRosterYear === 2026) {
         players = await this._fetchGSheetRoster();
-        source  = players ? '2026 — Live from Google Sheets' : '';
+        source  = players ? '2026 — Live from Google Sheets (iuhoosiers.com roster)' : '';
       }
 
       // Fall back to hardcoded data
@@ -1828,69 +1889,101 @@
             SP = 'Specialists';
 
       const r2026 = [
-        R( '8','Fernando Mendoza',   'QB',QB,`6'3"`,'225 lbs','Sr', 'Miami, FL'),
-        R('14','Alberto Mendoza',    'QB',QB,`6'2"`,'210 lbs','So', 'Miami, FL'),
-        R( '6','Grant Wilson',       'QB',QB,`6'1"`,'200 lbs','Jr', 'Westfield, IN'),
-        R( '1','Kaelon Black',       'RB',RB,`5'9"`,'195 lbs','Sr', 'St. Louis, MO'),
-        R('20','Roman Hemby',        'RB',RB,`5'10"`,'200 lbs','Jr', 'Brandywine, MD'),
-        R('24','Solomon Vanhorse',   'RB',RB,`5'9"`,'190 lbs','Jr', 'St. Louis, MO'),
-        R('34','Lee Beebe',          'RB',RB,`5'11"`,'205 lbs','Sr', 'Indianapolis, IN'),
-        R('22','Khobie Martin',      'RB',RB,`5'10"`,'195 lbs','So', 'Indianapolis, IN'),
-        R( '4','Elijah Sarratt',     'WR',WR,`6'1"`,'195 lbs','Sr', 'Westfield, IN'),
-        R( '5','Omar Cooper Jr',     'WR',WR,`6'1"`,'185 lbs','Jr', 'Edgewater, FL'),
-        R( '2','Tyler Morris',       'WR',WR,`5'11"`,'185 lbs','Jr', 'Westfield, IN'),
-        R('11','EJ Williams Jr',     'WR',WR,`6'4"`,'215 lbs','Jr', 'Phenix City, AL'),
-        R('18','Makai Jackson',      'WR',WR,`6'1"`,'190 lbs','So', 'Dublin, OH'),
-        R('15','Jonathan Brady',     'WR',WR,`6'0"`,'185 lbs','Sr', 'Austin, TX'),
-        R('82','LeBron Bond',        'WR',WR,`6'2"`,'200 lbs','Jr', 'Bellflower, CA'),
-        R('13','Davion Chandler',    'WR',WR,`6'1"`,'185 lbs','Sr', 'Westfield, IN'),
-        R('87','Charlie Becker',     'WR',WR,`6'3"`,'215 lbs','Sr', 'Annapolis, MD'),
-        R('17','Myles Kendrick',     'WR',WR,`5'10"`,'180 lbs','Jr', 'Indianapolis, IN'),
-        R('85','Riley Nowakowski',   'TE',TE,`6'4"`,'245 lbs','Sr', 'Mokena, IL'),
-        R('86','James Bomba',        'TE',TE,`6'5"`,'255 lbs','Jr', 'St. Louis, MO'),
-        R('89','Andrew Barker',      'TE',TE,`6'3"`,'235 lbs','So', 'Bloomington, IN'),
-        R('71','Evan Lawrence',      'OL',OL,`6'6"`,'310 lbs','Jr', 'Westfield, IN'),
-        R('74','Drew Evans',         'OL',OL,`6'5"`,'310 lbs','Sr', 'Columbus, OH'),
-        R('60','Jack Greer',         'OL',OL,`6'3"`,'300 lbs','So', 'Columbus, OH'),
-        R('77','Bray Lynch',         'OL',OL,`6'5"`,'320 lbs','Jr', 'Rockford, IL'),
-        R('78','Austin Barrett',     'OL',OL,`6'5"`,'310 lbs','Sr', 'Indianapolis, IN'),
-        R('53','Kahlil Benson',      'OL',OL,`6'4"`,'305 lbs','Jr', 'Fort Wayne, IN'),
-        R('75','Baylor Wilkin',      'OL',OL,`6'5"`,'315 lbs','So', 'Columbus, OH'),
-        R('64','Austin Leibfried',   'OL',OL,`6'4"`,'300 lbs','Sr', 'Westfield, IN'),
-        R('63','Mitch Verstegen',    'OL',OL,`6'4"`,'295 lbs','Jr', 'Kalamazoo, MI'),
-        R('91','Hosea Wheeler',      'DL',DL,`6'3"`,'290 lbs','Sr', 'Columbus, OH'),
-        R('93','Dominique Ratcliff', 'DL',DL,`6'3"`,'295 lbs','Jr', 'Cincinnati, OH'),
-        R('95','Tyrique Tucker',     'DL',DL,`6'2"`,'285 lbs','Sr', 'Louisville, KY'),
-        R('97',"J'Mari Monette",     'DL',DL,`6'2"`,'280 lbs','Jr', 'Fort Wayne, IN'),
-        R('96','Jhrevious Hall',     'DL',DL,`6'4"`,'290 lbs','So', 'Memphis, TN'),
-        R('92','Kyler Garcia',       'DL',DL,`6'2"`,'285 lbs','Jr', 'Columbus, OH'),
-        R('10','Mikail Kamara',      'STUD',ED,`6'4"`,'250 lbs','Sr', 'Westfield, IN'),
-        R('35','Kellan Wyatt',       'STUD',ED,`6'3"`,'245 lbs','Jr', 'Westfield, IN'),
-        R('99','Mario Landino',      'DE', ED,`6'3"`,'250 lbs','Jr', 'Cincinnati, OH'),
-        R('94','Andrew Depaepe',     'DE', ED,`6'4"`,'250 lbs','Jr', 'Columbus, OH'),
-        R('49','Tyrone Burrus Jr',   'DE', ED,`6'3"`,'245 lbs','Jr', 'Memphis, TN'),
-        R('30','Aiden Fisher',       'LB',LB,`6'2"`,'220 lbs','Sr', 'Wexford, PA'),
-        R('41','Isaiah Jones',       'LB',LB,`6'1"`,'215 lbs','Sr', 'Cincinnati, OH'),
-        R('43','Kaiden Turner',      'LB',LB,`6'1"`,'215 lbs','Jr', 'Columbus, OH'),
-        R('47','Quentin Clark',      'LB',LB,`6'1"`,'210 lbs','So', 'Indianapolis, IN'),
-        R('46','Jamari Farmer',      'LB',LB,`6'2"`,'215 lbs','So', 'Columbus, OH'),
-        R( '3',"D'Angelo Ponds",    'CB',DB,`6'0"`,'185 lbs','Sr', 'Powder Springs, GA'),
-        R('23','Amariyun Knighten',  'CB',DB,`6'1"`,'190 lbs','Jr', 'Columbus, OH'),
-        R('28','Ryland Gandy',       'CB',DB,`5'11"`,'180 lbs','Jr', 'Westfield, IN'),
-        R('29','Dontrae Henderson',  'CB',DB,`6'0"`,'180 lbs','Jr', 'Columbus, OH'),
-        R('37','Jaylen Bell',        'CB',DB,`5'11"`,'178 lbs','So', 'Indianapolis, IN'),
-        R( '9','Amare Ferrell',      'S', DB,`6'1"`,'200 lbs','Sr', 'Carmel, IN'),
-        R('21','Louis Moore',        'S', DB,`6'1"`,'200 lbs','Sr', 'Columbus, OH'),
-        R('22','Bryson Bonds',       'S', DB,`6'0"`,'195 lbs','Jr', 'Westfield, IN'),
-        R('25','Jah Jah Boyd',       'S', DB,`6'0"`,'195 lbs','Jr', 'St. Louis, MO'),
-        R('31','Byron Baldwin',      'S', DB,`6'1"`,'195 lbs','Jr', 'Columbus, OH'),
-        R('19','Seaonta Stewart',    'S', DB,`6'0"`,'190 lbs','So', 'Columbus, OH'),
-        R('36','Nicolas Radicic',    'K', SP,`6'0"`,'185 lbs','Sr', 'Carmel, IN'),
-        R('38','Brendan Franke',     'K/P',SP,`6'1"`,'195 lbs','Jr', 'Cincinnati, OH'),
-        R('49','Mitch McCarthy',     'P', SP,`6'3"`,'210 lbs','Sr', 'Melbourne, AUS'),
-        R('48','Mark Langston',      'LS',SP,`6'3"`,'235 lbs','Sr', 'Westfield, IN'),
-        R('39','Sam Lindsey',        'LS',SP,`6'2"`,'230 lbs','Jr', 'Columbus, OH'),
-        R('90','Alejandro Quintero', 'K', SP,`5'10"`,'175 lbs','Jr', 'Bloomington, IN'),
+        // ── Quarterbacks ──
+        R('10','Josh Hoover',         'QB',QB,`6'2"`,'194 lbs','Sr+','—'),
+        R( '2','Grant Wilson',        'QB',QB,`6'3"`,'220 lbs','Sr+','Westfield, IN'),
+        R('15','Tyler Cherry',        'QB',QB,`6'5"`,'219 lbs','Jr', 'Bloomington, IN'),
+        R('12','Jacob Bell',          'QB',QB,`6'2"`,'213 lbs','So', 'Westfield, IN'),
+        // ── Running Backs ──
+        R('29','Lee Beebe',           'RB',RB,`5'10"`,'218 lbs','Sr+','Indianapolis, IN'),
+        R( '1','Turbo Richard',       'RB',RB,`5'9"`, '204 lbs','Jr', 'St. Louis, MO'),
+        R('28','Khobie Martin',       'RB',RB,`6'0"`, '208 lbs','Jr', 'Indianapolis, IN'),
+        R('20','Sean Cuono',          'RB',RB,`5'10"`,'198 lbs','So', 'Indianapolis, IN'),
+        R('22','Jayreon Campbell',    'RB',RB,`5'8"`, '218 lbs','Fr', '—'),
+        // ── Wide Receivers ──
+        R( '8','Nick Marsh',          'WR',WR,`6'3"`, '203 lbs','Jr', '—'),
+        R( '4','Davion Chandler',     'WR',WR,`5'11"`,'180 lbs','So', 'Westfield, IN'),
+        R( '3','Kortez Rupert',       'WR',WR,`5'11"`,'156 lbs','Fr', '—'),
+        R('80','Charlie Becker',      'WR',WR,`6'4"`, '209 lbs','Jr', 'Annapolis, MD'),
+        R( '7','Shazz Preston',       'WR',WR,`6'0"`, '199 lbs','Sr+','Baton Rouge, LA'),
+        R('82','Myles Kendrick',      'WR',WR,`6'0"`, '190 lbs','So', 'Indianapolis, IN'),
+        // ── Slot WR ──
+        R( '9','Tyler Morris',        'WR',WR,`5'11"`,'183 lbs','Sr+','Westfield, IN'),
+        R( '6','LeBron Bond',         'WR',WR,`5'9"`, '173 lbs','So', 'Bellflower, CA'),
+        // ── Tight Ends ──
+        R('88','Brock Schott',        'TE',TE,`6'3"`, '243 lbs','So', '—'),
+        R('85','Andrew Barker',       'TE',TE,`6'4"`, '246 lbs','So', 'Bloomington, IN'),
+        R('84','Blake Thiry',         'TE',TE,`6'4"`, '224 lbs','So', '—'),
+        R('18','Parker Elmore',       'TE',TE,`6'4"`, '226 lbs','Fr', '—'),
+        R('39','Trevor Gibbs',        'TE',TE,`6'2"`, '232 lbs','Fr', '—'),
+        // ── Offensive Line ──
+        R('65','Carter Smith',        'OL',OL,`6'5"`, '313 lbs','Sr+','Bloomington, IN'),
+        R('62','Drew Evans',          'OL',OL,`6'4"`, '309 lbs','Sr+','Columbus, OH'),
+        R('74','Bray Lynch',          'OL',OL,`6'5"`, '312 lbs','Sr+','Rockford, IL'),
+        R('56','Joe Brunner',         'OL',OL,`6'7"`, '315 lbs','Sr+','—'),
+        R('72','Adedamola Ajani',     'OL',OL,`6'4"`, '308 lbs','Jr', '—'),
+        R('71','Benjamin Novak',      'OL',OL,`6'6"`, '320 lbs','Fr', '—'),
+        R('70','Austin Leibfried',    'OL',OL,`6'6"`, '306 lbs','Jr', 'Westfield, IN'),
+        R('77','Matt Marek',          'OL',OL,`6'3"`, '308 lbs','So', '—'),
+        R('66','Evan Parker',         'OL',OL,`6'4"`, '308 lbs','So', '—'),
+        R('61','Baylor Wilkin',       'OL',OL,`6'5"`, '290 lbs','So', 'Columbus, OH'),
+        R('75','Sam Simpson',         'OL',OL,`6'3"`, '311 lbs','Fr', '—'),
+        R('60','CJ Scifres',          'OL',OL,`6'5"`, '310 lbs','Fr', '—'),
+        // ── Safeties ──
+        R( '6','Preston Zachman',     'S', DB,`6'1"`, '204 lbs','Sr+','—'),
+        R( '1','Amare Ferrell',       'S', DB,`6'2"`, '202 lbs','Sr', 'Carmel, IN'),
+        R( '9','Seaonta Stewart',     'S', DB,`6'1"`, '203 lbs','So', 'Columbus, OH'),
+        R('33','Garrett Reese',       'S', DB,`6'2"`, '203 lbs','So', '—'),
+        R('16','Jamar Owens',         'S', DB,`6'0"`, '165 lbs','Fr', '—'),
+        // ── Rover ──
+        R( '2','Byron Baldwin',       'S', DB,`6'2"`, '194 lbs','So', 'Columbus, OH'),
+        R('13','Quan Sanks',          'S', DB,`5'10"`,'189 lbs','Jr', '—'),
+        R('25',"D'Montae Tims",       'S', DB,`6'1"`, '205 lbs','Fr', '—'),
+        // ── Cornerbacks ──
+        R('22','Jamari Sharpe',       'CB',DB,`6'1"`, '187 lbs','Sr+','Lake Charles, LA'),
+        R( '0','Carson Williams',     'CB',DB,`5'11"`,'172 lbs','Jr', '—'),
+        R( '3','Jaylen Bell',         'CB',DB,`5'10"`,'176 lbs','So', 'Indianapolis, IN'),
+        R('27','Kasmir Hicks',        'CB',DB,`5'11"`,'162 lbs','Fr', '—'),
+        R('10','Ryland Gandy',        'CB',DB,`6'0"`, '186 lbs','Sr', 'Westfield, IN'),
+        R( '4','AJ Harris',           'CB',DB,`6'1"`, '184 lbs','Sr+','—'),
+        R('19','Zacharey Smith',      'CB',DB,`5'11"`,'170 lbs','So', '—'),
+        R('24',"Ja'Dyn Williams",     'CB',DB,`6'1"`, '205 lbs','Fr', '—'),
+        // ── Linebackers ──
+        R('46','Isaiah Jones',        'LB',LB,`6'2"`, '230 lbs','Sr+','Cincinnati, OH'),
+        R( '5','Rolijah Hardy',       'LB',LB,`5'11"`,'229 lbs','Sr', 'Fort Wayne, IN'),
+        R('14','Kaiden Turner',       'LB',LB,`6'0"`, '229 lbs','Sr+','Columbus, OH'),
+        R('30','PJ Nelson',           'LB',LB,`6'1"`, '219 lbs','So', '—'),
+        R('23','Henry Ohlinger',      'LB',LB,`6'1"`, '216 lbs','Fr', '—'),
+        R('21','Jacob Savage',        'LB',LB,`6'0"`, '230 lbs','Fr', '—'),
+        R('44','Amari Kamara',        'LB',LB,`5'11"`,'202 lbs','So', 'Westfield, IN'),
+        // ── Stud / Edge ──
+        R('12','Tobi Osunsanmi',      'STUD',ED,`6'2"`,'244 lbs','Sr+','—'),
+        R('17','Daniel Ndukwe',       'STUD',ED,`6'3"`,'244 lbs','Jr', '—'),
+        R('40','Quentin Clark',       'STUD',ED,`6'1"`,'227 lbs','Jr', 'Indianapolis, IN'),
+        R('96','Triston Abram',       'STUD',ED,`6'3"`,'228 lbs','So', '—'),
+        R('42','Kevontay Hugan',      'STUD',ED,`6'1"`,'227 lbs','Fr', '—'),
+        // ── SDE / Defensive End ──
+        R( '7','Chiddi Obiazor',      'DE', DL,`6'5"`, '272 lbs','Jr', '—'),
+        R( '8','Joshua Burnham',      'DE', DL,`6'4"`, '246 lbs','Sr', '—'),
+        R('99','Tyrone Burrus',       'DE', DL,`6'4"`, '236 lbs','So', 'Memphis, TN'),
+        R('41','Keishaun Calhoun',    'DE', DL,`6'2"`, '267 lbs','So', '—'),
+        R('93','Ronelle Johnson',     'DE', DL,`6'3"`, '269 lbs','Fr', '—'),
+        // ── Defensive Tackle ──
+        R('97','Mario Landino',       'DT', DL,`6'4"`, '284 lbs','Jr', 'Cincinnati, OH'),
+        R('90','Joe Hjelle',          'DT', DL,`6'3"`, '309 lbs','Sr+','—'),
+        R('94','Kyler Garcia',        'DT', DL,`6'4"`, '291 lbs','So', 'Columbus, OH'),
+        R('92','Gabriel Hill',        'DT', DL,`6'1"`, '280 lbs','Fr', '—'),
+        R('91','Blake Smythe',        'DT', DL,`6'2"`, '281 lbs','Fr', '—'),
+        // ── Nose Tackle ──
+        R('95','Tyrique Tucker',      'NT', DL,`6'0"`, '302 lbs','Sr+','Louisville, KY'),
+        R('50','Jhrevious Hall',      'NT', DL,`6'2"`, '306 lbs','So', 'Memphis, TN'),
+        R('98','Cameron McHaney',     'NT', DL,`6'1"`, '274 lbs','Fr', '—'),
+        R('55','Rodney White',        'NT', DL,`6'1"`, '294 lbs','Fr', '—'),
+        // ── Specialists (Scholarship) ──
+        R('15','Nicolas Radicic',     'K',  SP,`5'11"`,'187 lbs','Jr', 'Carmel, IN'),
+        R('19','Billy Gowers',        'P',  SP,`6'2"`, '206 lbs','So', '—'),
+        R('49','Drew Clausen',        'LS', SP,`6'6"`, '267 lbs','Sr+','—'),
+        R('35','Paddy McAteer',       'KOS',SP,`6'2"`, '207 lbs','Sr', '—'),
       ];
 
       const r2025 = [
