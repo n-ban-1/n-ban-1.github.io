@@ -129,9 +129,9 @@ body {
 .history-content { display: flex; flex-direction: column; gap: 0.5rem; }
 
 /* History Stats */
-.history-stat { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0; }
-.history-label { font-weight: 500; color: #666; }
-.history-value { font-weight: 600; color: #990000; }
+.history-stat { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; padding: 0.5rem 0.75rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0; flex-wrap: wrap; }
+.history-label { font-weight: 500; color: #666; flex: 1 1 auto; min-width: 0; }
+.history-value { font-weight: 600; color: #990000; flex: 0 0 auto; text-align: right; white-space: nowrap; }
 
 /* Achievements */
 .achievement-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.6rem 0.75rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0; border-left: 4px solid #990000; transition: transform 0.2s; }
@@ -145,7 +145,7 @@ body {
 .season-record { display: flex; flex-direction: column; padding: 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; border-left: 4px solid #990000; transition: all 0.2s; }
 .season-record:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 .season-record strong { color: #990000; font-size: 1.1rem; margin-bottom: 0.5rem; }
-.season-record span { font-size: 0.9rem; color: #666; line-height: 1.6; }
+.season-record span { font-size: 0.85rem; color: #666; line-height: 1.5; word-break: break-word; }
 
 /* Chart Container */
 .chart-container { position: relative; height: 400px; width: 100%; }
@@ -318,6 +318,7 @@ body {
   .stats-grid { grid-template-columns: 1fr; }
   .schedule-item { flex-direction: column; gap: 1rem; text-align: center; }
   .history-grid { grid-template-columns: 1fr; }
+  .history-card { padding: 1rem; }
   .season-records-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .formation-line { flex-wrap: wrap; justify-content: center; }
   .position-group { min-width: 100px; margin-bottom: 1rem; }
@@ -697,4 +698,22 @@ body {
 .player-espn-link:hover {
   color: #990000;
   border-bottom-style: solid;
+}
+
+/* Chart mobile fallback note */
+.chart-mobile-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1rem;
+  color: #999;
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+}
+.chart-mobile-note i {
+  font-size: 1.4rem;
+  color: #ccc;
+  flex-shrink: 0;
 }

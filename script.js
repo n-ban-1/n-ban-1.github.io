@@ -1673,6 +1673,19 @@
         LOG.warn('Debug wins — chart canvas not found or no data');
         return;
       }
+
+      // Chart is not useful on small screens — replace with a text note
+      if (this.isMobile || window.innerWidth < 600) {
+        const container = canvas.closest('.chart-container') || canvas.parentElement;
+        if (container) {
+          container.innerHTML = `<div class="chart-mobile-note">
+            <i class="fas fa-chart-bar" aria-hidden="true"></i>
+            <span>Season-by-season win/loss chart available on desktop</span>
+          </div>`;
+        }
+        return;
+      }
+
       if (this.winsChart) this.winsChart.destroy();
 
       const ctx = canvas.getContext('2d');
