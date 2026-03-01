@@ -1,4 +1,3 @@
 # Indiana Hoosiers Website Specifically Football #
-## HTML JS and CSS Only ##
-# Nothing else Needed here I dont think.  #
+### Utilizes ESPN API to fetch live data ###
 ### Nathan Ban ###

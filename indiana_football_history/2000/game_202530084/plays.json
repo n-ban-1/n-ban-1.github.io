@@ -1,8 +1,0 @@
-{
-  "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/202530084/competitions/202530084/plays?source=0&lang=en&region=us",
-  "count": 0,
-  "pageIndex": 0,
-  "pageSize": 25,
-  "pageCount": 0,
-  "items": []
-}
