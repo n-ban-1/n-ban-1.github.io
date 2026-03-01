@@ -68,9 +68,9 @@ body {
 .schedule-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; color: white; }
 .schedule-controls select { padding: 0.5rem 1rem; border: none; border-radius: 8px; background: white; color: #333; font-weight: 500; }
 .schedule-list { display: grid; gap: 1rem; }
-.schedule-item { background: white; border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; }
+.schedule-item { background: white; border-radius: 12px; padding: 1.5rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; box-shadow: 0 4px 16px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; }
 .schedule-item:hover { transform: translateX(4px); }
-.game-details { display: flex; flex-direction: column; gap: 0.25rem; }
+.game-details { display: flex; flex-direction: column; gap: 0.25rem; flex: 1; min-width: 0; }
 .opponent { font-weight: 600; font-size: 1.1rem; color: #333; }
 .game-time { color: #666; font-size: 0.9rem; }
 .game-location { color: #666; font-size: 0.8rem; }
@@ -81,7 +81,7 @@ body {
 @keyframes pulse { 0%{opacity:1} 50%{opacity:0.7} 100%{opacity:1} }
 
 /* Schedule expanded details */
-.game-extra { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed #e0e0e0; font-size: 0.9rem; color: #333; }
+.game-extra { flex: 0 0 100%; width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed #e0e0e0; font-size: 0.9rem; color: #333; }
 .game-extra .row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.25rem; }
 .badge { display: inline-block; background: #eee; color: #333; border-radius: 6px; padding: 2px 6px; font-size: 0.8rem; margin-right: 6px; }
 
@@ -685,4 +685,16 @@ body {
 @media (max-width: 600px) {
   .player-stat-table { font-size: 0.75rem; }
   .player-stat-table th, .player-stat-table td { padding: 0.25rem 0.3rem; }
+}
+
+/* Player ESPN profile links in game popup */
+.player-espn-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted #990000;
+  transition: color 0.15s;
+}
+.player-espn-link:hover {
+  color: #990000;
+  border-bottom-style: solid;
 }

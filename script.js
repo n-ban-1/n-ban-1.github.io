@@ -546,7 +546,7 @@
       const FALLBACK_STORIES = [
         {
           headline: 'Curt Cignetti Entering 2026 Campaign',
-          description: 'Head coach Curt Cignetti looks to build on Indiana\'s historic 2024 season with a strong recruiting class and key returners.',
+          description: 'Head coach Curt Cignetti enters 2026 as defending national champion, looking to sustain Indiana\'s historic run with a revamped roster.',
           link: 'https://iuhoosiers.com/sports/football',
           date: '',
         },
@@ -557,8 +557,8 @@
           date: '',
         },
         {
-          headline: '2024 Hoosiers: A Historic Season',
-          description: 'Indiana finished the 2024 regular season 11-1, its best record in program history, earning a top-5 AP ranking.',
+          headline: '2025 Hoosiers: National Champions',
+          description: 'Indiana went 16-0 in the 2025 season, winning the CFP National Championship over Miami on January 19, 2026 — the first 16-0 season in major college football since 1894.',
           link: 'https://iuhoosiers.com/sports/football',
           date: '',
         },
@@ -705,7 +705,13 @@
         const opp    = comps.find(x => x !== mine);
         const my     = this.getScore(mine?.score);
         const th     = this.getScore(opp?.score);
-        const isConf = comp?.conferenceCompetition === true;
+        // Conference detection: ESPN's schedule API inconsistently populates conferenceCompetition.
+        // Use multiple fallbacks: API flag → opponent conference ID → known Big Ten member IDs.
+        const BIG_TEN_IDS = new Set([84,77,120,127,130,135,158,164,194,213,275,356,2294,2509,26,30,264,2483]);
+        const oppId = parseInt(opp?.team?.id || '0', 10);
+        const isConf = !!(comp?.conferenceCompetition)
+                    || !!(opp?.team?.conferenceId && opp.team.conferenceId === 5)
+                    || (BIG_TEN_IDS.has(oppId) && oppId !== 84);
         // Only count completed games (status type 'STATUS_FINAL' or equivalent)
         const status = comp?.status?.type?.completed === true
                     || comp?.status?.type?.name === 'STATUS_FINAL'
@@ -772,9 +778,9 @@
             <div class="opponent">${isHome ? 'vs' : '@'} ${oppRank}${oppName}</div>
             <div class="game-time">${timeStr}${tvSched ? ` &bull; TV: ${tvSched}` : ''}</div>
             <div class="game-location">${venue}</div>
-            <div class="game-extra" style="display:none;"></div>
           </div>
-          <div class="game-status ${statusClass}">${SEC.esc(statusText)}</div>`;
+          <div class="game-status ${statusClass}">${SEC.esc(statusText)}</div>
+          <div class="game-extra" style="display:none;"></div>`;
         c.appendChild(item);
       }
 
@@ -892,9 +898,14 @@
                   });
 
                   for (const ath of sorted.slice(0, 8)) {
-                    const name = SEC.esc(ath.athlete?.shortName || ath.athlete?.displayName || '?');
+                    const name    = SEC.esc(ath.athlete?.shortName || ath.athlete?.displayName || '?');
+                    const athId   = ath.athlete?.id ? String(parseInt(ath.athlete.id, 10)) : null;
+                    const espnUrl = athId ? `https://www.espn.com/college-football/player/_/id/${athId}` : null;
+                    const nameEl  = espnUrl
+                      ? `<a href="${espnUrl}" target="_blank" rel="noopener noreferrer" class="player-espn-link">${name}</a>`
+                      : name;
                     const stats = (ath.stats || []).map(s => `<td>${SEC.esc(String(s ?? '—'))}</td>`).join('');
-                    rows.push(`<tr><td class="pst-name"><strong>${name}</strong></td>${stats}</tr>`);
+                    rows.push(`<tr><td class="pst-name"><strong>${nameEl}</strong></td>${stats}</tr>`);
                   }
 
                   rows.push(`</tbody></table></div>`);
@@ -1124,9 +1135,9 @@
         passYds       += p.passYds;
         rushYds       += p.rushYds;
         totalYds      += p.totalYds;
-        oppTotalYds   += p.oppTotalYds || 0;
-        oppPassYds    += p.oppPassYds  || 0;
-        oppRushYds    += p.oppRushYds  || 0;
+        if (p.oppTotalYds) { oppTotalYds += p.oppTotalYds; }
+        if (p.oppPassYds)  { oppPassYds  += p.oppPassYds; }
+        if (p.oppRushYds)  { oppRushYds  += p.oppRushYds; }
         oppThirdConv  += p.oppThirdConv;
         oppThirdAtt   += p.oppThirdAtt;
         oppFourthConv += p.oppFourthConv;
@@ -1167,9 +1178,9 @@
       this.setStat(this.dom.turnoverMargin, marginStr);
       this.setStat(this.dom.ourThirdDown, pct(our3Conv, our3Att));
       this.setStat(this.dom.defPpg,        games ? avg(oppPts).toFixed(1)       : '--');
-      this.setStat(this.dom.oppYpg,        games ? avg(oppTotalYds).toFixed(1)  : '--');
-      this.setStat(this.dom.oppPassYpg,    games ? avg(oppPassYds).toFixed(1)   : '--');
-      this.setStat(this.dom.oppRushYpg,    games ? avg(oppRushYds).toFixed(1)   : '--');
+      this.setStat(this.dom.oppYpg,     (games && oppTotalYds) ? avg(oppTotalYds).toFixed(1) : '--');
+      this.setStat(this.dom.oppPassYpg, (games && oppPassYds)  ? avg(oppPassYds).toFixed(1)  : '--');
+      this.setStat(this.dom.oppRushYpg, (games && oppRushYds)  ? avg(oppRushYds).toFixed(1)  : '--');
       this.setStat(this.dom.oppThirdDown,  pct(oppThirdConv, oppThirdAtt));
       this.setStat(this.dom.oppFourthDown, pct(oppFourthConv, oppFourthAtt));
 
@@ -1288,9 +1299,10 @@
           oppTurnovers = oppInt + oppFum;
 
           // Opponent yardage — for defensive stats card
-          oppTotalYds = grab(oppTeam, 'totalyards', 'totaloffensiveyards');
           oppPassYds  = grab(oppTeam, 'netpassingyards', 'passingyards');
           oppRushYds  = grab(oppTeam, 'rushingyards');
+          oppTotalYds = grab(oppTeam, 'totalyards', 'totaloffensiveyards');
+          if (!oppTotalYds && (oppPassYds || oppRushYds)) oppTotalYds = oppPassYds + oppRushYds;
 
           // Our 3rd down efficiency (IU offense) — ESPN always provides this
           const our3 = grabEff(me, 'thirddowneff', '3rddowneff');
@@ -1542,8 +1554,8 @@
             <div class="achievement-title">Academic All-Big Ten</div>
             <div class="achievement-years">Multiple selections annually; consistent academic excellence</div></div></div>
           <div class="achievement-item"><i class="fas fa-star achievement-icon" aria-hidden="true"></i><div>
-            <div class="achievement-title">2024 Season</div>
-            <div class="achievement-years">11-1 regular season — best in program history</div></div></div>
+            <div class="achievement-title">2025 National Champions 🏆</div>
+            <div class="achievement-years">16-0 &bull; 2025 season &bull; CFP Natl. Championship over Miami (Jan. 19, 2026)</div></div></div>
           <div class="achievement-item"><i class="fas fa-map-marker-alt achievement-icon" aria-hidden="true"></i><div>
             <div class="achievement-title">Memorial Stadium</div>
             <div class="achievement-years">Opened 1925 &bull; Capacity 52,626 &bull; Bloomington, IN</div></div></div>

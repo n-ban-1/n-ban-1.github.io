@@ -244,10 +244,20 @@
   ============================================================ -->
   <footer class="footer">
     <div class="container">
-      <p>&copy; 2025 Indiana Hoosiers Football Stats. Data sourced from ESPN public APIs.</p>
-      <p>Built by Nathan Ban</p>
+      <p>&copy; 2026 Indiana Hoosiers Football Stats. Data sourced from ESPN public APIs.</p>
+      <p>Built by Nathan Ban &bull; <span id="footer-updated"></span></p>
     </div>
   </footer>
+  <script>
+    (function() {
+      var el = document.getElementById('footer-updated');
+      if (el) {
+        var d = new Date(document.lastModified);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        el.textContent = 'Last updated: ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+      }
+    })();
+  </script>
 
   <!-- Chart.js — loaded with crossorigin for SRI validation -->
   <script
