@@ -4,47 +4,117 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Indiana Hoosiers Football</title>
+
+  <!-- ============================================================
+       SECURITY NOTES
+       frame-ancestors, X-Frame-Options, X-Content-Type-Options, and
+       Referrer-Policy cannot be set via <meta> — they are HTTP-only.
+       These are handled via the _headers file (see root of project).
+
+       The CSP meta tag below handles what IS allowed in meta:
+       script-src, style-src, img-src, connect-src, object-src, base-uri.
+       Note: 'unsafe-inline' in style-src is required for Font Awesome
+       and Google Fonts to work without a build step.
+  ============================================================ -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src  'self'
+                https://cdn.jsdelivr.net
+                https://cdnjs.cloudflare.com
+                'unsafe-inline';
+    style-src   'self'
+                https://cdnjs.cloudflare.com
+                https://fonts.googleapis.com
+                'unsafe-inline';
+    font-src    'self'
+                https://fonts.gstatic.com
+                https://cdnjs.cloudflare.com;
+    img-src     'self'
+                https://a.espncdn.com
+                https://cdn.espn.com
+                data:;
+    connect-src 'self'
+                https://site.api.espn.com
+                https://sports.core.api.espn.com
+                https://cdn.espn.com;
+    object-src  'none';
+    base-uri    'self';
+    form-action 'self';
+  ">
+  <!-- Referrer policy IS allowed as a meta tag (different spec) -->
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <!-- ============================================================
+       FAVICON + FONTS + ICONS
+  ============================================================ -->
   <link rel="icon" type="image/png" href="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6.5.1 — correct SHA-512 hash verified by browser -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
+
+  <!-- Google Fonts (loaded last, non-render-blocking) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
   <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-</head>
 </head>
 <body>
-  <!-- Header -->
+
+  <!-- ============================================================
+       HEADER
+  ============================================================ -->
   <header class="header">
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <i class="fas fa-football-ball"></i>
+          <i class="fas fa-football-ball" aria-hidden="true"></i>
           <h1>Indiana Hoosiers Football</h1>
         </div>
-        <nav class="nav">
+        <nav class="nav" aria-label="Main navigation">
           <button class="nav-btn active" data-tab="current">Current Season</button>
           <button class="nav-btn" data-tab="schedule">Schedule</button>
-          <button class="nav-btn" data-tab="roster">Roster & Depth Chart</button>
+          <button class="nav-btn" data-tab="roster">Roster &amp; Depth Chart</button>
           <button class="nav-btn" data-tab="history">History</button>
         </nav>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
   <main class="main">
     <div class="container">
-      <!-- Loading Indicator -->
-      <div id="loading" class="loading">
+
+      <!-- Loading Spinner -->
+      <div id="loading" class="loading" role="status" aria-live="polite">
         <div class="spinner"></div>
         <p>Loading Hoosiers data...</p>
       </div>
 
-      <!-- Current Season Tab -->
-      <div id="current-tab" class="tab-content active">
+      <!-- ========================================================
+           CURRENT SEASON TAB
+      ======================================================== -->
+      <div id="current-tab" class="tab-content active" role="tabpanel">
+
         <!-- Team Header -->
         <div class="team-header">
           <div class="team-info">
-            <img id="team-logo" src="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png" alt="Indiana Logo" class="team-logo">
+            <img
+              id="team-logo"
+              src="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png"
+              alt="Indiana Hoosiers Logo"
+              class="team-logo"
+              width="80"
+              height="80">
             <div>
               <h2 id="team-name">Indiana Hoosiers</h2>
               <div id="team-record" class="team-record">TBD</div>
@@ -64,20 +134,24 @@
 
         <!-- Stats Grid -->
         <div class="stats-grid">
+
           <!-- Offensive Stats -->
           <div class="stat-card">
-            <h3><i class="fas fa-fire"></i> Offensive Stats</h3>
+            <h3><i class="fas fa-fire" aria-hidden="true"></i> Offensive Stats</h3>
             <div class="stats-content">
               <div class="stat-row"><span>Points Per Game</span><span id="ppg">--</span></div>
               <div class="stat-row"><span>Yards Per Game</span><span id="ypg">--</span></div>
               <div class="stat-row"><span>Pass Yards/Game</span><span id="pass-ypg">--</span></div>
               <div class="stat-row"><span>Rush Yards/Game</span><span id="rush-ypg">--</span></div>
+              <div class="stat-row"><span>First Downs/Game</span><span id="first-downs-pg">--</span></div>
+              <div class="stat-row"><span>Turnover Margin</span><span id="turnover-margin">--</span></div>
+              <div class="stat-row"><span>3rd Down %</span><span id="red-zone-pct">--</span></div>
             </div>
           </div>
 
           <!-- Defensive Stats -->
           <div class="stat-card">
-            <h3><i class="fas fa-shield-alt"></i> Defensive Stats</h3>
+            <h3><i class="fas fa-shield-alt" aria-hidden="true"></i> Defensive Stats</h3>
             <div class="stats-content">
               <div class="stat-row"><span>Points Allowed/Game</span><span id="def-ppg">--</span></div>
               <div class="stat-row"><span>Opp 3rd Down %</span><span id="opp-third-down">--</span></div>
@@ -87,170 +161,100 @@
 
           <!-- Recent Games -->
           <div class="stat-card">
-            <h3><i class="fas fa-calendar-alt"></i> Recent Games</h3>
+            <h3><i class="fas fa-calendar-alt" aria-hidden="true"></i> Recent Games</h3>
             <div id="recent-games" class="games-list">
-              <!-- Recent games will be populated here -->
+              <!-- Populated by JavaScript -->
             </div>
           </div>
+
+          <!-- Hoosiers News — full width at the bottom -->
+          <div class="stat-card stat-card-full">
+            <h3><i class="fas fa-newspaper" aria-hidden="true"></i> Hoosiers News</h3>
+            <div id="news-container" class="news-list news-list-wide">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <!-- Schedule Tab -->
-      <div id="schedule-tab" class="tab-content">
+      <!-- ========================================================
+           SCHEDULE TAB
+      ======================================================== -->
+      <div id="schedule-tab" class="tab-content" role="tabpanel">
         <div class="schedule-header">
           <h2>Indiana Schedule</h2>
           <div class="schedule-controls">
-            <select id="season-select" class="year-select">
-              <!-- Years will be populated by JavaScript -->
+            <select id="season-select" class="year-select" aria-label="Select season year">
+              <!-- Populated by JavaScript -->
             </select>
           </div>
         </div>
         <div id="schedule-list" class="schedule-list">
-          <!-- Schedule items will be populated here -->
+          <!-- Populated by JavaScript -->
         </div>
       </div>
 
-      <!-- Roster Tab -->
-      <div id="roster-tab" class="tab-content">
-        <!-- Depth chart will be populated here by JavaScript -->
+      <!-- ========================================================
+           ROSTER & DEPTH CHART TAB
+      ======================================================== -->
+      <div id="roster-tab" class="tab-content" role="tabpanel">
+        <!-- Populated by JavaScript — live ESPN roster fetch + static fallback -->
       </div>
 
-      <!-- History Tab -->
-      <div id="history-tab" class="tab-content">
+      <!-- ========================================================
+           HISTORY TAB — all cards built live by JavaScript
+      ======================================================== -->
+      <div id="history-tab" class="tab-content" role="tabpanel">
         <div class="history-header">
           <h2>Historical Performance</h2>
         </div>
-        
-        <div class="history-grid">
-          <!-- Program Overview -->
-          <div class="history-card">
-            <h3><i class="fas fa-info-circle"></i> Program Overview</h3>
-            <div class="history-content">
-              <div class="history-stat">
-                <span class="history-label">Established</span>
-                <span class="history-value">1887</span>
-              </div>
-              <div class="history-stat">
-                <span class="history-label">Stadium</span>
-                <span class="history-value">Memorial Stadium</span>
-              </div>
-              <div class="history-stat">
-                <span class="history-label">Capacity</span>
-                <span class="history-value">52,626</span>
-              </div>
-              <div class="history-stat">
-                <span class="history-label">Head Coach</span>
-                <span class="history-value">Curt Cignetti</span>
-              </div>
-              <div class="history-stat">
-                <span class="history-label">Conference</span>
-                <span class="history-value">Big Ten</span>
-              </div>
-              <div class="history-stat">
-                <span class="history-label">Colors</span>
-                <span class="history-value">Cream & Crimson</span>
-              </div>
-            </div>
-          </div>
 
-          <!-- Notable Achievements -->
-          <div class="history-card">
-            <h3><i class="fas fa-trophy"></i> Notable Achievements</h3>
-            <div class="history-content">
-              <div class="achievement-item">
-                <i class="fas fa-medal achievement-icon"></i>
-                <div>
-                  <div class="achievement-title">Big Ten Championships</div>
-                  <div class="achievement-years">1945, 1967 (Co-Champions)</div>
-                </div>
-              </div>
-              <div class="achievement-item">
-                <i class="fas fa-star achievement-icon"></i>
-                <div>
-                  <div class="achievement-title">Bowl Game Appearances</div>
-                  <div class="achievement-years">14 total (as of 2024)</div>
-                </div>
-              </div>
-              <div class="achievement-item">
-                <i class="fas fa-award achievement-icon"></i>
-                <div>
-                  <div class="achievement-title">All-Americans</div>
-                  <div class="achievement-years">30+ players honored</div>
-                </div>
-              </div>
-              <div class="achievement-item">
-                <i class="fas fa-graduation-cap achievement-icon"></i>
-                <div>
-                  <div class="achievement-title">Academic Excellence</div>
-                  <div class="achievement-years">Multiple Academic All-Big Ten selections</div>
-                </div>
-              </div>
-            </div>
+        <!-- Live-rendered grid — JavaScript populates every card -->
+        <div class="history-grid" id="history-grid-live">
+          <div class="history-card full-width" style="text-align:center;color:#999;padding:3rem;">
+            <div class="spinner" style="margin:0 auto 1rem;border-top-color:#990000;border-color:rgba(153,0,0,0.2);"></div>
+            <p>Loading program data from ESPN&hellip;</p>
           </div>
+        </div>
 
-          <!-- Bowl Game History -->
-          <div class="history-card">
-            <h3><i class="fas fa-football-ball"></i> Bowl Game History</h3>
-            <div class="history-content">
-              <div class="achievement-item">
-                <i class="fas fa-calendar achievement-icon"></i>
-                <div>
-                  <div class="achievement-title">Recent Bowls</div>
-                  <div class="achievement-years">Gator Bowl (2020), TaxSlayer Bowl (2016)</div>
-                </div>
-              </div>
-              <div class="achievement-item">
-                <i class="fas fa-check-circle achievement-icon"></i>
-                <div>
-                  <div class="achievement-title">Bowl Wins</div>
-                  <div class="achievement-years">6 victories in bowl games</div>
-                </div>
-              </div>
-              <div class="achievement-item">
-                <i class="fas fa-users achievement-icon"></i>
-                <div>
-                  <div class="achievement-title">Notable NFL Players</div>
-                  <div class="achievement-years">Antwaan Randle El, Tracy Porter, Tevin Coleman</div>
-                </div>
-              </div>
-              <div class="achievement-item">
-                <i class="fas fa-chart-line achievement-icon"></i>
-                <div>
-                  <div class="achievement-title">Program Milestones</div>
-                  <div class="achievement-years">900+ all-time wins since 1887</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Season Records -->
+        <!-- Season records + chart always rendered separately (computed) -->
+        <div class="history-grid" id="history-grid-records" style="margin-top:2rem;display:none;">
           <div class="history-card full-width">
-            <h3><i class="fas fa-chart-bar"></i> Season-by-Season Records (2001–Present)</h3>
-            <div id="season-records" class="season-records-grid">
-              <!-- Historical records will be populated here -->
-            </div>
+            <h3><i class="fas fa-chart-bar" aria-hidden="true"></i> Season-by-Season Records (2001&ndash;Present)</h3>
+            <div id="season-records" class="season-records-grid"></div>
           </div>
-
-          <!-- Wins Over Time Chart -->
           <div class="history-card full-width">
-            <h3><i class="fas fa-chart-line"></i> Wins Over Time (2001–Present)</h3>
+            <h3><i class="fas fa-chart-line" aria-hidden="true"></i> Wins Over Time (2001&ndash;Present)</h3>
             <div class="chart-container">
-              <canvas id="wins-chart"></canvas>
+              <canvas id="wins-chart" role="img" aria-label="Bar chart of Indiana Hoosiers wins over time"></canvas>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   </main>
 
-  <!-- Footer -->
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
   <footer class="footer">
     <div class="container">
-      <p>© 2025 Indiana Hoosiers Football Stats. Data provided by ESPN APIs.</p>
+      <p>&copy; 2025 Indiana Hoosiers Football Stats. Data sourced from ESPN public APIs.</p>
       <p>Built by Nathan Ban</p>
     </div>
   </footer>
 
-  <script src="script.js"></script>
+  <!-- Chart.js — loaded with crossorigin for SRI validation -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+    defer></script>
+
+  <!-- App bundle — loaded last, deferred -->
+  <script src="script.js" defer></script>
+
 </body>
 </html>

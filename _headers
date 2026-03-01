@@ -1,0 +1,26 @@
+/*
+  # ============================================================
+  # HTTP Security Headers for meowfert.com
+  # These CANNOT be set via <meta> tags — they must be HTTP headers.
+  # This file is read automatically by Netlify.
+  # For GitHub Pages, use a Cloudflare proxy or similar.
+  # ============================================================
+
+  # Prevent clickjacking — stops this page from being embedded in iframes
+  X-Frame-Options: DENY
+
+  # Prevent MIME-type sniffing — browser must honor declared Content-Type
+  X-Content-Type-Options: nosniff
+
+  # Restrict referrer info sent to third parties
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # CSP frame-ancestors — blocks iframe embedding (stronger than X-Frame-Options)
+  # Must be an HTTP header, not a meta tag (browser ignores it in meta)
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https://a.espncdn.com https://cdn.espn.com data:; connect-src 'self' https://site.api.espn.com https://sports.core.api.espn.com https://cdn.espn.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';
+
+  # Permissions Policy — disable browser features we don't use
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+
+  # HSTS — force HTTPS for 1 year (only enable once HTTPS is confirmed working)
+  # Strict-Transport-Security: max-age=31536000; includeSubDomains
