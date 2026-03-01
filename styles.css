@@ -123,22 +123,22 @@ body {
 /* Enhanced History Styles */
 .history-header { margin-bottom: 2rem; color: white; }
 .history-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; align-items: start; }
-.history-card { background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+.history-card { background: white; border-radius: 16px; padding: 1.25rem 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
 .history-card.full-width { grid-column: 1 / -1; }
-.history-card h3 { color: #990000; margin-bottom: 1.5rem; font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem; }
-.history-content { display: flex; flex-direction: column; gap: 1rem; }
+.history-card h3 { color: #990000; margin-bottom: 0.9rem; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+.history-content { display: flex; flex-direction: column; gap: 0.5rem; }
 
 /* History Stats */
-.history-stat { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; }
+.history-stat { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0; }
 .history-label { font-weight: 500; color: #666; }
 .history-value { font-weight: 600; color: #990000; }
 
 /* Achievements */
-.achievement-item { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.75rem; border-left: 4px solid #990000; transition: transform 0.2s; }
+.achievement-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.6rem 0.75rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0; border-left: 4px solid #990000; transition: transform 0.2s; }
 .achievement-item:hover { transform: translateX(4px); }
-.achievement-icon { color: #990000; font-size: 1.5rem; margin-top: 0.25rem; }
+.achievement-icon { color: #990000; font-size: 1.1rem; margin-top: 0.1rem; flex-shrink: 0; }
 .achievement-title { font-weight: 600; color: #333; margin-bottom: 0.25rem; }
-.achievement-years { font-size: 0.9rem; color: #666; }
+.achievement-years { font-size: 0.82rem; color: #666; }
 
 /* Season Records Grid */
 .season-records-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }

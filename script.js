@@ -1211,6 +1211,7 @@
       }
 
       let totalYds = 0, passYds = 0, rushYds = 0;
+      let oppTotalYds = 0, oppPassYds = 0, oppRushYds = 0;
       let oppThirdConv = 0, oppThirdAtt = 0, oppFourthConv = 0, oppFourthAtt = 0;
       let myTurnovers = 0, oppTurnovers = 0;
       let redZoneConv = 0, redZoneAtt = 0;
@@ -1287,9 +1288,9 @@
           oppTurnovers = oppInt + oppFum;
 
           // Opponent yardage — for defensive stats card
-          const oppTotalYds = grab(oppTeam, 'totalyards', 'totaloffensiveyards');
-          const oppPassYds  = grab(oppTeam, 'netpassingyards', 'passingyards');
-          const oppRushYds  = grab(oppTeam, 'rushingyards');
+          oppTotalYds = grab(oppTeam, 'totalyards', 'totaloffensiveyards');
+          oppPassYds  = grab(oppTeam, 'netpassingyards', 'passingyards');
+          oppRushYds  = grab(oppTeam, 'rushingyards');
 
           // Our 3rd down efficiency (IU offense) — ESPN always provides this
           const our3 = grabEff(me, 'thirddowneff', '3rddowneff');
