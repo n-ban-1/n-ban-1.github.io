@@ -6,44 +6,44 @@
   <title>Indiana Hoosiers Football</title>
 
   <!-- ============================================================
-       SECURITY NOTES
-       frame-ancestors, X-Frame-Options, X-Content-Type-Options, and
-       Referrer-Policy cannot be set via <meta> — they are HTTP-only.
-       These are handled via the _headers file (see root of project).
-
-       The CSP meta tag below handles what IS allowed in meta:
-       script-src, style-src, img-src, connect-src, object-src, base-uri.
-       Note: 'unsafe-inline' in style-src is required for Font Awesome
-       and Google Fonts to work without a build step.
+       SECURITY — GitHub Pages static site, no proxy
+       
+       What works via meta/HTML (active below):
+         CSP meta tag — blocks XSS, restricts resource origins
+         SRI integrity hashes — on Font Awesome + Chart.js
+         Referrer-Policy meta — controls referrer header
+         HTTPS — enforced by GitHub Pages for custom domains
+       
+       What GitHub Pages cannot do without a proxy:
+         HTTP response headers (HSTS, X-Frame-Options, etc.)
+         Not relevant for a public read-only site with no user data.
   ============================================================ -->
   <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self';
+    default-src 'none';
     script-src  'self'
-                https://cdn.jsdelivr.net
-                https://cdnjs.cloudflare.com
-                'unsafe-inline';
+                'sha384-mD7chyvs18CA1lC8j5WbGwGxqDpC9ZoRKY2wkfCqMMm4/SwuL/P7Y4JnSqkWD6H'
+                https://cdn.jsdelivr.net;
     style-src   'self'
+                'unsafe-inline'
                 https://cdnjs.cloudflare.com
-                https://fonts.googleapis.com
-                'unsafe-inline';
+                https://fonts.googleapis.com;
     font-src    'self'
                 https://fonts.gstatic.com
                 https://cdnjs.cloudflare.com;
     img-src     'self'
                 https://a.espncdn.com
-                https://cdn.espn.com
+                https://espn.com
                 data:;
     connect-src 'self'
                 https://site.api.espn.com
                 https://sports.core.api.espn.com
-                https://cdn.espn.com;
+                https://cdn.espn.com
+                https://docs.google.com;
     object-src  'none';
     base-uri    'self';
-    form-action 'self';
+    form-action 'none';
+    upgrade-insecure-requests;
   ">
-  <!-- Referrer policy IS allowed as a meta tag (different spec) -->
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-
   <!-- ============================================================
        FAVICON + FONTS + ICONS
   ============================================================ -->
@@ -248,20 +248,10 @@
       <p>Built by Nathan Ban &bull; <span id="footer-updated"></span></p>
     </div>
   </footer>
-  <script>
-    (function() {
-      var el = document.getElementById('footer-updated');
-      if (el) {
-        var d = new Date(document.lastModified);
-        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        el.textContent = 'Last updated: ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
-      }
-    })();
-  </script>
-
   <!-- Chart.js — loaded with crossorigin for SRI validation -->
   <script
     src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+    integrity="sha384-mD7chyvs18CA1lC8j5WbGwGxqDpC9ZoRKY2wkfCqMMm4/SwuL/P7Y4JnSqkWD6H"
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
     defer></script>

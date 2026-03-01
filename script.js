@@ -28,14 +28,10 @@
      SECURITY UTILITIES
   ============================================================ */
   const SEC = {
-    /**
-     * Escape HTML entities so API strings can never break out of
-     * a text node and execute as markup.  Use this on every value
-     * that comes from an external API before injecting via innerHTML.
-     */
-    esc(str) {
+    /** Escape HTML entities — applied to every API value injected via innerHTML. */
+    esc(str, maxLen = 500) {
       if (str == null) return '';
-      return String(str)
+      return String(str).slice(0, maxLen)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -44,32 +40,54 @@
         .replace(/\//g, '&#x2F;');
     },
 
-    /**
-     * Validate that a value is a safe finite number, return a
-     * fallback string if not.
-     */
+    /** Validate safe finite number. */
     safeNum(v, fallback = '--') {
       const n = Number(v);
       return Number.isFinite(n) ? n : fallback;
     },
 
     /**
-     * Allow only known-safe URL prefixes for image / logo src.
+     * Validate URLs used in href/src attributes.
+     * Blocks javascript:, data:, vbscript: and any non-http(s) scheme.
+     * Only allows known-safe origins for external links.
      */
-    safeImgSrc(url, fallback) {
-      if (!url || typeof url !== 'string') return fallback;
-      const allowed = ['https://a.espncdn.com/', 'https://cdn.espn.com/'];
-      if (allowed.some(prefix => url.startsWith(prefix))) return url;
-      LOG.warn('Blocked unsafe img src', url);
-      return fallback;
+    safeUrl(url, allowedPrefixes = []) {
+      if (!url || typeof url !== 'string') return null;
+      const s = url.trim().toLowerCase();
+      // Block dangerous schemes — including encoded variants
+      if (/^(javascript|data|vbscript|blob):/i.test(s)) {
+        LOG.warn('Blocked dangerous URL scheme', url);
+        return null;
+      }
+      // Must be https
+      if (!s.startsWith('https://')) return null;
+      // If a prefix allowlist is provided, enforce it
+      if (allowedPrefixes.length && !allowedPrefixes.some(p => s.startsWith(p.toLowerCase()))) {
+        LOG.warn('Blocked URL not in allowlist', url);
+        return null;
+      }
+      return url;
     },
 
-    /**
-     * Strip every character that is not alphanumeric, dash, or
-     * underscore from values used as DOM data attributes or cache keys.
-     */
+    /** Allow only ESPN CDN URLs for image src. */
+    safeImgSrc(url, fallback) {
+      return SEC.safeUrl(url, ['https://a.espncdn.com/', 'https://cdn.espn.com/']) || fallback;
+    },
+
+    /** Allow only ESPN player profile URLs for links. */
+    safePlayerUrl(url) {
+      return SEC.safeUrl(url, ['https://www.espn.com/college-football/player/']) || null;
+    },
+
+    /** Strip to alphanumeric + dash + underscore for data attributes / cache keys. */
     safeKey(v) {
       return String(v).replace(/[^a-zA-Z0-9_\-]/g, '');
+    },
+
+    /** Validate a year is within sane range — prevents crafted years in API URLs. */
+    safeYear(v, min = 1990, max = new Date().getFullYear() + 2) {
+      const n = parseInt(v, 10);
+      return (Number.isFinite(n) && n >= min && n <= max) ? n : null;
     },
   };
 
@@ -239,11 +257,21 @@
         'https://sports.core.api.espn.com',
         'https://cdn.espn.com',
       ];
-      const origin = new URL(url).origin;
+      let origin;
+      try { origin = new URL(url).origin; }
+      catch { LOG.error('Blocked malformed URL', url); return null; }
       if (!ALLOWED_ORIGINS.includes(origin)) {
         LOG.error('Blocked fetch to disallowed origin', origin);
         return null;
       }
+      // Client-side rate limit: max 120 ESPN API calls per 60-second window
+      const now = Date.now();
+      this._fetchLog = (this._fetchLog || []).filter(t => now - t < 60000);
+      if (this._fetchLog.length >= 120) {
+        LOG.warn('Rate limit reached — throttling ESPN fetch', url);
+        await new Promise(r => setTimeout(r, 1000));
+      }
+      this._fetchLog.push(now);
 
       LOG.net('Fetching', url);
       for (let attempt = 0; attempt <= retries; attempt++) {
@@ -458,6 +486,7 @@
        DATA RETRIEVAL — schedule
     ============================================================ */
     async getSeasonSchedule(year) {
+      year = SEC.safeYear(year) || this.currentYear;
       LOG.load(`Getting schedule for season ${year}`);
       const key = `sched:${year}`;
       const cached = this.mem.get(key) || this.getLS(key);
@@ -594,7 +623,8 @@
       for (const a of combined.slice(0, 6)) {
         const title = SEC.esc(a.headline || a.title || 'No headline');
         const desc  = SEC.esc(a.description || '');
-        const link  = SEC.esc(a.links?.web?.href || '#');
+        const rawLink = a.links?.web?.href || '';
+        const link  = SEC.safeUrl(rawLink, ['https://']) ? SEC.esc(rawLink) : '#';
         const date  = (!a._static && a.published) ? this.fmtDateTime(a.published) : '';
         const el = document.createElement('div');
         el.className = 'news-item';
@@ -900,7 +930,7 @@
                   for (const ath of sorted.slice(0, 8)) {
                     const name    = SEC.esc(ath.athlete?.shortName || ath.athlete?.displayName || '?');
                     const athId   = ath.athlete?.id ? String(parseInt(ath.athlete.id, 10)) : null;
-                    const espnUrl = athId ? `https://www.espn.com/college-football/player/_/id/${athId}` : null;
+                    const espnUrl = athId ? SEC.safePlayerUrl(`https://www.espn.com/college-football/player/_/id/${athId}`) : null;
                     const nameEl  = espnUrl
                       ? `<a href="${espnUrl}" target="_blank" rel="noopener noreferrer" class="player-espn-link">${name}</a>`
                       : name;
@@ -2199,6 +2229,13 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => { new IndianaFootball(); });
+  document.addEventListener('DOMContentLoaded', () => {
+    // Footer last-updated timestamp (avoids inline script in HTML)
+    const footerEl = document.getElementById('footer-updated');
+    if (footerEl) {
+      const d = new Date(document.lastModified);
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      footerEl.textContent = 'Last updated: ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    } new IndianaFootball(); });
 
 })();
