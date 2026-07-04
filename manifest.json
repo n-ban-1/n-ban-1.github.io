@@ -1,0 +1,18 @@
+{
+  "name": "Indiana Hoosiers Football",
+  "short_name": "IU Football",
+  "description": "Indiana Hoosiers football stats, scores, schedule, and history",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#990000",
+  "icons": [
+    {
+      "src": "https://a.espncdn.com/i/teamlogos/ncaa/500/84.png",
+      "sizes": "500x500",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

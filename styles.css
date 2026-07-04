@@ -858,6 +858,17 @@ body {
 
 .staff-note { font-size: 0.75rem; color: #999; margin-top: 0.6rem; font-style: italic; }
 
+/* 2025 championship retrospective */
+.champ-card { border-top: 4px solid #c9a227; }
+.champ-card h3 i { color: #c9a227; }
+.champ-banner { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; margin-bottom: 1rem; }
+.champ-stat { background: #f8f9fa; border-radius: 10px; padding: 0.8rem; display: flex; flex-direction: column; gap: 0.2rem; }
+.champ-num { font-size: 1.5rem; font-weight: 800; color: #990000; }
+.champ-stat span:last-child { font-size: 0.78rem; color: #666; }
+.champ-games { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.4rem; }
+.champ-game { display: flex; justify-content: space-between; padding: 0.35rem 0.6rem; background: #f8f9fa; border-radius: 6px; font-size: 0.82rem; }
+.champ-w { color: #1a7f37; font-weight: 700; }
+
 /* Rivalry trophies */
 .trophy-list { display: flex; flex-direction: column; gap: 1rem; }
 .trophy-row { padding: 0.8rem; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #990000; }
@@ -1061,6 +1072,7 @@ body.ticker-off #game-ticker { display: none; }
 @media (max-width: 768px) {
   .ticker-static { display: none; }
   .ticker-divider { display: none !important; }
+  .scores-chip { padding: 0.6rem 1.1rem; } /* 44px touch target */
 }
 
 /* ============================================================
@@ -1092,3 +1104,56 @@ body.ticker-off #game-ticker { display: none; }
   color: #ccc;
   flex-shrink: 0;
 }
+
+/* ============================================================
+   DARK MODE — body.dark overrides
+============================================================ */
+body.dark { background: linear-gradient(135deg, #3d0000 0%, #101012 100%); color: #d6d6d6; }
+body.dark .header { background: rgba(22,22,25,0.95); box-shadow: 0 2px 20px rgba(0,0,0,0.5); }
+body.dark .logo h1 { color: #f0f0f0; }
+body.dark .nav-btn { color: #aaa; }
+body.dark .nav-btn:hover { background: #2a2a2e; color: #ff9d9d; }
+body.dark .nav-btn.active { background: #990000; color: #fff; }
+body.dark .ticker-toggle-btn { border-color: #3a3a3f; color: #ff9d9d; }
+body.dark .ticker-toggle-btn:hover { background: #2a2a2e; }
+body.dark .ticker-toggle-btn.off { color: #777; }
+
+body.dark .team-header,
+body.dark .stat-card,
+body.dark .history-card,
+body.dark .schedule-item,
+body.dark .depth-chart-content,
+body.dark .score-card,
+body.dark .pm-dialog { background: #1c1c20; color: #d6d6d6; box-shadow: 0 8px 32px rgba(0,0,0,0.55); }
+
+body.dark .stat-card h3, body.dark .history-card h3 { color: #ff9d9d; }
+body.dark #team-name, body.dark .pm-name, body.dark .opponent, body.dark .trophy-name,
+body.dark .score-team-name, body.dark .news-title a { color: #ececec; }
+body.dark .stat-row span:first-child, body.dark .history-label, body.dark .game-time,
+body.dark .game-location, body.dark .game-date, body.dark .pm-sub, body.dark .trophy-meta,
+body.dark .news-desc, body.dark .news-date, body.dark .champ-stat span:last-child { color: #9a9a9f; }
+body.dark .stat-row span:last-child, body.dark .history-value { color: #e5e5e5; }
+
+body.dark .game-item, body.dark .news-item, body.dark .trophy-row, body.dark .champ-stat,
+body.dark .champ-game, body.dark .history-stat, body.dark .achievement-item,
+body.dark .standings-row:nth-child(even),
+body.dark .coach-row:not(.coach-row-header):nth-child(even),
+body.dark .h2h-row:not(.h2h-header):nth-child(even),
+body.dark .pm-stat-table tbody tr:nth-child(even),
+body.dark .pm-stat-row:nth-child(even) { background: #26262b; }
+body.dark .achievement-title { color: #ececec; }
+body.dark .achievement-years { color: #9a9a9f; }
+body.dark .coach-row span:last-child, body.dark .h2h-row span:last-child { color: #e5e5e5; }
+body.dark .coach-cignetti { background: #3a1414 !important; }
+body.dark .h2h-header { background: #1c1c20; border-bottom-color: #333; }
+body.dark .roster-table th, body.dark .pm-stat-table th { color: #999; border-bottom-color: #333; }
+body.dark .roster-table td, body.dark .pm-stat-table td { color: #d6d6d6; border-color: #2c2c31; }
+body.dark .roster-table tbody tr:nth-child(even) td { background: #222226; }
+body.dark .roster-row-click:hover td { background: #3a1414; }
+body.dark .roster-search { background: #26262b; border-color: #3a3a3f; color: #e5e5e5; }
+body.dark .roster-wrap, body.dark .roster-table { background: transparent; }
+body.dark .schedule-item:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.7); }
+body.dark .pm-close { color: #999; }
+body.dark .pm-career-row td { color: #ff9d9d; border-top-color: #333; }
+body.dark .season-record { background: #26262b; }
+body.dark .chart-container { background: #f5f5f5; border-radius: 8px; padding: 0.5rem; }

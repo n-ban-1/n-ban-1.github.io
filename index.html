@@ -41,6 +41,7 @@
                 https://cdn.espn.com
                 https://docs.google.com
                 https://api.open-meteo.com;
+    manifest-src 'self';
     object-src  'none';
     base-uri    'self';
     form-action 'none';
@@ -50,6 +51,8 @@
        FAVICON + FONTS + ICONS
   ============================================================ -->
   <link rel="icon" type="image/png" href="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#990000">
 
   <!-- Font Awesome 6.5.1 — correct SHA-512 hash verified by browser -->
   <link
@@ -87,6 +90,7 @@
           <button class="nav-btn" data-tab="scores">Scores</button>
           <button class="nav-btn" data-tab="history">History</button>
           <button id="ticker-toggle" class="ticker-toggle-btn" aria-pressed="true" title="Show or hide the score ticker">Ticker: On</button>
+          <button id="theme-toggle" class="ticker-toggle-btn" aria-pressed="false" title="Switch between light and dark theme">Dark</button>
         </nav>
       </div>
     </div>

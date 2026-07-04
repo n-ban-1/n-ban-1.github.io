@@ -2699,6 +2699,51 @@
       const [overview, bowls] = await Promise.all([this.fetchProgramOverview(), this.fetchBowlHistory()]);
       grid.innerHTML = '';
 
+      // Card 0: 2025 championship retrospective — headline facts verified
+      // previously (CLAUDE.md / Program History card); game-by-game results
+      // rendered live from ESPN schedule data
+      try {
+        const [reg25, post25] = await Promise.all([
+          this.getSeasonSchedule(2025),
+          this._getPostseasonSchedule(2025),
+        ]);
+        const games25 = [...(reg25 || []), ...(post25 || [])]
+          .map(ev => {
+            const comp  = ev.competitions?.[0];
+            const comps = comp?.competitors || [];
+            const mine  = comps.find(x => String(x.team?.id) === String(this.TEAM_ID));
+            const opp   = comps.find(x => x !== mine);
+            const my    = this.getScore(mine?.score);
+            const th    = this.getScore(opp?.score);
+            if (my === null || th === null || my + th === 0) return null;
+            return {
+              date: new Date(ev.date).getTime(),
+              opp:  SEC.esc(opp?.team?.shortDisplayName || opp?.team?.displayName || '?'),
+              home: mine?.homeAway === 'home',
+              my, th,
+            };
+          })
+          .filter(Boolean)
+          .sort((a, b) => a.date - b.date);
+
+        if (games25.length) {
+          const champCard = document.createElement('div');
+          champCard.className = 'history-card full-width champ-card';
+          champCard.innerHTML = `
+            <h3><i class="fas fa-crown" aria-hidden="true"></i> 2025: The Perfect Season</h3>
+            <div class="champ-banner">
+              <div class="champ-stat"><span class="champ-num">16-0</span><span>First national title in program history</span></div>
+              <div class="champ-stat"><span class="champ-num">${games25[games25.length - 1].my}-${games25[games25.length - 1].th}</span><span>CFP Final vs ${games25[games25.length - 1].opp}</span></div>
+              <div class="champ-stat"><span class="champ-num">13-10</span><span>Big Ten Championship vs Ohio State</span></div>
+              <div class="champ-stat"><span class="champ-num">QB</span><span>Fernando Mendoza &middot; Heisman Trophy</span></div>
+            </div>
+            <div class="champ-games">
+              ${games25.map(g => `<div class="champ-game"><span>${g.home ? 'vs' : '@'} ${g.opp}</span><span class="champ-w">W ${g.my}-${g.th}</span></div>`).join('')}
+            </div>`;
+          grid.appendChild(champCard);
+        }
+      } catch (e) { LOG.warn('champ card failed', e.message); }
+
       // Card 1: Program Overview (padded with known facts to fill nicely)
       const ovRows = [];
       ovRows.push(['Founded', '1887']);
@@ -2734,7 +2779,7 @@
         <div class="history-content">
           <div class="achievement-item"><i class="fas fa-star achievement-icon" aria-hidden="true"></i><div>
             <div class="achievement-title">2025 CFP National Champions</div>
-            <div class="achievement-years">16-0 &bull; First title in program history &bull; Beat Miami 31-14 (Jan. 19, 2026)</div></div></div>
+            <div class="achievement-years">16-0 &bull; First title in program history &bull; Beat Miami 27-21 (Jan. 19, 2026)</div></div></div>
           <div class="achievement-item"><i class="fas fa-medal achievement-icon" aria-hidden="true"></i><div>
             <div class="achievement-title">Big Ten Championships</div>
             <div class="achievement-years">1945 outright &bull; 1967 co-champion (w/ Purdue &amp; Minnesota) &bull; 2025 outright (beat Ohio State 13-10)</div></div></div>
@@ -2787,6 +2832,8 @@
           <div class="coach-row coach-cignetti"><span>Curt Cignetti</span><span>Head Coach</span><span></span></div>
           <div class="coach-row"><span>Mike Shanahan</span><span>Off. Coordinator &middot; WR</span><span></span></div>
           <div class="coach-row"><span>Bryant Haines</span><span>Def. Coordinator &middot; LB</span><span></span></div>
+          <div class="coach-row"><span>Tino Sunseri</span><span>Co-Off. Coordinator &middot; QB</span><span></span></div>
+          <div class="coach-row"><span>Grant Cain</span><span>Special Teams Coordinator</span><span></span></div>
         </div>
         <p class="staff-note">Both coordinators re-signed on 3-year deals after the 2025 national championship.</p>`;
       grid.appendChild(staffCard);
@@ -3990,6 +4037,29 @@
         if (['current', 'schedule', 'roster', 'scores', 'history'].includes(tab)) this.switchTab(tab);
       });
 
+      // Theme toggle — stored preference wins, otherwise follow the OS
+      const themeBtn = document.getElementById('theme-toggle');
+      let dark;
+      try {
+        const saved = localStorage.getItem('iufb:theme');
+        dark = saved ? saved === 'dark'
+             : (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      } catch { dark = false; }
+      const applyTheme = () => {
+        document.body.classList.toggle('dark', dark);
+        if (themeBtn) {
+          themeBtn.textContent = dark ? 'Light' : 'Dark';
+          themeBtn.setAttribute('aria-pressed', String(dark));
+        }
+      };
+      if (themeBtn) themeBtn.addEventListener('click', () => {
+        dark = !dark;
+        try { localStorage.setItem('iufb:theme', dark ? 'dark' : 'light'); } catch {}
+        LOG.info(`theme ${dark ? 'dark' : 'light'}`);
+        applyTheme();
+      });
+      applyTheme();
+
       document.querySelectorAll('.scores-chip').forEach((chip) => {
         chip.addEventListener('click', async () => {
           document.querySelectorAll('.scores-chip').forEach(x => x.classList.remove('active'));
@@ -4042,6 +4112,13 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    // PWA: shell caching + installability (secure contexts only)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => LOG.info('service worker registered'))
+        .catch(e => LOG.warn('service worker failed', e.message));
+    }
+
     // Footer last-updated timestamp (avoids inline script in HTML)
     const footerEl = document.getElementById('footer-updated');
     if (footerEl) {
