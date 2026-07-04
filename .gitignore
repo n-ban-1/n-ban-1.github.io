@@ -1,0 +1,7 @@
+claude.md
+secrets.env
+config.js
+venv/
+__pycache__/
+*.pyc
+*.pyo  

@@ -21,7 +21,7 @@
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'none';
     script-src  'self'
-                'sha384-mD7chyvs18CA1lC8j5WbGwGxqDpC9ZoRKY2wkfCqMMm4/SwuL/P7Y4JnSqkWD6H'
+                'sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g'
                 https://cdn.jsdelivr.net;
     style-src   'self'
                 'unsafe-inline'
@@ -36,9 +36,11 @@
                 data:;
     connect-src 'self'
                 https://site.api.espn.com
+                https://site.web.api.espn.com
                 https://sports.core.api.espn.com
                 https://cdn.espn.com
-                https://docs.google.com;
+                https://docs.google.com
+                https://api.open-meteo.com;
     object-src  'none';
     base-uri    'self';
     form-action 'none';
@@ -75,18 +77,33 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <i class="fas fa-football-ball" aria-hidden="true"></i>
+          <img src="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png" alt="IU" class="header-logo" width="36" height="36">
           <h1>Indiana Hoosiers Football</h1>
         </div>
         <nav class="nav" aria-label="Main navigation">
           <button class="nav-btn active" data-tab="current">Current Season</button>
           <button class="nav-btn" data-tab="schedule">Schedule</button>
           <button class="nav-btn" data-tab="roster">Roster &amp; Depth Chart</button>
+          <button class="nav-btn" data-tab="scores">Scores</button>
           <button class="nav-btn" data-tab="history">History</button>
+          <button id="ticker-toggle" class="ticker-toggle-btn" aria-pressed="true" title="Show or hide the score ticker">Ticker: On</button>
         </nav>
       </div>
     </div>
   </header>
+
+  <!-- ============================================================
+       GAME TICKER — sticky, always visible on scroll
+  ============================================================ -->
+  <div id="game-ticker" role="region" aria-label="Live game updates">
+    <div id="ticker-static" class="ticker-static" aria-hidden="true"></div>
+    <div class="ticker-divider" id="ticker-divider"></div>
+    <div class="ticker-scroll-wrap">
+      <div id="ticker-belt" class="ticker-belt">
+        <span class="ticker-item">Indiana Hoosiers Football &mdash; 2025 CFP National Champions</span>
+      </div>
+    </div>
+  </div>
 
   <!-- ============================================================
        MAIN CONTENT
@@ -129,6 +146,18 @@
               <span class="stat-label">Conference</span>
               <span id="conference-name" class="stat-value">Big Ten</span>
             </div>
+            <div class="stat-item">
+              <span class="stat-label">Home</span>
+              <span id="record-home" class="stat-value">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Away</span>
+              <span id="record-away" class="stat-value">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Conf</span>
+              <span id="record-conf" class="stat-value">—</span>
+            </div>
           </div>
         </div>
 
@@ -170,6 +199,30 @@
             </div>
           </div>
 
+          <!-- Big Ten Standings -->
+          <div class="stat-card stat-card-full">
+            <h3><i class="fas fa-list-ol" aria-hidden="true"></i> Big Ten Standings</h3>
+            <div id="standings-container" class="standings-list"></div>
+          </div>
+
+          <!-- AP Rankings -->
+          <div class="stat-card">
+            <h3><i class="fas fa-list-ol" aria-hidden="true"></i> AP Top 25</h3>
+            <div id="rankings-container" class="stats-content"></div>
+          </div>
+
+          <!-- Season Leaders -->
+          <div class="stat-card">
+            <h3><i class="fas fa-user-check" aria-hidden="true"></i> Season Leaders</h3>
+            <div id="stat-leaders-container" class="stats-content"></div>
+          </div>
+
+          <!-- Next Game -->
+          <div class="stat-card">
+            <h3><i class="fas fa-calendar-check" aria-hidden="true"></i> Next Game</h3>
+            <div id="next-game-container" class="stats-content"></div>
+          </div>
+
           <!-- Hoosiers News — full width at the bottom -->
           <div class="stat-card stat-card-full">
             <h3><i class="fas fa-newspaper" aria-hidden="true"></i> Hoosiers News</h3>
@@ -196,6 +249,12 @@
         <div id="schedule-list" class="schedule-list">
           <!-- Populated by JavaScript -->
         </div>
+        <div id="postseason-section" style="display:none">
+          <div class="schedule-header" style="margin-top:2rem">
+            <h2>Bowl &amp; Playoff Games</h2>
+          </div>
+          <div id="postseason-list" class="schedule-list"></div>
+        </div>
       </div>
 
       <!-- ========================================================
@@ -203,6 +262,25 @@
       ======================================================== -->
       <div id="roster-tab" class="tab-content" role="tabpanel">
         <!-- Populated by JavaScript — live ESPN roster fetch + static fallback -->
+      </div>
+
+      <!-- ========================================================
+           SCORES TAB
+      ======================================================== -->
+      <div id="scores-tab" class="tab-content" role="tabpanel">
+        <div class="scores-tab-header">
+          <h2>CFB Scoreboard</h2>
+          <p class="scores-subtitle">All college football games</p>
+          <div class="scores-filters" role="group" aria-label="Filter games">
+            <button class="scores-chip active" data-filter="all">All</button>
+            <button class="scores-chip" data-filter="b10">Big Ten</button>
+            <button class="scores-chip" data-filter="top25">Top 25</button>
+            <button class="scores-chip" data-filter="live">Live</button>
+          </div>
+        </div>
+        <div id="scoreboard-container" class="scoreboard-grid">
+          <div class="no-data"><p>Click to load scores</p></div>
+        </div>
       </div>
 
       <!-- ========================================================
@@ -224,13 +302,19 @@
         <!-- Season records + chart always rendered separately (computed) -->
         <div class="history-grid" id="history-grid-records" style="margin-top:2rem;display:none;">
           <div class="history-card full-width">
-            <h3><i class="fas fa-chart-bar" aria-hidden="true"></i> Season-by-Season Records (2001&ndash;Present)</h3>
+            <h3><i class="fas fa-chart-bar" aria-hidden="true"></i> Season-by-Season Records (1995&ndash;Present)</h3>
             <div id="season-records" class="season-records-grid"></div>
           </div>
           <div class="history-card full-width">
-            <h3><i class="fas fa-chart-line" aria-hidden="true"></i> Wins Over Time (2001&ndash;Present)</h3>
+            <h3><i class="fas fa-chart-line" aria-hidden="true"></i> Wins Over Time (1995&ndash;Present)</h3>
             <div class="chart-container">
               <canvas id="wins-chart" role="img" aria-label="Bar chart of Indiana Hoosiers wins over time"></canvas>
+            </div>
+          </div>
+          <div class="history-card full-width" id="ranking-chart-card" style="display:none">
+            <h3><i class="fas fa-chart-line" aria-hidden="true"></i> AP Poll Ranking by Week</h3>
+            <div class="chart-container">
+              <canvas id="ranking-chart" role="img" aria-label="Line chart of IU AP poll rankings by week"></canvas>
             </div>
           </div>
         </div>
@@ -251,7 +335,7 @@
   <!-- Chart.js — loaded with crossorigin for SRI validation -->
   <script
     src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
-    integrity="sha384-mD7chyvs18CA1lC8j5WbGwGxqDpC9ZoRKY2wkfCqMMm4/SwuL/P7Y4JnSqkWD6H"
+    integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g"
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
     defer></script>
